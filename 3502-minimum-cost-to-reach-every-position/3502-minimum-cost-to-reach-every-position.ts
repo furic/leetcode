@@ -1,4 +1,4 @@
-function minCosts(cost: number[]): number[] {
+const minCosts = (cost: number[]): number[] => {
     const n = cost.length;
     const answer: number[] = new Array(n).fill(0);
 

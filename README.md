@@ -11,15 +11,15 @@ A collection of LeetCode solutions implemented in TypeScript. This repository co
 Each problem is organized in its own directory following the format:
 ```
 {problem_id}-{problem_name}/
-├── README.md        # Problem description and constraints
-└── solution.ts      # TypeScript solution implementation
+├── README.md                    # Problem description and constraints
+└── {problem_id}-{problem_name}.ts  # TypeScript solution implementation
 ```
 
 ## 🚀 How to Use
 
 1. Navigate to the problem directory you're interested in
 2. Read the `README.md` for problem description and constraints
-3. Check the `solution.ts` file for the TypeScript implementation
+3. Check the `{problem_id}-{problem_name}.ts` file for the TypeScript implementation
 
 ## 📝 Current Solutions
 

@@ -10,7 +10,7 @@
  * }
  */
 
-function spiralMatrix(m: number, n: number, head: ListNode | null): number[][] {
+const spiralMatrix = (m: number, n: number, head: ListNode | null): number[][] => {
     let result = Array.from({ length: m }, () => Array(n).fill(-1));
 
     let x = -1, y = 0;

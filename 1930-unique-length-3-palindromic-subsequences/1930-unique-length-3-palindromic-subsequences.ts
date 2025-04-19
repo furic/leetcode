@@ -1,4 +1,4 @@
-function countPalindromicSubsequence(s: string): number {
+const countPalindromicSubsequence = (s: string): number => {
     let result = 0;
     for (const char of new Set(s)) {
         const first = s.indexOf(char), last = s.lastIndexOf(char);

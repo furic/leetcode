@@ -12,9 +12,9 @@
  * }
  */
 
-function rightSideView(root: TreeNode | null): number[] {
+const rightSideView = (root: TreeNode | null): number[] => {
     if (!root) return [];
-    
+
     const levelMap = new Map<number, number>();
     const stack: [TreeNode, number][] = [[root, 0]];
 

@@ -1,4 +1,4 @@
-function rankTeams(votes: string[]): string {
+const rankTeams = (votes: string[]): string => {
     const teamCount = votes[0].length;
     const teamVoteMap = new Map<string, number[]>(); // Key: team, value: array of vote count on each rank, e.g. [1st_count, 2nd_count, ...]
 

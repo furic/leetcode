@@ -39,4 +39,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ---
 
-*Created using [LeetHub](https://github.com/QasimWani/LeetHub)*
+*Solutions are automatically synced using [LeetHub 3.0](https://github.com/raphaelheinz/LeetHub-3.0), a Chrome extension that automatically pushes your LeetCode solutions to GitHub.*

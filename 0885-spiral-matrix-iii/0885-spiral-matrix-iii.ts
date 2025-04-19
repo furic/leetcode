@@ -1,4 +1,4 @@
-function spiralMatrixIII(rows: number, cols: number, rStart: number, cStart: number): number[][] {
+const spiralMatrixIII = (rows: number, cols: number, rStart: number, cStart: number): number[][] => {
     const visited = new Set<string>()
     const result = [];
 

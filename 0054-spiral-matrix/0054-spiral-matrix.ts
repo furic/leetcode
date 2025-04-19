@@ -1,4 +1,4 @@
-function spiralOrder(matrix: number[][]): number[] {
+const spiralOrder = (matrix: number[][]): number[] => {
     const result: number[] = [];
     while (matrix.length > 0 && matrix[0][0] !== undefined) {
         // Steal the first row

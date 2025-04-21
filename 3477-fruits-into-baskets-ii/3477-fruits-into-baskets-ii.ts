@@ -1,4 +1,4 @@
-function numOfUnplacedFruits(fruits: number[], baskets: number[]): number {
+const numOfUnplacedFruits = (fruits: number[], baskets: number[]): number => {
     let count = 0;
     for (const fruit of fruits) {
         for (let i = 0; i < baskets.length; i++) {
@@ -6,11 +6,11 @@ function numOfUnplacedFruits(fruits: number[], baskets: number[]): number {
                 baskets[i] = 0;
                 break;
             }
-            if (i === baskets.length - 1) { 
+            if (i === baskets.length - 1) {
                 count++;
             }
         }
-        
+
     }
     return count;
 };

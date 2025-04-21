@@ -1,4 +1,4 @@
-function numOfUnplacedFruits(fruits: number[], baskets: number[]): number {
+const numOfUnplacedFruits = (fruits: number[], baskets: number[]): number => {
     let n = baskets.length;
     let log2n = Math.log2(n) | 0; // Equivalent to Math.floor(log2(n))
 

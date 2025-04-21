@@ -1,6 +1,6 @@
-function comb(a: number, b: number, mod: number): number {
+const comb = (a: number, b: number, mod: number): number => {
     if (b > a) return 0;
-    
+
     let numer = 1n, denom = 1n; // Use BigInt to handle large numbers
     for (let i = 0n; i < BigInt(b); ++i) {
         numer = (numer * (BigInt(a) - i)) % BigInt(mod);
@@ -20,7 +20,7 @@ function comb(a: number, b: number, mod: number): number {
     return Number((numer * denom_inv) % BigInt(mod));
 }
 
-function distanceSum(m: number, n: number, k: number): number {
+const distanceSum = (m: number, n: number, k: number): number => {
     const mod = 1_000_000_007;
     let res = 0n;
     const base = BigInt(comb(m * n - 2, k - 2, mod));

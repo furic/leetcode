@@ -1,4 +1,4 @@
-function longestSpecialPath(edges: number[][], nums: number[]): number[] {
+const longestSpecialPath = (edges: number[][], nums: number[]): number[] => {
     const n = nums.length;
     const graph: [number, number][][] = Array.from({ length: n }, () => []);
 
@@ -10,13 +10,13 @@ function longestSpecialPath(edges: number[][], nums: number[]): number[] {
     let res: [number, number] = [0, 1]; // Stores max path length & min nodes
     const depth: number[] = Array(50001).fill(0); // Track depth of each number
 
-    function dfs(
+    const dfs = (
         current: number, // Current node index
         parent: number, // Parent node index
         left: number,
         curDepth: number,
         pathSum: number[],
-    ) {
+    ) => {
         const prevDepth = depth[nums[current]];
         depth[nums[current]] = curDepth;
 
@@ -34,7 +34,7 @@ function longestSpecialPath(edges: number[][], nums: number[]): number[] {
         depth[nums[current]] = prevDepth; // Restore previous depth after backtracking
     }
 
-    function minTuple(a: [number, number], b: [number, number]): [number, number] {
+    const minTuple = (a: [number, number], b: [number, number]): [number, number] => {
         return a[0] < b[0] || (a[0] === b[0] && a[1] < b[1]) ? a : b;
     }
 

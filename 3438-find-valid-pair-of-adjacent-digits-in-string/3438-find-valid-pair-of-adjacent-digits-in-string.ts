@@ -1,4 +1,4 @@
-function findValidPair(s: string): string {
+const findValidPair = (s: string): string => {
     // Count the frequency of each digit in the string
     const freq: { [key: string]: number } = {};
     for (const char of s) {

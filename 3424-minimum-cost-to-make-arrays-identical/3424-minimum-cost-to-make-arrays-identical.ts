@@ -1,4 +1,4 @@
-function minCost(arr: number[], brr: number[], k: number): number {
+const minCost = (arr: number[], brr: number[], k: number): number => {
     const n = arr.length;
     let noSplitCost = 0;
     for (let i = 0; i < n; i++) {

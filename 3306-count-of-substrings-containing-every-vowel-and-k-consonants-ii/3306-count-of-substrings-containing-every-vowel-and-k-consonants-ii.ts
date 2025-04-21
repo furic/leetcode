@@ -1,4 +1,4 @@
-function countOfSubstrings(word: string, k: number): number {
+const countOfSubstrings = (word: string, k: number): number => {
     let frequencies: number[][] = [new Array(128).fill(0), new Array(128).fill(0)];
     "aeiou".split("").forEach(v => frequencies[0][v.charCodeAt(0)] = 1);
 

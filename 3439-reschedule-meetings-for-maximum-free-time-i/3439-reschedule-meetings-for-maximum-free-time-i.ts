@@ -1,4 +1,4 @@
-function maxFreeTime(eventTime: number, k: number, startTime: number[], endTime: number[]): number {
+const maxFreeTime = (eventTime: number, k: number, startTime: number[], endTime: number[]): number => {
     const eventCount = startTime.length;
 
     // Calculate gaps between meetings
@@ -19,15 +19,6 @@ function maxFreeTime(eventTime: number, k: number, startTime: number[], endTime:
     // Sliding window to find the maximum sum of gaps after rescheduling k meetings
     // In other words, merge (k + 1) adjacent gaps and see which creates the biggest gap
     // For instance, if k=1, we merge any 2 adjacent gaps, and so on
-
-    // Attempt to re-sum every time causes Time Limit Exceeded
-    // let i = k + 1;
-    // let result = 0;
-    // do {
-    //     const freeTime = gaps.slice(i - (k + 1), i).reduce((a, b) => a + b, 0);
-    //     result = Math.max(result, freeTime);
-    //     i++;
-    // } while (i <= gaps.length);
 
     let result = 0;
     let freeTime = gaps.slice(0, k + 1).reduce((a, b) => a + b, 0);

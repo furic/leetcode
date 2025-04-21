@@ -1,4 +1,4 @@
-function assignElements(groups: number[], elements: number[]): number[] {
+const assignElements = (groups: number[], elements: number[]): number[] => {
     const maxGroupValue = Math.max(...groups);
     const MOD = 100001;  // Since groups[i] <= 10^5
     const smallestElementIndex = new Array(MOD).fill(-1);

@@ -1,4 +1,4 @@
-function countSubstrings(s: string): number {
+const countSubstrings = (s: string): number => {
     const n = s.length;
     let count = 0;
 

@@ -1,4 +1,4 @@
-function sortMatrix(grid: number[][]): number[][] {
+const sortMatrix = (grid: number[][]): number[][] => {
     const n = grid.length;
 
     // Helper to collect and sort diagonals

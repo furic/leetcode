@@ -1,4 +1,4 @@
-function mergeAlternately(word1: string, word2: string): string {
+const mergeAlternately = (word1: string, word2: string): string => {
     let result = '';
     let current = word1;
     let next = word2;

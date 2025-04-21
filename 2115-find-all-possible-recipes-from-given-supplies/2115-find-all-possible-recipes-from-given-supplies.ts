@@ -1,4 +1,4 @@
-function findAllRecipes(recipes: string[], ingredients: string[][], supplies: string[]): string[] {
+const findAllRecipes = (recipes: string[], ingredients: string[][], supplies: string[]): string[] => {
     const suppliesSet = new Set<string>(supplies);
     const cockableMap = new Map<string, number>(); // -2: cooking or cant cooked, -1: cooked, 0..n-1: index
 

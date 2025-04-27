@@ -1,14 +1,17 @@
 const pathExistenceQueries = (n: number, nums: number[], maxDiff: number, queries: number[][]): boolean[] => {
-    let breaks = new Array(nums.length);
-    let breaksPrefix: number = 0;
-    breaks[0] = breaksPrefix;
-    
-    for (let i = 1; i < nums.length; i++) {
-        if (nums[i] - nums[i - 1] > maxDiff)
-            breaksPrefix++;
-        breaks[i] = breaksPrefix;
+    // Precompute a "group id" for each node
+    const groupId = new Array(n);
+    let currentGroup = 0;
+    groupId[0] = currentGroup;
+
+    for (let i = 1; i < n; i++) {
+        // If adjacent nodes are disconnected, increment group id
+        if (nums[i] - nums[i - 1] > maxDiff) {
+            currentGroup++;
+        }
+        groupId[i] = currentGroup;
     }
-    console.log(breaks)
-    
-    return queries.map(([i, j]) => breaks[j] - breaks[i] === 0);
+
+    // For each query, nodes are connected if they have the same group id
+    return queries.map(([u, v]) => groupId[u] === groupId[v]);
 };

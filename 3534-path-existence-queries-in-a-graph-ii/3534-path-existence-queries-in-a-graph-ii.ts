@@ -37,23 +37,13 @@ const pathExistenceQueries = (
         }
     }
 
-    const results: number[] = [];
+    return queries.map(([start, end]) => {
+        if (start === end) return 0;
 
-    for (const query of sortedQueries) {
-        let [start, end] = query;
-        if (start === end) {
-            results.push(0);
-            continue;
-        }
-
-        let startPos = position[start];
-        let endPos = position[end];
+        let startPos = position[start], endPos = position[end];
         if (startPos > endPos) [startPos, endPos] = [endPos, startPos];
 
-        if (Math.abs(nums[start] - nums[end]) <= maxDiff) {
-            results.push(1);
-            continue;
-        }
+        if (Math.abs(nums[start] - nums[end]) <= maxDiff) return 1;
 
         if (reachableIndex[startPos] < endPos) {
             let current = startPos;
@@ -65,15 +55,9 @@ const pathExistenceQueries = (
                     jumpCount += 1 << k;
                 }
             }
-            if (reachableIndex[current] >= endPos) {
-                results.push(jumpCount + 1);
-            } else {
-                results.push(-1);
-            }
+            return reachableIndex[current] >= endPos ? jumpCount + 1 : -1;
         } else {
-            results.push(1);
+            return 1;
         }
-    }
-
-    return results;
+    });
 };

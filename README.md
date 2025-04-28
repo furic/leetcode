@@ -34,6 +34,11 @@ Each problem is organized in its own directory following the format:
 - [3505. Minimum Operations to Make Elements Within K Subarrays Equal](./3505-minimum-operations-to-make-elements-within-k-subarrays-equal/)
 - [3507. Minimum Pair Removal to Sort Array I](./3507-minimum-pair-removal-to-sort-array-i/)
 - [3510. Minimum Pair Removal to Sort Array II](./3510-minimum-pair-removal-to-sort-array-ii/)
+- [3527. Maximum Sum of Non-Overlapping Subarrays](./3527-maximum-sum-of-non-overlapping-subarrays/)
+- [3528. Minimum Cost to Rearrange Array](./3528-minimum-cost-to-rearrange-array/)
+- [3529. Count Subarrays with Median K](./3529-count-subarrays-with-median-k/)
+- [3530. Maximum Product of Splitted Subarrays](./3530-maximum-product-of-splitted-subarrays/)
+- [3531. Count Covered Buildings](./3531-count-covered-buildings/)
 - [3532. Minimum Steps to Make Array Increasing](./3532-minimum-steps-to-make-array-increasing/)
 - [3533. Maximum XOR of Two Numbers in an Array](./3533-maximum-xor-of-two-numbers-in-an-array/)
 - [3534. Minimum Cost to Split Array](./3534-minimum-cost-to-split-array/)
@@ -57,6 +62,7 @@ Each problem is organized in its own directory following the format:
 
 ### Two-Pointer Problems
 - [0015. 3Sum](./0015-3sum/)
+- [0049. Group Anagrams](./0049-group-anagrams/)
 - [1249. Minimum Remove to Make Valid Parentheses](./1249-minimum-remove-to-make-valid-parentheses/)
 - [3411. Maximum Subarray with Equal Products](./3411-maximum-subarray-with-equal-products/)
 - [3423. Maximum Difference Between Adjacent Elements in a Circular Array](./3423-maximum-difference-between-adjacent-elements-in-a-circular-array/)

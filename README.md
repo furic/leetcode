@@ -26,36 +26,41 @@ Each problem is organized in its own directory following the format:
 <details>
 <summary>📊 Arrays & Strings</summary>
 
+### Array Manipulation
 - [0002. Add Two Numbers](./0002-add-two-numbers/)
-- [0015. 3Sum](./0015-3sum/)
-- [0049. Group Anagrams](./0049-group-anagrams/)
-- [0054. Spiral Matrix](./0054-spiral-matrix/)
-- [0059. Spiral Matrix II](./0059-spiral-matrix-ii/)
 - [0713. Subarray Product Less Than K](./0713-subarray-product-less-than-k/)
-- [0885. Spiral Matrix III](./0885-spiral-matrix-iii/)
-- [1249. Minimum Remove to Make Valid Parentheses](./1249-minimum-remove-to-make-valid-parentheses/)
-- [1768. Merge Strings Alternately](./1768-merge-strings-alternately/)
-- [1930. Unique Length-3 Palindromic Subsequences](./1930-unique-length-3-palindromic-subsequences/)
-- [2235. Add Two Integers](./2235-add-two-integers/)
-- [2326. Spiral Matrix IV](./2326-spiral-matrix-iv/)
 - [2425. Bitwise XOR of All Pairings](./2425-bitwise-xor-of-all-pairings/)
-- [2667. Create Hello World Function](./2667-create-hello-world-function/)
-- [3306. Count of Substrings Containing Every Vowel and K Consonants II](./3306-count-of-substrings-containing-every-vowel-and-k-consonants-ii/)
-- [3411. Maximum Subarray with Equal Products](./3411-maximum-subarray-with-equal-products/)
-- [3423. Maximum Difference Between Adjacent Elements in a Circular Array](./3423-maximum-difference-between-adjacent-elements-in-a-circular-array/)
-- [3424. Minimum Cost to Make Arrays Identical](./3424-minimum-cost-to-make-arrays-identical/)
-- [3438. Find Valid Pair of Adjacent Digits in String](./3438-find-valid-pair-of-adjacent-digits-in-string/)
-- [3446. Sort Matrix by Diagonals](./3446-sort-matrix-by-diagonals/)
-- [3448. Count Substrings Divisible by Last Digit](./3448-count-substrings-divisible-by-last-digit/)
 - [3502. Minimum Cost to Reach Every Position](./3502-minimum-cost-to-reach-every-position/)
 - [3505. Minimum Operations to Make Elements Within K Subarrays Equal](./3505-minimum-operations-to-make-elements-within-k-subarrays-equal/)
 - [3507. Minimum Pair Removal to Sort Array I](./3507-minimum-pair-removal-to-sort-array-i/)
 - [3510. Minimum Pair Removal to Sort Array II](./3510-minimum-pair-removal-to-sort-array-ii/)
-- [3512. Minimum Operations to Make Array Sum Divisible by K](./3512-minimum-operations-to-make-array-sum-divisible-by-k/)
-- [3513. Number of Unique XOR Triplets I](./3513-number-of-unique-xor-triplets-i/)
-- [3514. Number of Unique XOR Triplets II](./3514-number-of-unique-xor-triplets-ii/)
+- [3532. Minimum Steps to Make Array Increasing](./3532-minimum-steps-to-make-array-increasing/)
+- [3533. Maximum XOR of Two Numbers in an Array](./3533-maximum-xor-of-two-numbers-in-an-array/)
+- [3534. Minimum Cost to Split Array](./3534-minimum-cost-to-split-array/)
+
+### String Manipulation
+- [1768. Merge Strings Alternately](./1768-merge-strings-alternately/)
+- [1930. Unique Length-3 Palindromic Subsequences](./1930-unique-length-3-palindromic-subsequences/)
+- [2667. Create Hello World Function](./2667-create-hello-world-function/)
+- [3306. Count of Substrings Containing Every Vowel and K Consonants II](./3306-count-of-substrings-containing-every-vowel-and-k-consonants-ii/)
+- [3438. Find Valid Pair of Adjacent Digits in String](./3438-find-valid-pair-of-adjacent-digits-in-string/)
+- [3448. Count Substrings Divisible by Last Digit](./3448-count-substrings-divisible-by-last-digit/)
 - [3516. Find Closest Person](./3516-find-closest-person/)
 - [3517. Smallest Palindromic Rearrangement I](./3517-smallest-palindromic-rearrangement-i/)
+
+### Matrix Problems
+- [0054. Spiral Matrix](./0054-spiral-matrix/)
+- [0059. Spiral Matrix II](./0059-spiral-matrix-ii/)
+- [0885. Spiral Matrix III](./0885-spiral-matrix-iii/)
+- [2326. Spiral Matrix IV](./2326-spiral-matrix-iv/)
+- [3446. Sort Matrix by Diagonals](./3446-sort-matrix-by-diagonals/)
+
+### Two-Pointer Problems
+- [0015. 3Sum](./0015-3sum/)
+- [1249. Minimum Remove to Make Valid Parentheses](./1249-minimum-remove-to-make-valid-parentheses/)
+- [3411. Maximum Subarray with Equal Products](./3411-maximum-subarray-with-equal-products/)
+- [3423. Maximum Difference Between Adjacent Elements in a Circular Array](./3423-maximum-difference-between-adjacent-elements-in-a-circular-array/)
+- [3424. Minimum Cost to Make Arrays Identical](./3424-minimum-cost-to-make-arrays-identical/)
 
 </details>
 

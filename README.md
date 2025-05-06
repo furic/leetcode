@@ -34,14 +34,16 @@ Each problem is organized in its own directory following the format:
 - [3505. Minimum Operations to Make Elements Within K Subarrays Equal](./3505-minimum-operations-to-make-elements-within-k-subarrays-equal/)
 - [3507. Minimum Pair Removal to Sort Array I](./3507-minimum-pair-removal-to-sort-array-i/)
 - [3510. Minimum Pair Removal to Sort Array II](./3510-minimum-pair-removal-to-sort-array-ii/)
-- [3527. Maximum Sum of Non-Overlapping Subarrays](./3527-maximum-sum-of-non-overlapping-subarrays/)
-- [3528. Minimum Cost to Rearrange Array](./3528-minimum-cost-to-rearrange-array/)
-- [3529. Count Subarrays with Median K](./3529-count-subarrays-with-median-k/)
-- [3530. Maximum Product of Splitted Subarrays](./3530-maximum-product-of-splitted-subarrays/)
+- [3527. Find the Most Common Response](./3527-find-the-most-common-response/)
+- [3528. Unit Conversion I](./3528-unit-conversion-i/)
+- [3529. Count Cells in Overlapping Horizontal and Vertical Substrings](./3529-count-cells-in-overlapping-horizontal-and-vertical-substrings/)
+- [3530. Maximum Profit from Valid Topological Order in DAG](./3530-maximum-profit-from-valid-topological-order-in-dag/)
 - [3531. Count Covered Buildings](./3531-count-covered-buildings/)
-- [3532. Minimum Steps to Make Array Increasing](./3532-minimum-steps-to-make-array-increasing/)
-- [3533. Maximum XOR of Two Numbers in an Array](./3533-maximum-xor-of-two-numbers-in-an-array/)
-- [3534. Minimum Cost to Split Array](./3534-minimum-cost-to-split-array/)
+- [3533. Concatenated Divisibility](./3533-concatenated-divisibility/)
+- [3536. Maximum Product of Two Digits](./3536-maximum-product-of-two-digits/)
+- [3537. Fill a Special Grid](./3537-fill-a-special-grid/)
+- [3538. Merge Operations for Minimum Travel Time](./3538-merge-operations-for-minimum-travel-time/)
+- [3539. Find Sum of Array Product of Magical Sequences](./3539-find-sum-of-array-product-of-magical-sequences/)
 
 ### String Manipulation
 - [1768. Merge Strings Alternately](./1768-merge-strings-alternately/)
@@ -78,6 +80,8 @@ Each problem is organized in its own directory following the format:
 - [0200. Number of Islands](./0200-number-of-islands/)
 - [0543. Diameter of Binary Tree](./0543-diameter-of-binary-tree/)
 - [3515. Shortest Path in a Weighted Tree](./3515-shortest-path-in-a-weighted-tree/)
+- [3532. Path Existence Queries in a Graph I](./3532-path-existence-queries-in-a-graph-i/)
+- [3534. Path Existence Queries in a Graph II](./3534-path-existence-queries-in-a-graph-ii/)
 
 </details>
 

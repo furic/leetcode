@@ -1,56 +1,40 @@
-interface Room {
-    x: number;
-    y: number;
-    time: number;
-}
+const DIRECTIONS = [0, 1, 0, -1, 0];
 
-const minTimeToReach = (moveTime: number[][]): number => {
-    const rows = moveTime.length;
-    const cols = moveTime[0].length;
+const minTimeToReach = (grid: number[][]): number => {
+    const rows = grid.length;
+    const cols = grid[0].length;
 
-    // Minimum time to reach each cell
-    const minArrivalTime: number[][] = Array.from({ length: rows }, () =>
-        Array(cols).fill(Infinity),
-    );
+    // Min-heap priority queue: [arrivalTime, x, y]
+    const queue = new PriorityQueue<[number, number, number]>((a, b) => a[0] - b[0]);
+    queue.push([0, 0, 0]); // Start at (0, 0) at time 0
 
-    // Track visited cells
-    const visited: boolean[][] = Array.from({ length: rows }, () =>
-        Array(cols).fill(false),
-    );
+    while (queue.size()) {
+        const [currentTime, x, y] = queue.pop();
 
-    // 4 directions: down, up, right, left
-    const directions: [number, number][] = [
-        [1, 0], [-1, 0], [0, 1], [0, -1],
-    ];
+        // Skip already visited cells
+        if (grid[y][x] === -1) continue;
 
-    // Priority queue: earlier time has higher priority
-    const queue = new PriorityQueue<Room>((a, b) => a.time - b.time);
-    queue.enqueue({ x: 0, y: 0, time: 0 });
-    minArrivalTime[0][0] = 0;
+        // Reached target cell
+        if (x === cols - 1 && y === rows - 1) {
+            return Math.max(grid[y][x], currentTime);
+        }
 
-    while (!queue.isEmpty()) {
-        const current = queue.dequeue();
-        const { x, y, time } = current;
+        // Mark cell as visited
+        grid[y][x] = -1;
 
-        if (visited[x][y]) continue;
-        visited[x][y] = true;
+        // Check all 4 adjacent cells
+        for (let i = 0; i < 4; i++) {
+            const newX = x + DIRECTIONS[i];
+            const newY = y + DIRECTIONS[i + 1];
 
-        for (const [dx, dy] of directions) {
-            const newX = x + dx;
-            const newY = y + dy;
+            if (newX < 0 || newX >= cols || newY < 0 || newY >= rows) continue;
 
-            // Check bounds
-            if (newX < 0 || newX >= rows || newY < 0 || newY >= cols) continue;
-
-            // Wait until the target room is available, then spend 1 sec to move
-            const earliestMoveTime = Math.max(time, moveTime[newX][newY]) + 1;
-
-            if (earliestMoveTime < minArrivalTime[newX][newY]) {
-                minArrivalTime[newX][newY] = earliestMoveTime;
-                queue.enqueue({ x: newX, y: newY, time: earliestMoveTime });
-            }
+            // Wait until the new cell is available, then move in 1 second
+            const nextTime = Math.max(currentTime + 1, grid[newY][newX] + 1);
+            queue.push([nextTime, newX, newY]);
         }
     }
 
-    return minArrivalTime[rows - 1][cols - 1];
-};
+    // Unreachable
+    return -1;
+}

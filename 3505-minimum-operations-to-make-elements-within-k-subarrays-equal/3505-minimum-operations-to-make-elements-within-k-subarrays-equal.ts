@@ -1,141 +1,145 @@
-const insertSorted = (arr: number[], num: number): void => {
-    let left = 0;
-    let right = arr.length;
+function minOperations(nums: number[], x: number, k: number): number {
+  const n = nums.length;
+  const windowCount = n - x + 1;
 
-    // Binary search to find the correct insert index
-    while (left < right) {
-        const mid = Math.floor((left + right) / 2);
-        if (arr[mid] < num) {
-            left = mid + 1;
-        } else {
-            right = mid;
-        }
+  class Heap {
+    private data: number[] = [];
+    private comparator: (a: number, b: number) => number;
+    private lazy = new Map<number, number>();
+    private _size = 0;
+    public sum = 0;
+
+    constructor(comparator: (a: number, b: number) => number) {
+      this.comparator = comparator;
     }
 
-    // Insert the number at the found index
-    arr.splice(left, 0, num);
-};
+    size = () => this._size;
 
-const indexOfSorted = (arr: number[], target: number): number => {
-    let left = 0;
-    let right = arr.length - 1;
-
-    // Binary search to find the target index
-    while (left <= right) {
-        const mid = Math.floor((left + right) / 2);
-        if (arr[mid] === target) {
-            return mid; // Found the target, return its index
-        } else if (arr[mid] < target) {
-            left = mid + 1; // Search in the right half
-        } else {
-            right = mid - 1; // Search in the left half
-        }
-    }
-
-    return -1; // Target not found
-};
-
-const minOperations = (nums: number[], x: number, k: number): number => {
-    const n = nums.length;
-
-    // dp[i][j] stores the minimum operations needed with 'i' partitions starting from index 'j'
-    const dp: number[][] = Array.from({ length: k + 1 }, () => Array(n + 1).fill(-1));
-
-    // minMoves[i] stores the minimum number of moves needed to make all elements in the subarray nums[i:i+x] equal
-    const minMoves: number[] = Array(n).fill(0);
-
-    /**
-     * Recursively computes the minimum operations needed to partition the array into 'k' subarrays.
-     * @param partitions Number of partitions already made
-     * @param index Current starting index for partitioning
-     * @returns Minimum number of operations
-     */
-    const solve = (partitions: number, index: number): number => {
-        if (partitions === k) return 0; // If we've used all k partitions, no more operations needed
-        if (index === n) return Infinity; // If we've reached the end of the array, return an impossible value
-        if (dp[partitions][index] !== -1) return dp[partitions][index]; // Return memoized result if available
-
-        let result = Infinity;
-
-        // Try creating a partition of size 'x' if it's within bounds
-        if (index + x - 1 < n) {
-            result = Math.min(result, minMoves[index] + solve(partitions + 1, index + x));
-        }
-
-        // Try skipping this index and checking the next one
-        result = Math.min(result, solve(partitions, index + 1));
-
-        return (dp[partitions][index] = result);
+    push = (val: number) => {
+      this.data.push(val);
+      this.sum += val;
+      this._size++;
+      this._siftUp(this.data.length - 1);
     };
 
-    // Hack: test cases with large x runs succeed but not in submission, force to pass here
-    if (x === 99999 && k === 1 && nums[0] === -1000000) return 99998000000;
-    if (x === 50000 && k === 2 && nums[0] === 1) return 1250000000;
+    pop = (): number => {
+      this._prune();
+      if (this.data.length === 0) return null;
+      const top = this.data[0];
+      this.sum -= top;
+      this._size--;
+      this._swap(0, this.data.length - 1);
+      this.data.pop();
+      this._siftDown(0);
+      return top;
+    };
 
-    // Two heaps (sets) to maintain the median of the sliding window
-    const leftHeap: number[] = []; // Stores elements <= median
-    const rightHeap: number[] = []; // Stores elements > median
+    peek = (): number => {
+      this._prune();
+      return this.data.length === 0 ? null : this.data[0];
+    };
 
-    let leftSum = 0; // Sum of elements in leftHeap
-    let rightSum = 0; // Sum of elements in rightHeap
+    remove = (val: number) => {
+      this.lazy.set(val, (this.lazy.get(val) || 0) + 1);
+      this._size--;
+      this.sum -= val;
+      this._prune();
+    };
 
-    // Iterate through the array to compute minMoves for every subarray starting at i
-    for (let i = 0; i < n; i++) {
-        // Remove the element that moves out of the sliding window of size x
-        if (i >= x) {
-            const outElement = nums[i - x];
-            const outIndexLeft = indexOfSorted(leftHeap, outElement);
+    private _prune = () => {
+      while (this.data.length > 0) {
+        const top = this.data[0];
+        if (this.lazy.has(top)) {
+          this.lazy.set(top, this.lazy.get(top)! - 1);
+          if (this.lazy.get(top) === 0) this.lazy.delete(top);
+          this._swap(0, this.data.length - 1);
+          this.data.pop();
+          this._siftDown(0);
+        } else break;
+      }
+    };
 
-            if (outIndexLeft !== -1) {
-                leftHeap.splice(outIndexLeft, 1);
-                leftSum -= outElement;
-            } else {
-                const outIndexRight = indexOfSorted(rightHeap, outElement);
-                if (outIndexRight !== -1) {
-                    rightHeap.splice(outIndexRight, 1);
-                    rightSum -= outElement;
-                }
-            }
-        }
+    private _siftUp = (i: number) => {
+      let parent = Math.floor((i - 1) / 2);
+      while (i > 0 && this.comparator(this.data[i], this.data[parent]) < 0) {
+        this._swap(i, parent);
+        i = parent;
+        parent = Math.floor((i - 1) / 2);
+      }
+    };
 
-        // Insert the new element into one of the heaps
-        if (leftHeap.length <= rightHeap.length) {
-            insertSorted(leftHeap, nums[i]);
-            leftSum += nums[i];
-        } else {
-            insertSorted(rightHeap, nums[i]);
-            rightSum += nums[i];
-        }
+    private _siftDown = (i: number) => {
+      const n = this.data.length;
+      while (true) {
+        const left = 2 * i + 1, right = 2 * i + 2;
+        let smallest = i;
+        if (left < n && this.comparator(this.data[left], this.data[smallest]) < 0) smallest = left;
+        if (right < n && this.comparator(this.data[right], this.data[smallest]) < 0) smallest = right;
+        if (smallest !== i) {
+          this._swap(i, smallest);
+          i = smallest;
+        } else break;
+      }
+    };
 
-        let leftSize = leftHeap.length;
-        let rightSize = rightHeap.length;
+    private _swap = (i: number, j: number) => {
+      [this.data[i], this.data[j]] = [this.data[j], this.data[i]];
+    };
+  }
 
-        // Maintain balance: Ensure max(leftHeap) <= min(rightHeap)
-        const maxLeft = leftHeap[leftHeap.length - 1]; // Max of left heap
-        const minRight = rightHeap[0]; // Min of right heap
+  const low = new Heap((a, b) => b - a); // Max-heap
+  const high = new Heap((a, b) => a - b); // Min-heap
 
-        if (maxLeft > minRight) {
-            // Swap elements to maintain median balance
-            leftSum = leftSum - maxLeft + minRight;
-            rightSum = rightSum - minRight + maxLeft;
+  const balanceHeaps = () => {
+    while (low.size() > high.size() + 1) high.push(low.pop());
+    while (low.size() < high.size()) low.push(high.pop());
+  };
 
-            leftHeap.pop();
-            insertSorted(leftHeap, minRight);
-            rightHeap.shift();
-            insertSorted(rightHeap, maxLeft);
-        }
+  const addNum = (num: number) => {
+    if (low.size() === 0 || num <= low.peek()) low.push(num);
+    else high.push(num);
+    balanceHeaps();
+  };
 
-        // Compute the minimum moves for the current subarray if it has at least 'x' elements
-        if (i >= x - 1) {
-            const median = leftHeap[leftHeap.length - 1]; // Max of left heap
-            minMoves[i - x + 1] = leftSize * median - leftSum + (rightSum - median * rightSize);
-        }
+  const removeNum = (num: number) => {
+    if (num <= low.peek()) low.remove(num);
+    else high.remove(num);
+    balanceHeaps();
+  };
+
+  const getWindowCost = (): number => {
+    const median = low.peek();
+    const costLeft = median * low.size() - low.sum;
+    const costRight = high.sum - median * high.size();
+    return costLeft + costRight;
+  };
+
+  const windowCosts: number[] = [];
+
+  for (let i = 0; i < x; i++) addNum(nums[i]);
+  windowCosts.push(getWindowCost());
+
+  for (let i = x; i < n; i++) {
+    removeNum(nums[i - x]);
+    addNum(nums[i]);
+    windowCosts.push(getWindowCost());
+  }
+
+  const dp: number[][] = Array.from({ length: k + 1 }, () =>
+    Array(windowCount).fill(Infinity)
+  );
+
+  for (let i = 0; i < windowCount; i++) {
+    dp[1][i] = windowCosts[i];
+  }
+
+  for (let t = 2; t <= k; t++) {
+    let best = Infinity;
+    for (let i = 0; i < windowCount; i++) {
+      if (i - x >= 0) best = Math.min(best, dp[t - 1][i - x]);
+      if (best < Infinity) dp[t][i] = best + windowCosts[i];
     }
+  }
 
-    // Special case for k is 1, we can only have one partition
-    // if (k === 1) {
-    //     return Math.min(...(minMoves.slice(0, -x + 1)));
-    // }
-
-    return solve(0, 0);
-};
+  return Math.min(...dp[k]);
+}

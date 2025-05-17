@@ -1,6 +1,6 @@
 function maxWeight(n: number, edges: number[][], k: number, t: number): number {
     let ajMat = new Map<number, [number, number][]>();
-    let map = new Map<string, number>();
+    let map = new Set();
 
     for (let edge of edges) {
         let [x, y, w] = edge;
@@ -21,7 +21,7 @@ function maxWeight(n: number, edges: number[][], k: number, t: number): number {
         let key = `${node}.${pathLength}.${totalWeight}`
 
         if (map.has(key)) return
-        map.set(key, maxResult)
+        map.add(key)
         let neighbors = ajMat.get(node) || [];
         for (let [nextNode, weight] of neighbors) {
             if (totalWeight + weight > t) continue;

@@ -1,37 +1,37 @@
-function maxWeight(n: number, edges: number[][], k: number, t: number): number {
-    let ajMat = new Map<number, [number, number][]>();
-    let map = new Set();
+const maxWeight = (n: number, edges: number[][], k: number, t: number): number => {
+    const graph: [number, number][][] = Array.from({ length: n }, () => []);
 
-    for (let edge of edges) {
-        let [x, y, w] = edge;
-        let neighbors = ajMat.get(x) || [];
-        neighbors.push([y, w]);
-        ajMat.set(x, neighbors);
+    for (const [u, v, w] of edges) {
+        graph[u].push([v, w]);
     }
-    if (k == 0) return 0
-    let maxResult = -1;
 
-    function dfs(node: number, pathLength: number, totalWeight: number) {
-        if (pathLength == k) {
-            if (totalWeight < t) {
-                maxResult = Math.max(maxResult, totalWeight);
+    const memo: Map<number, number>[][] = Array.from({ length: n }, () =>
+        Array.from({ length: k + 1 }, () => new Map())
+    );
+
+    const dfs = (node: number, remaining: number, sum: number): number => {
+        if (remaining === 0) return sum < t ? sum : -1;
+        if (memo[node][remaining].has(sum)) return memo[node][remaining].get(sum)!;
+
+        let maxSum = -1;
+
+        for (const [neighbor, weight] of graph[node]) {
+            const newSum = sum + weight;
+            if (newSum >= t) continue;
+            const result = dfs(neighbor, remaining - 1, newSum);
+            if (result !== -1) {
+                maxSum = Math.max(maxSum, result);
             }
-            return;
         }
-        let key = `${node}.${pathLength}.${totalWeight}`
 
-        if (map.has(key)) return
-        map.add(key)
-        let neighbors = ajMat.get(node) || [];
-        for (let [nextNode, weight] of neighbors) {
-            if (totalWeight + weight > t) continue;
-            dfs(nextNode, pathLength + 1, totalWeight + weight);
-        }
+        memo[node][remaining].set(sum, maxSum);
+        return maxSum;
+    };
+
+    let result = -1;
+    for (let i = 0; i < n; i++) {
+        result = Math.max(result, dfs(i, k, 0));
     }
 
-    for (let x of Array.from(ajMat.keys())) {
-        dfs(x, 0, 0);
-    }
-    console.log(maxResult)
-    return maxResult;
-}
+    return result;
+};

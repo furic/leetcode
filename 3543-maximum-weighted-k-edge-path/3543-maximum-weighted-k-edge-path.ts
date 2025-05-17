@@ -12,8 +12,8 @@ const maxWeight = (n: number, edges: number[][], k: number, t: number): number =
             if (sum < t) maxSum = Math.max(maxSum, sum);
             return;
         }
+        
         let key = `${node}-${remaining}-${sum}`
-
         if (memo.has(key)) return;
         memo.add(key);
 

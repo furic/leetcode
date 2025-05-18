@@ -1,70 +1,20 @@
-type Cell = [number, number];
-type State = [number, number, number]; // [distance, row, col]
-
-class MinHeap {
-    private heap: State[] = [];
-
-    push(state: State) {
-        this.heap.push(state);
-        this.bubbleUp(this.heap.length - 1);
-    }
-
-    pop(): State | undefined {
-        const top = this.heap[0];
-        const end = this.heap.pop();
-        if (this.heap.length && end) {
-            this.heap[0] = end;
-            this.bubbleDown(0);
-        }
-        return top;
-    }
-
-    isEmpty(): boolean {
-        return this.heap.length === 0;
-    }
-
-    private bubbleUp(index: number) {
-        while (index > 0) {
-            const parent = Math.floor((index - 1) / 2);
-            if (this.heap[parent][0] <= this.heap[index][0]) break;
-            [this.heap[parent], this.heap[index]] = [this.heap[index], this.heap[parent]];
-            index = parent;
-        }
-    }
-
-    private bubbleDown(index: number) {
-        const length = this.heap.length;
-        while (true) {
-            const left = 2 * index + 1;
-            const right = 2 * index + 2;
-            let smallest = index;
-
-            if (left < length && this.heap[left][0] < this.heap[smallest][0]) smallest = left;
-            if (right < length && this.heap[right][0] < this.heap[smallest][0]) smallest = right;
-
-            if (smallest === index) break;
-            [this.heap[index], this.heap[smallest]] = [this.heap[smallest], this.heap[index]];
-            index = smallest;
-        }
-    }
-}
-
 const minMoves = (matrix: string[]): number => {
     const numRows = matrix.length;
     const numCols = matrix[0].length;
     const grid = matrix.map(row => row.split(''));
 
-    // Directions: right, left, down, up
-    const directions: Cell[] = [[0, 1], [0, -1], [1, 0], [-1, 0]];
+    const directions: [number, number][] = [
+        [0, 1], [0, -1], [1, 0], [-1, 0]
+    ];
 
-    // Precompute all teleport portals
-    const portals: Map<string, Cell[]> = new Map();
+    // Store portal locations: 'A' -> list of [row, col]
+    const portals = new Map<string, [number, number][]>();
     for (let r = 0; r < numRows; r++) {
         for (let c = 0; c < numCols; c++) {
-            const char = grid[r][c];
-            if (char >= 'A' && char <= 'Z') {
-                if (!portals.has(char)) portals.set(char, []);
-                portals.get(char)!.push([r, c]);
+            const cell = grid[r][c];
+            if (cell >= 'A' && cell <= 'Z') {
+                if (!portals.has(cell)) portals.set(cell, []);
+                portals.get(cell)!.push([r, c]);
             }
         }
     }
@@ -74,40 +24,43 @@ const minMoves = (matrix: string[]): number => {
     );
     distance[0][0] = 0;
 
-    const usedPortal: Set<string> = new Set();
-    const heap = new MinHeap();
-    heap.push([0, 0, 0]); // [distance, row, col]
+    const usedPortal = new Set<string>();
 
-    while (!heap.isEmpty()) {
-        const [dist, x, y] = heap.pop()!;
-        if (x === numRows - 1 && y === numCols - 1) return dist;
+    const pq = new PriorityQueue<[number, number, number]>(
+        (a, b) => a[0] - b[0] // Min-heap based on distance
+    );
+    pq.enqueue([0, 0, 0]); // [distance, row, col]
 
-        if (dist > distance[x][y]) continue;
+    while (!pq.isEmpty()) {
+        const [dist, row, col] = pq.dequeue();
 
-        const cell = grid[x][y];
+        if (row === numRows - 1 && col === numCols - 1) return dist;
+        if (dist > distance[row][col]) continue;
+
+        const cell = grid[row][col];
         if (cell >= 'A' && cell <= 'Z' && !usedPortal.has(cell)) {
             usedPortal.add(cell);
-            for (const [px, py] of portals.get(cell)!) {
-                if (px === x && py === y) continue;
-                if (dist < distance[px][py]) {
-                    distance[px][py] = dist;
-                    heap.push([dist, px, py]); // Teleportation: 0 cost
+            for (const [pr, pc] of portals.get(cell)!) {
+                if (pr === row && pc === col) continue;
+                if (dist < distance[pr][pc]) {
+                    distance[pr][pc] = dist;
+                    pq.enqueue([dist, pr, pc]);
                 }
             }
         }
 
         for (const [dx, dy] of directions) {
-            const newX = x + dx;
-            const newY = y + dy;
+            const newRow = row + dx;
+            const newCol = col + dy;
             if (
-                newX >= 0 && newX < numRows &&
-                newY >= 0 && newY < numCols &&
-                grid[newX][newY] !== '#'
+                newRow >= 0 && newRow < numRows &&
+                newCol >= 0 && newCol < numCols &&
+                grid[newRow][newCol] !== '#'
             ) {
                 const newDist = dist + 1;
-                if (newDist < distance[newX][newY]) {
-                    distance[newX][newY] = newDist;
-                    heap.push([newDist, newX, newY]);
+                if (newDist < distance[newRow][newCol]) {
+                    distance[newRow][newCol] = newDist;
+                    pq.enqueue([newDist, newRow, newCol]);
                 }
             }
         }

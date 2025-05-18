@@ -27,12 +27,12 @@ const minMoves = (matrix: string[]): number => {
     const usedPortal = new Set<string>();
 
     const pq = new PriorityQueue<[number, number, number]>(
-        (a, b) => a[0] - b[0] // Min-heap based on distance
+        (a, b) => a[0] - b[0]
     );
-    pq.enqueue([0, 0, 0]); // [distance, row, col]
+    pq.push([0, 0, 0]); // [distance, row, col]
 
-    while (!pq.isEmpty()) {
-        const [dist, row, col] = pq.dequeue();
+    while (pq.size()) {
+        const [dist, row, col] = pq.pop();
 
         if (row === numRows - 1 && col === numCols - 1) return dist;
         if (dist > distance[row][col]) continue;

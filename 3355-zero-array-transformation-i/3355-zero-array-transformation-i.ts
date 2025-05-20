@@ -4,7 +4,7 @@ const isZeroArray = (nums: number[], queries: number[][]): boolean => {
 
     for (const [start, end] of queries) {
         decrementMarks[start]--;
-        if (end + 1 < n) decrementMarks[end + 1]++;
+        decrementMarks[end + 1]++;
     }
 
     let appliedDecrement = 0;

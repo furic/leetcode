@@ -26,25 +26,29 @@ Each problem is organized in its own directory following the format:
 <details>
 <summary>📋 Arrays</summary>
 
-### Array Manipulation
-- [0002. Add Two Numbers](./0002-add-two-numbers/)
+### Prefix Sum & Subarray/Product Problems
 - [0713. Subarray Product Less Than K](./0713-subarray-product-less-than-k/)
-- [2425. Bitwise XOR of All Pairings](./2425-bitwise-xor-of-all-pairings/)
 - [3502. Minimum Cost to Reach Every Position](./3502-minimum-cost-to-reach-every-position/)
-- [3505. Minimum Operations to Make Elements Within K Subarrays Equal](./3505-minimum-operations-to-make-elements-within-k-subarrays-equal/)
+- [3539. Find Sum of Array Product of Magical Sequences](./3539-find-sum-of-array-product-of-magical-sequences/)
+- [3542. Minimum Operations to Convert All Elements to Zero](./3542-minimum-operations-to-convert-all-elements-to-zero/)
+
+### Sorting, Pairing & Removal
 - [3507. Minimum Pair Removal to Sort Array I](./3507-minimum-pair-removal-to-sort-array-i/)
 - [3510. Minimum Pair Removal to Sort Array II](./3510-minimum-pair-removal-to-sort-array-ii/)
+- [3536. Maximum Product of Two Digits](./3536-maximum-product-of-two-digits/)
+- [3538. Merge Operations for Minimum Travel Time](./3538-merge-operations-for-minimum-travel-time/)
+
+### Counting, Frequency & Miscellaneous
+- [0002. Add Two Numbers](./0002-add-two-numbers/)
+- [2425. Bitwise XOR of All Pairings](./2425-bitwise-xor-of-all-pairings/)
+- [3505. Minimum Operations to Make Elements Within K Subarrays Equal](./3505-minimum-operations-to-make-elements-within-k-subarrays-equal/)
 - [3527. Find the Most Common Response](./3527-find-the-most-common-response/)
 - [3528. Unit Conversion I](./3528-unit-conversion-i/)
 - [3529. Count Cells in Overlapping Horizontal and Vertical Substrings](./3529-count-cells-in-overlapping-horizontal-and-vertical-substrings/)
 - [3530. Maximum Profit from Valid Topological Order in DAG](./3530-maximum-profit-from-valid-topological-order-in-dag/)
 - [3531. Count Covered Buildings](./3531-count-covered-buildings/)
 - [3533. Concatenated Divisibility](./3533-concatenated-divisibility/)
-- [3536. Maximum Product of Two Digits](./3536-maximum-product-of-two-digits/)
 - [3537. Fill a Special Grid](./3537-fill-a-special-grid/)
-- [3538. Merge Operations for Minimum Travel Time](./3538-merge-operations-for-minimum-travel-time/)
-- [3539. Find Sum of Array Product of Magical Sequences](./3539-find-sum-of-array-product-of-magical-sequences/)
-- [3542. Minimum Operations to Convert All Elements to Zero](./3542-minimum-operations-to-convert-all-elements-to-zero/)
 - [3543. Maximum Weighted K Edge Path](./3543-maximum-weighted-k-edge-path/)
 - [3544. Subtree Inversion Sum](./3544-subtree-inversion-sum/)
 

@@ -24,7 +24,7 @@ Each problem is organized in its own directory following the format:
 ## 📝 Current Solutions
 
 <details>
-<summary>📊 Arrays & Strings</summary>
+<summary>📋 Arrays</summary>
 
 ### Array Manipulation
 - [0002. Add Two Numbers](./0002-add-two-numbers/)
@@ -48,6 +48,26 @@ Each problem is organized in its own directory following the format:
 - [3543. Maximum Weighted K Edge Path](./3543-maximum-weighted-k-edge-path/)
 - [3544. Subtree Inversion Sum](./3544-subtree-inversion-sum/)
 
+### Matrix Problems
+- [0054. Spiral Matrix](./0054-spiral-matrix/)
+- [0059. Spiral Matrix II](./0059-spiral-matrix-ii/)
+- [0885. Spiral Matrix III](./0885-spiral-matrix-iii/)
+- [2326. Spiral Matrix IV](./2326-spiral-matrix-iv/)
+- [3446. Sort Matrix by Diagonals](./3446-sort-matrix-by-diagonals/)
+
+### Two-Pointer & Sliding Window
+- [0015. 3Sum](./0015-3sum/)
+- [0049. Group Anagrams](./0049-group-anagrams/)
+- [1249. Minimum Remove to Make Valid Parentheses](./1249-minimum-remove-to-make-valid-parentheses/)
+- [3411. Maximum Subarray with Equal Products](./3411-maximum-subarray-with-equal-products/)
+- [3423. Maximum Difference Between Adjacent Elements in a Circular Array](./3423-maximum-difference-between-adjacent-elements-in-a-circular-array/)
+- [3424. Minimum Cost to Make Arrays Identical](./3424-minimum-cost-to-make-arrays-identical/)
+
+</details>
+
+<details>
+<summary>🔤 Strings</summary>
+
 ### String Manipulation
 - [1768. Merge Strings Alternately](./1768-merge-strings-alternately/)
 - [1930. Unique Length-3 Palindromic Subsequences](./1930-unique-length-3-palindromic-subsequences/)
@@ -61,21 +81,13 @@ Each problem is organized in its own directory following the format:
 - [3550. Smallest Index with Digit Sum Equal to Index](./3550-smallest-index-with-digit-sum-equal-to-index/)
 - [3551. Minimum Swaps to Sort by Digit Sum](./3551-minimum-swaps-to-sort-by-digit-sum/)
 - [3552. Grid Teleportation Traversal](./3552-grid-teleportation-traversal/)
+- [3556. Sum of Largest Prime Substrings](./3556-sum-of-largest-prime-substrings/)
+- [3557. Find Maximum Number of Non-Intersecting Substrings](./3557-find-maximum-number-of-non-intersecting-substrings/)
 
-### Matrix Problems
-- [0054. Spiral Matrix](./0054-spiral-matrix/)
-- [0059. Spiral Matrix II](./0059-spiral-matrix-ii/)
-- [0885. Spiral Matrix III](./0885-spiral-matrix-iii/)
-- [2326. Spiral Matrix IV](./2326-spiral-matrix-iv/)
-- [3446. Sort Matrix by Diagonals](./3446-sort-matrix-by-diagonals/)
-
-### Two-Pointer Problems
-- [0015. 3Sum](./0015-3sum/)
-- [0049. Group Anagrams](./0049-group-anagrams/)
-- [1249. Minimum Remove to Make Valid Parentheses](./1249-minimum-remove-to-make-valid-parentheses/)
-- [3411. Maximum Subarray with Equal Products](./3411-maximum-subarray-with-equal-products/)
-- [3423. Maximum Difference Between Adjacent Elements in a Circular Array](./3423-maximum-difference-between-adjacent-elements-in-a-circular-array/)
-- [3424. Minimum Cost to Make Arrays Identical](./3424-minimum-cost-to-make-arrays-identical/)
+### Strings & Palindromes
+- [0767. Reorganize String](./0767-reorganize-string/)
+- [3503. Longest Palindrome After Substring Concatenation I](./3503-longest-palindrome-after-substring-concatenation-i/)
+- [3504. Longest Palindrome After Substring Concatenation II](./3504-longest-palindrome-after-substring-concatenation-ii/)
 
 </details>
 
@@ -102,15 +114,6 @@ Each problem is organized in its own directory following the format:
 - [2115. Find All Possible Recipes from Given Supplies](./2115-find-all-possible-recipes-from-given-supplies/)
 - [3477. Fruits into Baskets II](./3477-fruits-into-baskets-ii/)
 - [3479. Fruits into Baskets III](./3479-fruits-into-baskets-iii/)
-
-</details>
-
-<details>
-<summary>📝 Strings & Palindromes</summary>
-
-- [0767. Reorganize String](./0767-reorganize-string/)
-- [3503. Longest Palindrome After Substring Concatenation I](./3503-longest-palindrome-after-substring-concatenation-i/)
-- [3504. Longest Palindrome After Substring Concatenation II](./3504-longest-palindrome-after-substring-concatenation-ii/)
 
 </details>
 

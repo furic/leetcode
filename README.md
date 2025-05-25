@@ -44,6 +44,9 @@ Each problem is organized in its own directory following the format:
 - [3537. Fill a Special Grid](./3537-fill-a-special-grid/)
 - [3538. Merge Operations for Minimum Travel Time](./3538-merge-operations-for-minimum-travel-time/)
 - [3539. Find Sum of Array Product of Magical Sequences](./3539-find-sum-of-array-product-of-magical-sequences/)
+- [3542. Minimum Operations to Convert All Elements to Zero](./3542-minimum-operations-to-convert-all-elements-to-zero/)
+- [3543. Maximum Weighted K Edge Path](./3543-maximum-weighted-k-edge-path/)
+- [3544. Subtree Inversion Sum](./3544-subtree-inversion-sum/)
 
 ### String Manipulation
 - [1768. Merge Strings Alternately](./1768-merge-strings-alternately/)
@@ -54,6 +57,10 @@ Each problem is organized in its own directory following the format:
 - [3448. Count Substrings Divisible by Last Digit](./3448-count-substrings-divisible-by-last-digit/)
 - [3516. Find Closest Person](./3516-find-closest-person/)
 - [3517. Smallest Palindromic Rearrangement I](./3517-smallest-palindromic-rearrangement-i/)
+- [3545. Minimum Deletions for at Most K Distinct Characters](./3545-minimum-deletions-for-at-most-k-distinct-characters/)
+- [3550. Smallest Index with Digit Sum Equal to Index](./3550-smallest-index-with-digit-sum-equal-to-index/)
+- [3551. Minimum Swaps to Sort by Digit Sum](./3551-minimum-swaps-to-sort-by-digit-sum/)
+- [3552. Grid Teleportation Traversal](./3552-grid-teleportation-traversal/)
 
 ### Matrix Problems
 - [0054. Spiral Matrix](./0054-spiral-matrix/)
@@ -75,6 +82,7 @@ Each problem is organized in its own directory following the format:
 <details>
 <summary>🌳 Trees & Graphs</summary>
 
+### Tree & Graph Problems
 - [0124. Binary Tree Maximum Path Sum](./0124-binary-tree-maximum-path-sum/)
 - [0199. Binary Tree Right Side View](./0199-binary-tree-right-side-view/)
 - [0200. Number of Islands](./0200-number-of-islands/)
@@ -82,6 +90,7 @@ Each problem is organized in its own directory following the format:
 - [3515. Shortest Path in a Weighted Tree](./3515-shortest-path-in-a-weighted-tree/)
 - [3532. Path Existence Queries in a Graph I](./3532-path-existence-queries-in-a-graph-i/)
 - [3534. Path Existence Queries in a Graph II](./3534-path-existence-queries-in-a-graph-ii/)
+- [3558. Number of Ways to Assign Edge Weights I](./3558-number-of-ways-to-assign-edge-weights-i/)
 
 </details>
 

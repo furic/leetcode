@@ -1,42 +1,38 @@
+class UnionFind {
+  parent: number[];
+
+  constructor() {
+    this.parent = Array.from({ length: 26 }, (_, i) => i);
+  }
+
+  find(x: number): number {
+    if (this.parent[x] !== x) {
+      this.parent[x] = this.find(this.parent[x]);
+    }
+    return this.parent[x];
+  }
+
+  union(x: number, y: number): void {
+    const rootX = this.find(x);
+    const rootY = this.find(y);
+    if (rootX === rootY) return;
+    if (rootX < rootY) {
+      this.parent[rootY] = rootX;
+    } else {
+      this.parent[rootX] = rootY;
+    }
+  }
+}
+
 const smallestEquivalentString = (s1: string, s2: string, baseStr: string): string => {
-    const adj: Record<string, string[]> = {};
+  const uf = new UnionFind();
 
-    // Step 1: Build the adjacency list for equivalence graph
-    for (let i = 0; i < s1.length; i++) {
-        const u = s1[i];
-        const v = s2[i];
-        if (!adj[u]) adj[u] = [];
-        if (!adj[v]) adj[v] = [];
-        adj[u].push(v);
-        adj[v].push(u);
-    }
+  const toIndex = (c: string) => c.charCodeAt(0) - 97;
+  const toChar = (i: number) => String.fromCharCode(i + 97);
 
-    // DFS helper to find smallest lex character in component
-    const dfs = (ch: string, visited: Set<string>): string => {
-        visited.add(ch);
-        let minChar = ch;
+  for (let i = 0; i < s1.length; i++) {
+    uf.union(toIndex(s1[i]), toIndex(s2[i]));
+  }
 
-        for (const neighbor of adj[ch] || []) {
-            if (!visited.has(neighbor)) {
-                const nextMin = dfs(neighbor, visited);
-                if (nextMin < minChar) minChar = nextMin;
-            }
-        }
-
-        return minChar;
-    };
-
-    let result = '';
-
-    for (const ch of baseStr) {
-        if (!adj[ch]) {
-            result += ch;
-        } else {
-            const visited = new Set<string>();
-            const minChar = dfs(ch, visited);
-            result += minChar;
-        }
-    }
-
-    return result;
+  return [...baseStr].map(c => toChar(uf.find(toIndex(c)))).join('');
 };

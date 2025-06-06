@@ -1,31 +1,39 @@
-function robotWithString(s: string): string {
-    const freq = new Array(26).fill(0);
-    for (const char of s) {
-        freq[char.charCodeAt(0) - 97]++;
+const robotWithString = (s: string): string => {
+  const freq = new Array(26).fill(0);
+
+  // Count frequency of each character
+  for (const ch of s) {
+    freq[ch.charCodeAt(0) - 97]++;
+  }
+
+  const result: string[] = [];
+  const stack: string[] = [];
+
+  for (const ch of s) {
+    stack.push(ch);
+    freq[ch.charCodeAt(0) - 97]--;
+
+    // Find the smallest remaining character
+    while (
+      stack.length > 0 &&
+      stack[stack.length - 1].charCodeAt(0) <= smallestChar(freq)
+    ) {
+      result.push(stack.pop()!);
     }
+  }
 
-    const stack: string[] = [];
-    const result: string[] = [];
-    let smallest = 0; // index of the current smallest character available
+  // Pop remaining characters from stack
+  while (stack.length > 0) {
+    result.push(stack.pop()!);
+  }
 
-    for (const char of s) {
-        const idx = char.charCodeAt(0) - 97;
-        stack.push(char);
-        freq[idx]--;
+  return result.join('');
+};
 
-        // Advance smallest to the next available character
-        while (smallest < 26 && freq[smallest] === 0) {
-            smallest++;
-        }
-
-        // Pop from stack to result if it's <= current smallest available character
-        while (
-            stack.length > 0 &&
-            stack[stack.length - 1].charCodeAt(0) - 97 <= smallest
-        ) {
-            result.push(stack.pop()!);
-        }
-    }
-
-    return result.join('');
-}
+// Helper to get char code of the smallest remaining character
+const smallestChar = (freq: number[]): number => {
+  for (let i = 0; i < 26; i++) {
+    if (freq[i] > 0) return 97 + i;
+  }
+  return 97; // fallback value, shouldn't be used
+};

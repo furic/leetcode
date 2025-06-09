@@ -1,15 +1,15 @@
 const countPermutations = (complexity) => {
-    const MOD = 1000000007;
+    const MOD = 1e9 + 7;
     const n = complexity.length;
     if (n === 0) {
         return 1;
     }
-    let min_val = complexity[0];
+    let min = complexity[0];
     for (let i = 1; i < n; i++) {
-        if (min_val >= complexity[i]) {
+        if (min >= complexity[i]) {
             return 0;
         }
-        min_val = Math.min(min_val, complexity[i]);
+        min = Math.min(min, complexity[i]);
     }
     let ans = 1;
     for (let i = 1; i < n; i++) {

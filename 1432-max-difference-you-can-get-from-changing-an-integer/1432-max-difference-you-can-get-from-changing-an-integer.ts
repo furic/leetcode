@@ -1,30 +1,34 @@
 const maxDiff = (num: number): number => {
-    const change = (x: number, y: number): string => {
-        let numStr = num.toString();
-        let res = "";
-        for (let digit of numStr) {
-            if (parseInt(digit) === x) {
-                res += y.toString();
-            } else {
-                res += digit;
-            }
-        }
-        return res;
-    };
+    const digits = num.toString().split('').map(Number);
+    const n = digits.length;
 
-    let minNum = num;
-    let maxNum = num;
-    for (let x = 0; x < 10; ++x) {
-        for (let y = 0; y < 10; ++y) {
-            let res = change(x, y);
-            // Check if there are leading zeros
-            if (res[0] !== "0") {
-                let resI = parseInt(res);
-                minNum = Math.min(minNum, resI);
-                maxNum = Math.max(maxNum, resI);
+    // For maximum: replace first non-9 digit with 9
+    let maxDigits = [...digits];
+    for (let i = 0; i < n; i++) {
+        if (maxDigits[i] !== 9) {
+            const from = maxDigits[i];
+            maxDigits = maxDigits.map(d => d === from ? 9 : d);
+            break;
+        }
+    }
+
+    // For minimum: replace first digit (≠1/0) with 1 if first is not 1; otherwise replace next ≠0/1 with 0
+    let minDigits = [...digits];
+    if (minDigits[0] !== 1) {
+        const from = minDigits[0];
+        minDigits = minDigits.map(d => d === from ? 1 : d);
+    } else {
+        for (let i = 1; i < n; i++) {
+            if (minDigits[i] !== 0 && minDigits[i] !== 1) {
+                const from = minDigits[i];
+                minDigits = minDigits.map(d => d === from ? 0 : d);
+                break;
             }
         }
     }
+
+    const maxNum = Number(maxDigits.join(''));
+    const minNum = Number(minDigits.join(''));
 
     return maxNum - minNum;
 };

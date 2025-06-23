@@ -1,43 +1,51 @@
 const kMirror = (k: number, n: number): number => {
-    const digit: number[] = new Array(100);
-    let left = 1,
-        count = 0,
-        ans = 0n;
-    while (count < n) {
-        const right = left * 10;
-        // op = 0 indicates enumerating odd-length palindromes
-        // op = 1 indicates enumerating even-length palindromes
-        for (let op = 0; op < 2; ++op) {
-            // enumerate i'
-            for (let i = left; i < right && count < n; ++i) {
-                let combined = BigInt(i);
-                let x = op === 0 ? Math.floor(i / 10) : i;
-                while (x > 0) {
-                    combined = combined * 10n + BigInt(x % 10);
-                    x = Math.floor(x / 10);
-                }
-                if (isPalindrome(combined, k, digit)) {
-                    ++count;
-                    ans += combined;
-                }
+    let totalSum = 0;
+    let count = n;
+
+    // Create a base-10 palindrome from a half part (odd/even flag)
+    const createPalindrome = (half: number, isOdd: boolean): number => {
+        let result = half;
+        let x = isOdd ? Math.floor(half / 10) : half;
+
+        while (x > 0) {
+            result = result * 10 + (x % 10);
+            x = Math.floor(x / 10);
+        }
+        return result;
+    };
+
+    // Check if a number is a palindrome in base-k
+    const isKBasePalindrome = (num: number, base: number): boolean => {
+        const digits: number[] = [];
+        while (num > 0) {
+            digits.push(num % base);
+            num = Math.floor(num / base);
+        }
+
+        for (let i = 0, j = digits.length - 1; i < j; i++, j--) {
+            if (digits[i] !== digits[j]) return false;
+        }
+        return true;
+    };
+
+    // Try increasing half-lengths to generate full palindromes
+    for (let len = 1; count > 0; len *= 10) {
+        for (let i = len; i < len * 10 && count > 0; i++) {
+            const p = createPalindrome(i, true);
+            if (isKBasePalindrome(p, k)) {
+                totalSum += p;
+                count--;
             }
         }
-        left = right;
-    }
-    return Number(ans);
-}
 
-const isPalindrome = (x: bigint, k: number, digit: number[]): boolean => {
-    let length = -1;
-    while (x > 0n) {
-        ++length;
-        digit[length] = Number(x % BigInt(k));
-        x /= BigInt(k);
-    }
-    for (let i = 0, j = length; i < j; ++i, --j) {
-        if (digit[i] !== digit[j]) {
-            return false;
+        for (let i = len; i < len * 10 && count > 0; i++) {
+            const p = createPalindrome(i, false);
+            if (isKBasePalindrome(p, k)) {
+                totalSum += p;
+                count--;
+            }
         }
     }
-    return true;
-}
+
+    return totalSum;
+};

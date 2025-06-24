@@ -1,62 +1,41 @@
 const maxTargetNodes = (edges1: number[][], edges2: number[][]): number[] => {
-    // Build adjacency list for a tree from edges
-    const buildAdjacencyList = (edges: number[][]): number[][] => {
-        const size = edges.length + 1;
-        const adjList: number[][] = Array.from({ length: size }, () => []);
-        for (const [u, v] of edges) {
-            adjList[u].push(v);
-            adjList[v].push(u);
-        }
-        return adjList;
-    };
+  const n1 = edges1.length + 1, n2 = edges2.length + 1;
+  const maxN = Math.max(n1, n2), q = new Int32Array(maxN);
 
-    let evenCountA = 0, oddCountA = 0;
-    let evenCountB = 0, oddCountB = 0;
-
-    // DFS to color the tree and count even/odd distances from root
-    const dfsColor = (
-        adj: number[][],
-        node: number,
-        parent: number,
-        color: number[],
-        isFirstTree: boolean
-    ) => {
-        if (color[node] === 0) {
-            isFirstTree ? evenCountA++ : evenCountB++;
-        } else {
-            isFirstTree ? oddCountA++ : oddCountB++;
-        }
-
-        for (const neighbor of adj[node]) {
-            if (neighbor !== parent) {
-                color[neighbor] = color[node] ^ 1;
-                dfsColor(adj, neighbor, node, color, isFirstTree);
-            }
-        }
-    };
-
-    // Build the trees
-    const adjListA = buildAdjacencyList(edges1);
-    const adjListB = buildAdjacencyList(edges2);
-    const n = adjListA.length;
-
-    // Color both trees starting from node 0
-    const colorA = Array(n).fill(-1);
-    const colorB = Array(adjListB.length).fill(-1);
-    colorA[0] = 0;
-    dfsColor(adjListA, 0, -1, colorA, true);
-    colorB[0] = 0;
-    dfsColor(adjListB, 0, -1, colorB, false);
-
-    // Pick the maximum parity group size from Tree B (even or odd)
-    const maxParityGroupSizeB = Math.max(evenCountB, oddCountB);
-
-    // For each node in Tree A, combine its parity group with the max group in Tree B
-    const result: number[] = [];
-    for (let i = 0; i < n; i++) {
-        const ownGroupSize = colorA[i] === 0 ? evenCountA : oddCountA;
-        result[i] = ownGroupSize + maxParityGroupSizeB;
+  const getParity = (edges: number[][], n: number) => {
+    const head = new Int32Array(n).fill(-1);
+    const to = new Int32Array(edges.length * 2);
+    const next = new Int32Array(edges.length * 2);
+    let ptr = 0;
+    for (const [u, v] of edges) {
+      to[ptr] = v; next[ptr] = head[u]; head[u] = ptr++;
+      to[ptr] = u; next[ptr] = head[v]; head[v] = ptr++;
     }
 
-    return result;
+    const parity = new Int8Array(n).fill(-1);
+    parity[0] = 0;
+    let start = 0, end = 0;
+    q[end++] = 0;
+    let even = 1, odd = 0;
+
+    while (start < end) {
+      const node = q[start++];
+      for (let i = head[node]; i !== -1; i = next[i]) {
+        const nei = to[i];
+        if (parity[nei] === -1) {
+          parity[nei] = parity[node] ^ 1;
+          parity[nei] ? odd++ : even++;
+          q[end++] = nei;
+        }
+      }
+    }
+
+    return { parity, even, odd };
+  };
+
+  const { parity: p1, even: e1, odd: o1 } = getParity(edges1, n1);
+  const { even: e2, odd: o2 } = getParity(edges2, n2);
+  const best = Math.max(e2, o2), delta = e1 - o1;
+
+  return Array.from({ length: n1 }, (_, i) => e1 - p1[i] * delta + best);
 };

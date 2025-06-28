@@ -19,8 +19,7 @@ const longestSubsequenceRepeatedK = (s: string, k: number): string => {
     while (queue.length > 0) {
         const currentSubseq = queue.shift()!;
 
-        if (currentSubseq.length > bestSubsequence.length ||
-            (currentSubseq.length === bestSubsequence.length && currentSubseq > bestSubsequence)) {
+        if (currentSubseq.length > bestSubsequence.length) {
             bestSubsequence = currentSubseq;
         }
 

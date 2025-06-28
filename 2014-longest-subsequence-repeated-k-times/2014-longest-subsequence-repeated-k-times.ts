@@ -1,38 +1,55 @@
 const longestSubsequenceRepeatedK = (s: string, k: number): string => {
-    const freq: Record<string, number> = {};
-    for (const c of s) freq[c] = (freq[c] || 0) + 1;
+    const charFreq: Record<string, number> = {};
 
-    const candidate = Object.keys(freq)
-        .filter((c) => freq[c] >= k)
+    // Count frequencies of each character
+    for (const char of s) {
+        charFreq[char] = (charFreq[char] || 0) + 1;
+    }
+
+    // Filter out characters that appear at least k times, sort descending for lexicographic priority
+    const usableChars = Object.keys(charFreq)
+        .filter(char => charFreq[char] >= k)
         .sort()
         .reverse();
-    const q: string[] = [...candidate];
-    let ans = "";
-    while (q.length > 0) {
-        const curr = q.shift()!;
-        if (curr.length > ans.length) {
-            ans = curr;
+
+    const queue: string[] = [...usableChars];
+    let bestSubsequence = "";
+
+    // BFS to build subsequences by adding usable characters and checking if they repeat k times as a subsequence
+    while (queue.length > 0) {
+        const currentSubseq = queue.shift()!;
+
+        if (currentSubseq.length > bestSubsequence.length ||
+            (currentSubseq.length === bestSubsequence.length && currentSubseq > bestSubsequence)) {
+            bestSubsequence = currentSubseq;
         }
-        // generate the next candidate string
-        for (const c of candidate) {
-            const next = curr + c;
-            if (isKRepeated(s, next, k)) q.push(next);
+
+        for (const char of usableChars) {
+            const nextSubseq = currentSubseq + char;
+            if (isKRepeatedInString(s, nextSubseq, k)) {
+                queue.push(nextSubseq);
+            }
         }
     }
 
-    return ans;
+    return bestSubsequence;
 };
 
-const isKRepeated = (s: string, pattern: string, k: number): boolean => {
-    let i = 0,
-        matched = 0;
-    for (const c of s) {
-        if (c === pattern[i]) {
-            i++;
-            if (i === pattern.length) {
-                i = 0;
-                matched++;
-                if (matched === k) {
+/**
+ * Checks if (subseq repeated k times) is a subsequence of s.
+ * Example: pattern = "ab", k = 2 → checks if "abab" is a subsequence of s.
+ */
+const isKRepeatedInString = (s: string, pattern: string, k: number): boolean => {
+    let patternIndex = 0;
+    let repeatedCount = 0;
+
+    for (const char of s) {
+        if (char === pattern[patternIndex]) {
+            patternIndex++;
+            if (patternIndex === pattern.length) {
+                patternIndex = 0;
+                repeatedCount++;
+                if (repeatedCount === k) {
                     return true;
                 }
             }
@@ -40,4 +57,4 @@ const isKRepeated = (s: string, pattern: string, k: number): boolean => {
     }
 
     return false;
-}
+};

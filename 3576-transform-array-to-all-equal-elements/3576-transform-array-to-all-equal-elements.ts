@@ -1,16 +1,38 @@
-const canMakeEqual = (nums: number[], k: number): boolean => {
+function canMakeEqual(nums: number[], k: number): boolean {
     const n = nums.length;
-    for (let num of [1, -1]) {
-        let ops = 0;
-        const newNums = [...nums];
-        for (let i = 0; i < n - 1; i++) {
-            if (newNums[i] !== num) {
-                newNums[i] *= -1;
-                newNums[i + 1] *= -1;
-                ops++;
-            }
+    let flipsToMakeAllPos = 0;
+    let flipsToMakeAllNeg = 0;
+    let expectedSignForPos = 1;  // Targeting all 1's
+    let expectedSignForNeg = 1;  // Targeting all -1's
+
+    const needsFlip = (current: number, expected: number): boolean => current * expected === -1;
+    const isAligned = (current: number, expected: number): boolean => current * expected === 1;
+
+    for (let i = 0; i < n - 1; i++) {
+        const currentValue = nums[i];
+
+        if (needsFlip(currentValue, expectedSignForPos)) {
+            flipsToMakeAllPos++;
+            expectedSignForPos = -1;
+        } else {
+            expectedSignForPos = 1;
         }
-        if (ops <= k && newNums.every((x) => x === num)) return true;
+
+        if (isAligned(currentValue, expectedSignForNeg)) {
+            flipsToMakeAllNeg++;
+            expectedSignForNeg = -1;
+        } else {
+            expectedSignForNeg = 1;
+        }
+
+        if (flipsToMakeAllPos > k && flipsToMakeAllNeg > k) {
+            return false;
+        }
     }
-    return false;
-};
+
+    const lastValue = nums[n - 1];
+    const canMakeAllPos = isAligned(lastValue, expectedSignForPos) && flipsToMakeAllPos <= k;
+    const canMakeAllNeg = needsFlip(lastValue, expectedSignForNeg) && flipsToMakeAllNeg <= k;
+
+    return canMakeAllPos || canMakeAllNeg;
+}

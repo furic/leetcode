@@ -1,55 +1,59 @@
 const minTime = (
   n: number,
   maxBoatCapacity: number,
-  stagesCount: number,
+  stageCount: number,
   crossingTimes: number[],
-  speedMultipliers: number[]
+  stageMultipliers: number[]
 ): number => {
-  const totalStates = 1 << n;
-  const fullMask = totalStates - 1;
+  const totalMasks = 1 << n;
+  const allPeopleMask = totalMasks - 1;
 
-  // Precompute population count for all masks (number of people in subset)
-  const popCount = new Array(totalStates).fill(0);
-  for (let mask = 0; mask < totalStates; mask++) {
-    let x = mask, count = 0;
+  // Precompute population count (number of people in subset)
+  const popCount = new Array(totalMasks).fill(0);
+  for (let mask = 0; mask < totalMasks; mask++) {
+    let x = mask, cnt = 0;
     while (x) {
-      count++;
+      cnt++;
       x &= x - 1;
     }
-    popCount[mask] = count;
+    popCount[mask] = cnt;
   }
 
-  // Precompute max crossing time for every subset of individuals
-  const maxTimeInSubset = new Array(totalStates).fill(0);
-  for (let mask = 0; mask < totalStates; mask++) {
+  // Precompute max crossing time for each subset mask
+  const maxTimeForSubset = new Array(totalMasks).fill(0);
+  for (let mask = 0; mask < totalMasks; mask++) {
     let maxTime = 0;
     for (let i = 0; i < n; i++) {
       if ((mask & (1 << i)) !== 0 && crossingTimes[i] > maxTime) {
         maxTime = crossingTimes[i];
       }
     }
-    maxTimeInSubset[mask] = maxTime;
+    maxTimeForSubset[mask] = maxTime;
   }
 
-  // Precompute valid subsets of a mask with size between 1 and maxBoatCapacity
-  const validSubsetsByMask: number[][] = Array.from({ length: totalStates }, () => []);
-  for (let baseMask = 0; baseMask < totalStates; baseMask++) {
+  // Precompute subsets of a base mask with size between 1 and maxBoatCapacity
+  const validSubsets = new Array(totalMasks);
+  for (let baseMask = 0; baseMask < totalMasks; baseMask++) {
+    const subsetList: number[] = [];
     let subset = baseMask;
     while (subset > 0) {
       if (popCount[subset] >= 1 && popCount[subset] <= maxBoatCapacity) {
-        validSubsetsByMask[baseMask].push(subset);
+        subsetList.push(subset);
       }
       subset = (subset - 1) & baseMask;
     }
+    validSubsets[baseMask] = subsetList;
   }
 
-  // Distance array: dist[peopleAtBaseMask][stage][side] = min time
-  // side: 0 = boat at base camp, 1 = boat at destination
-  const dist = Array.from({ length: totalStates }, () =>
-    Array.from({ length: stagesCount }, () =>
-      [Infinity, Infinity]
-    )
-  );
+  // dist[peopleAtBase][stage][side] = minimal time to reach this state
+  // side: 0 = boat at base, 1 = boat at destination
+  const dist: number[][][] = new Array(totalMasks);
+  for (let mask = 0; mask < totalMasks; mask++) {
+    dist[mask] = new Array(stageCount);
+    for (let stage = 0; stage < stageCount; stage++) {
+      dist[mask][stage] = [Infinity, Infinity];
+    }
+  }
 
   type State = {
     time: number;
@@ -58,14 +62,14 @@ const minTime = (
     boatSide: 0 | 1;
   };
 
-  // Min-heap implementation for Dijkstra-like processing
+  // Min-heap stored as array, sorted by time ascending
   const heap: State[] = [];
 
-  const pushHeap = (state: State) => {
-    heap.push(state);
+  const pushHeap = (item: State): void => {
+    heap.push(item);
     let idx = heap.length - 1;
     while (idx > 0) {
-      const parentIdx = (idx - 1) >> 1;
+      const parentIdx = Math.floor((idx - 1) / 2);
       if (heap[parentIdx].time > heap[idx].time) {
         [heap[parentIdx], heap[idx]] = [heap[idx], heap[parentIdx]];
         idx = parentIdx;
@@ -91,33 +95,36 @@ const minTime = (
         if (smallest !== idx) {
           [heap[idx], heap[smallest]] = [heap[smallest], heap[idx]];
           idx = smallest;
-        } else break;
+        } else {
+          break;
+        }
       }
     }
     return top;
   };
 
-  // Initial state: all people at base camp, stage 0, boat at base camp
-  dist[fullMask][0][0] = 0;
-  pushHeap({ time: 0, peopleAtBase: fullMask, stage: 0, boatSide: 0 });
+  // Initial state: everyone at base, stage 0, boat at base
+  dist[allPeopleMask][0][0] = 0;
+  pushHeap({ time: 0, peopleAtBase: allPeopleMask, stage: 0, boatSide: 0 });
 
   while (heap.length > 0) {
     const { time: currentTime, peopleAtBase, stage, boatSide } = popHeap();
 
     if (currentTime !== dist[peopleAtBase][stage][boatSide]) continue;
 
-    // Goal: all people moved to destination (peopleAtBase == 0), boat at destination (side 1)
+    // All people moved to destination and boat is there
     if (peopleAtBase === 0 && boatSide === 1) return currentTime;
 
     if (boatSide === 0) {
-      // Boat is at base camp, send a group to destination
-      const availablePeopleMask = peopleAtBase;
-      if (availablePeopleMask === 0) continue; // No one to send
+      // Boat at base camp: send a group across
+      const availablePeople = peopleAtBase;
+      if (availablePeople === 0) continue;
 
-      for (const subset of validSubsetsByMask[availablePeopleMask]) {
-        const newPeopleAtBase = peopleAtBase & ~subset;
-        const crossingTime = maxTimeInSubset[subset] * speedMultipliers[stage];
-        const nextStage = (stage + Math.floor(crossingTime)) % stagesCount;
+      const subsets = validSubsets[availablePeople];
+      for (const group of subsets) {
+        const newPeopleAtBase = peopleAtBase & ~group;
+        const crossingTime = maxTimeForSubset[group] * stageMultipliers[stage];
+        const nextStage = (stage + Math.floor(crossingTime)) % stageCount;
         const newTime = currentTime + crossingTime;
 
         if (newTime < dist[newPeopleAtBase][nextStage][1]) {
@@ -126,13 +133,13 @@ const minTime = (
         }
       }
     } else {
-      // Boat is at destination, one person must return to base camp
-      const peopleAtDestination = (~peopleAtBase) & fullMask;
+      // Boat at destination: one person returns to base
+      const peopleAtDestination = (~peopleAtBase) & allPeopleMask;
       for (let i = 0; i < n; i++) {
         if ((peopleAtDestination & (1 << i)) !== 0) {
           const newPeopleAtBase = peopleAtBase | (1 << i);
-          const returnTime = crossingTimes[i] * speedMultipliers[stage];
-          const nextStage = (stage + Math.floor(returnTime)) % stagesCount;
+          const returnTime = crossingTimes[i] * stageMultipliers[stage];
+          const nextStage = (stage + Math.floor(returnTime)) % stageCount;
           const newTime = currentTime + returnTime;
 
           if (newTime < dist[newPeopleAtBase][nextStage][0]) {
@@ -144,6 +151,5 @@ const minTime = (
     }
   }
 
-  // Impossible to get everyone across
   return -1;
 };

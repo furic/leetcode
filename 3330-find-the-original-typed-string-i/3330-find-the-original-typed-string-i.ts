@@ -1,1 +1,9 @@
-const possibleStringCount = (word: string): number => 1 + [...word].filter((c, i) => i && c === word[i - 1]).length;
+const possibleStringCount = (word: string): number => {
+    let count: number = 1
+
+    for (let i = word.length - 2; i >= 0; i--) {
+        if (word[i] === word[i + 1]) count++
+    }
+
+    return count;
+}

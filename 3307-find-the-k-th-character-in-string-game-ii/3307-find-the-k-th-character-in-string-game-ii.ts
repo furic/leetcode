@@ -1,4 +1,4 @@
-function kthCharacter(k: number, operations: number[]): string {
+const kthCharacter = (k: number, operations: number[]): string => {
     let ans = 0;
     while (k !== 1) {
         let t = Math.floor(Math.log2(k));

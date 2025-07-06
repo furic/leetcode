@@ -1,45 +1,35 @@
-const minTime = (n: number, edges: number[][]): number => {
-    // Build adjacency list
-    const adj: [number, number, number][][] = new Array(n).fill(0).map(() => []);
-    for (const [u, v, start, end] of edges) {
-        adj[u].push([v, start, end]);
+function minTime(n: number, edges: number[][]): number {
+    const graph: Array<Array<[number, number, number]>> = [];
+    for (let i = 0; i < n; i++) {
+        graph.push([]);
     }
 
-    // Min-heap based on time. Each element is [time, node]
-    const heap: [number, number][] = [];
-    heap.push([0, 0]);
+    for (const [u, v, start, end] of edges) {
+        graph[u].push([v, start, end]);
+    }
 
-    // To keep track of the earliest time to reach each node
-    const dist: number[] = new Array(n).fill(Infinity);
-    dist[0] = 0;
+    const earliestArrival = new Array(n).fill(Number.MAX_SAFE_INTEGER);
+    earliestArrival[0] = 0;
 
-    while (heap.length > 0) {
-        heap.sort((a, b) => a[0] - b[0]); // Simulating a priority queue (min-heap)
-        const [currentTime, u] = heap.shift()!;
+    const pq: Array<[number, number]> = [[0, 0]]; // [time, node]
 
-        if (u === n - 1) {
-            return currentTime;
-        }
+    while (pq.length > 0) {
+        pq.sort((a, b) => a[0] - b[0]);
+        const [currTime, node] = pq.shift()!;
 
-        if (currentTime > dist[u]) {
-            continue;
-        }
+        if (currTime > earliestArrival[node]) continue;
+        if (node === n - 1) return currTime;
 
-        for (const [v, start, end] of adj[u]) {
-            let newTime: number;
-            if (currentTime <= end) {
-                if (currentTime >= start) {
-                    newTime = currentTime + 1;
-                } else {
-                    newTime = start + 1;
-                }
-                if (newTime < dist[v]) {
-                    dist[v] = newTime;
-                    heap.push([newTime, v]);
-                }
+        for (const [nextNode, startTime, endTime] of graph[node]) {
+            if (currTime > endTime) continue;
+            const departureTime = currTime < startTime ? startTime : currTime;
+            const arrivalTime = departureTime + 1;
+            if (arrivalTime < earliestArrival[nextNode]) {
+                earliestArrival[nextNode] = arrivalTime;
+                pq.push([arrivalTime, nextNode]);
             }
         }
     }
 
-    return dist[n - 1] === Infinity ? -1 : dist[n - 1];
+    return -1;
 }

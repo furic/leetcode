@@ -1,4 +1,4 @@
-function minTime(n: number, edges: number[][]): number {
+const minTime = (n: number, edges: number[][]): number => {
     // Build adjacency list
     const adj: [number, number, number][][] = new Array(n).fill(0).map(() => []);
     for (const [u, v, start, end] of edges) {

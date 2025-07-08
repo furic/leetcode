@@ -1,32 +1,32 @@
 const maxValue = (events: number[][], k: number): number => {
-    events.sort((a, b) => a[1] - b[1]);
     const n = events.length;
-    const dp: number[][] = Array.from({ length: n + 1 }, () => Array(k + 1).fill(0));
+    events.sort((a, b) => a[0] - b[0]);
 
-    const findLastNonConflict = (currentStart: number): number => {
-        let left = 0, right = n - 1, result = -1;
-        while (left <= right) {
-            const mid = Math.floor((left + right) / 2);
-            if (events[mid][1] < currentStart) {
-                result = mid;
+    const findNextEventIndex = (targetEnd: number): number => {
+        let left = 0, right = n;
+        while (left < right) {
+            const mid = (left + right) >> 1;
+            if (events[mid][0] <= targetEnd) {
                 left = mid + 1;
             } else {
-                right = mid - 1;
+                right = mid;
             }
         }
-        return result;
+        return left;
     };
 
-    for (let i = 1; i <= n; i++) {
-        const [startDay, endDay, value] = events[i - 1];
-        const lastIndex = findLastNonConflict(startDay);
-        for (let count = 1; count <= k; count++) {
-            dp[i][count] = Math.max(
-                dp[i - 1][count],
-                dp[lastIndex + 1][count - 1] + value
+    const dp: number[][] = Array.from({ length: k + 1 }, () => Array(n + 1).fill(0));
+
+    for (let index = n - 1; index >= 0; index--) {
+        const [start, end, value] = events[index];
+        const nextIndex = findNextEventIndex(end);
+        for (let remaining = 1; remaining <= k; remaining++) {
+            dp[remaining][index] = Math.max(
+                dp[remaining][index + 1],
+                value + dp[remaining - 1][nextIndex]
             );
         }
     }
 
-    return dp[n][k];
+    return dp[k][0];
 };

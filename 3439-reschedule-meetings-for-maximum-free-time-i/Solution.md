@@ -1,4 +1,4 @@
-Sliding Window for Meetings | 20 Lines | O(n) | 1ms
+<h1 align="center">Sliding Window for Meetings | 20 Lines | O(n) | 1ms</h1>
 
 # Intuition
 To maximize the longest continuous free period, consider rescheduling at most k consecutive meetings to eliminate or minimize occupied windows in the event timeline while preserving order and avoiding overlaps.

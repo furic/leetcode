@@ -4,7 +4,7 @@ function mostBooked(n: number, meetings: number[][]): number {
 
     const meetingCountsPerRoom = new Array<number>(n).fill(0);
 
-    const availableRooms = new PriorityQueue<number>((a, b) => a - b);
+    const availableRooms = new MinPriorityQueue<number>();
     const occupiedRooms = new PriorityQueue<[number, number]>((a, b) =>
         a[0] === b[0] ? a[1] - b[1] : a[0] - b[0]
     ); // [endTime, roomIndex], sorted by earliest end time, then room index

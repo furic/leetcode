@@ -4,7 +4,7 @@ const mostBooked = (n: number, meetings: number[][]): number => {
 
     const meetingCountsPerRoom = new Array<number>(n).fill(0);
 
-    const availableRooms = new PriorityQueue<number>((a, b) => a - b); // min-heap of room
+    const availableRooms = new MinPriorityQueue<number>();
     const occupiedRooms = new PriorityQueue<[number, number]>((a, b) =>
         a[0] === b[0] ? a[1] - b[1] : a[0] - b[0]
     ); // [endTime, roomIndex], sorted by earliest end time, then room index
@@ -36,16 +36,9 @@ const mostBooked = (n: number, meetings: number[][]): number => {
         }
     }
 
-    // Find the room with the highest number of meetings (lowest index on tie)
-    let maxMeetings = -1;
-    let roomWithMaxMeetings = -1;
-
-    meetingCountsPerRoom.forEach((count, roomIndex) => {
-        if (count > maxMeetings) {
-            maxMeetings = count;
-            roomWithMaxMeetings = roomIndex;
-        }
-    });
-
-    return roomWithMaxMeetings;
+    return meetingCountsPerRoom.reduce(
+        (bestRoom, count, roomIndex) =>
+            count > meetingCountsPerRoom[bestRoom] ? roomIndex : bestRoom,
+        0
+    );
 }

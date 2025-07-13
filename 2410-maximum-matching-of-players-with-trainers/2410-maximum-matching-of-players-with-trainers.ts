@@ -1,20 +1,26 @@
 const matchPlayersAndTrainers = (players: number[], trainers: number[]): number => {
-    players.sort((a, b) => a - b);
-    trainers.sort((a, b) => a - b);
+    var match : number = 0
 
-    let playerIdx = 0;
-    let trainerIdx = 0;
-    let matches = 0;
+    players.sort((a,b)=> a-b)
+    trainers.sort((a,b)=> a-b)
 
-    while (playerIdx < players.length && trainerIdx < trainers.length) {
-        if (players[playerIdx] <= trainers[trainerIdx]) {
-            matches++;
-            playerIdx++;
-            trainerIdx++;
-        } else {
-            trainerIdx++;
+
+    var j : number = 0
+
+    for( var i : number = 0 ; i <  players.length ; i ++ ){
+       
+        while ( trainers[j] < players[i] && j < trainers.length ){
+
+            j += 1 
         }
-    }
+        
+        if( j !== trainers.length ){
+            j += 1
+            match ++
+        }
 
-    return matches;
+
+    }
+    return match
+
 };

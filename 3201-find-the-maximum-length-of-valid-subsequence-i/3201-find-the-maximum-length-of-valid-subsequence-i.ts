@@ -1,9 +1,9 @@
 const maximumLength = (nums: number[]): number => {
+    let n = nums.length;
     let oddCount = 0;
     let evenCount = 0;
     let oddEvenAlternating = 0;
     let evenOddAlternating = 0;
-    let n = nums.length;
 
     for (let i = 0; i < n; i++) {
         const isEven = nums[i] % 2 === 0;

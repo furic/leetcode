@@ -1,14 +1,32 @@
 const maximumLength = (nums: number[]): number => {
-    const evens = nums.map((n) => n % 2 === 0);
-    const evenCount = evens.filter((even) => even).length;
-    const oddCount = evens.length - evenCount;
-    let alterCount = 1;
-    let lastEven = evens[0];
-    for (let i = 1; i < evens.length; i++) {
-        if (evens[i] !== lastEven) {
-            lastEven = evens[i];
-            alterCount++;
+    let oddCount = 0;
+    let evenCount = 0;
+    let oddEvenAlternating = 0;
+    let evenOddAlternating = 0;
+    let n = nums.length;
+
+    for (let i = 0; i < n; i++) {
+        const isEven = nums[i] % 2 === 0;
+        const isLastElement = i === n - 1;
+
+        if (isEven) {
+            evenCount++;
+            const nextIsOdd = !isLastElement && nums[i + 1] % 2 === 1;
+            if (isLastElement) {
+                evenOddAlternating++;
+            } else if (nextIsOdd) {
+                evenOddAlternating += 2;
+            }
+        } else {
+            oddCount++;
+            const nextIsEven = !isLastElement && nums[i + 1] % 2 === 0;
+            if (isLastElement) {
+                oddEvenAlternating++;
+            } else if (nextIsEven) {
+                oddEvenAlternating += 2;
+            }
         }
     }
-    return Math.max(oddCount, evenCount, alterCount);
+
+    return Math.max(oddCount, evenCount, oddEvenAlternating, evenOddAlternating);
 };

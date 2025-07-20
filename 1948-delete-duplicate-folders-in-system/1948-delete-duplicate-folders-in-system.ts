@@ -1,51 +1,40 @@
-class FolderNode {
-    name: string;
-    children: Map<string, FolderNode>;
-    signature: string;
-
-    constructor(name: string) {
-        this.name = name;
-        this.children = new Map();
-        this.signature = "";
-    }
-}
-
 const deleteDuplicateFolder = (paths: string[][]): string[][] => {
-    const root = new FolderNode("");
+    class TrieNode {
+        signature = ""; // serialized subtree structure
+        children = new Map<string, TrieNode>(); // child folder -> child node
+    }
 
-    // Build the folder tree
+    const root = new TrieNode();
+
+    // Build the folder trie from given paths
     for (const path of paths) {
         let current = root;
         for (const folder of path) {
             if (!current.children.has(folder)) {
-                current.children.set(folder, new FolderNode(folder));
+                current.children.set(folder, new TrieNode());
             }
             current = current.children.get(folder)!;
         }
     }
 
-    const signatureCount = new Map<string, number>();
+    const signatureFrequency = new Map<string, number>();
 
-    // Generate unique subtree signatures for duplicate detection
-    const generateSignatures = (node: FolderNode): string => {
-        if (node.children.size === 0) {
-            node.signature = "";
-            return "";
-        }
+    // Post-order DFS to generate unique signatures for duplicate detection
+    const generateSignatures = (node: TrieNode): void => {
+        if (node.children.size === 0) return;
 
         const childSignatures: string[] = [];
-        const sortedChildren = Array.from(node.children.entries()).sort(
-            ([aName], [bName]) => aName.localeCompare(bName)
-        );
-
-        for (const [childName, childNode] of sortedChildren) {
-            const childSignature = generateSignatures(childNode);
-            childSignatures.push(`${childName}(${childSignature})`);
+        for (const [folderName, childNode] of node.children.entries()) {
+            generateSignatures(childNode);
+            childSignatures.push(`${folderName}(${childNode.signature})`);
         }
 
+        childSignatures.sort(); // ensure lexicographical consistency
         node.signature = childSignatures.join("");
-        signatureCount.set(node.signature, (signatureCount.get(node.signature) ?? 0) + 1);
-        return node.signature;
+        signatureFrequency.set(
+            node.signature,
+            (signatureFrequency.get(node.signature) ?? 0) + 1
+        );
     };
 
     generateSignatures(root);
@@ -53,36 +42,26 @@ const deleteDuplicateFolder = (paths: string[][]): string[][] => {
     const result: string[][] = [];
     const currentPath: string[] = [];
 
-    // Collect non-duplicate folder paths
-    const collectValidPaths = (node: FolderNode) => {
+    // Pre-order DFS to collect paths of non-duplicate folders
+    const collectPaths = (node: TrieNode): void => {
         if (
             node.signature !== "" &&
-            signatureCount.get(node.signature)! >= 2
+            signatureFrequency.get(node.signature)! > 1
         ) {
-            return; // skip duplicates
+            return; // skip duplicate subtree
         }
 
-        if (node.name !== "") {
-            currentPath.push(node.name);
+        if (currentPath.length > 0) {
             result.push([...currentPath]);
         }
 
-        const sortedChildren = Array.from(node.children.entries()).sort(
-            ([aName], [bName]) => aName.localeCompare(bName)
-        );
-
-        for (const [, childNode] of sortedChildren) {
-            collectValidPaths(childNode);
-        }
-
-        if (node.name !== "") {
+        for (const [folderName, childNode] of node.children.entries()) {
+            currentPath.push(folderName);
+            collectPaths(childNode);
             currentPath.pop();
         }
     };
 
-    for (const [, childNode] of root.children.entries()) {
-        collectValidPaths(childNode);
-    }
-
+    collectPaths(root);
     return result;
 };

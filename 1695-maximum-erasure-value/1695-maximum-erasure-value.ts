@@ -1,24 +1,26 @@
 const maximumUniqueSubarray = (nums: number[]): number => {
-    const seen = new Set();
-    let left = 0;
     let currentWindowSum = 0;
     let maxWindowSum = 0;
+    const lastSeenIndex: Map<number, number> = new Map();
+    let left = 0;
 
     for (let right = 0; right < nums.length; right++) {
-        const num = nums[right];
+        const currentNum = nums[right];
 
-        // If duplicate found, move the left pointer until num is unique in the window
-        while (seen.has(num)) {
-            currentWindowSum -= nums[left];
-            seen.delete(nums[left]);
-            left++;
+        if (lastSeenIndex.has(currentNum)) {
+            // Move `left` to one position after the last occurrence of `currentNum`
+            const duplicateIndex = lastSeenIndex.get(currentNum)!;
+            while (left <= duplicateIndex) {
+                currentWindowSum -= nums[left];
+                left++;
+            }
         }
 
-        // Add current number to the window
-        currentWindowSum += num;
-        seen.add(num);
+        // Add the current number to the window
+        currentWindowSum += currentNum;
+        lastSeenIndex.set(currentNum, right);
 
-        // Update maximum sum found so far
+        // Update the maximum found so far
         maxWindowSum = Math.max(maxWindowSum, currentWindowSum);
     }
 

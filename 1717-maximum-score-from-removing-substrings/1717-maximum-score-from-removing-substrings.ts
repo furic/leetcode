@@ -1,37 +1,33 @@
 const maximumGain = (s: string, x: number, y: number): number => {
-    let score = 0;
-    let ch1 = 'a', ch2 = 'b';
-    let cnt1 = 0, cnt2 = 0;
-
+    let [char1, char2] = ['a', 'b'];
     if (x < y) {
-        const temp = x;
-        x = y;
-        y = temp;
-        ch1 = 'b';
-        ch2 = 'a';
+        [x, y] = [y, x];
+        [char1, char2] = ['b', 'a'];
     }
 
+    let score = 0;
+    let [count1, count2] = [0, 0];
+
     for (let i = 0; i < s.length; i++) {
-        if (s[i] === ch1) {
-            cnt1++;
-        } else if (s[i] === ch2) {
-            if (cnt1 > 0) {
-                cnt1--;
+        if (s[i] === char1) {
+            count1++;
+        } else if (s[i] === char2) {
+            if (count1 > 0) {
+                count1--;
                 score += x;
             } else {
-                cnt2++;
+                count2++;
             }
         } else {
-            score += Math.min(cnt1, cnt2) * y;
-            cnt1 = 0;
-            cnt2 = 0;
+            score += Math.min(count1, count2) * y;
+            count1 = 0;
+            count2 = 0;
         }
     }
 
-    if (cnt1 !== 0) {
-        score += Math.min(cnt1, cnt2) * y;
+    if (count1 !== 0) {
+        score += Math.min(count1, count2) * y;
     }
 
     return score;
-
 };

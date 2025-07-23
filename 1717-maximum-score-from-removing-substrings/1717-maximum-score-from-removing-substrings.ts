@@ -20,8 +20,7 @@ const maximumGain = (s: string, x: number, y: number): number => {
             }
         } else {
             score += Math.min(count1, count2) * y;
-            count1 = 0;
-            count2 = 0;
+            [count1, count2] = [0, 0];
         }
     }
 

@@ -1,32 +1,26 @@
-const maxFreeTime = (eventTime: number, k: number, startTime: number[], endTime: number[]): number => {
-    const eventCount = startTime.length;
+const maxFreeTime = (
+    eventTime: number,
+    k: number,
+    startTime: number[],
+    endTime: number[],
+): number => {
+    const n = startTime.length;
+    let maxContinuousFreeTime = 0;
+    let occupiedWindowTime = 0;
 
-    // Calculate gaps between meetings
-    const gaps: number[] = [];
-    for (let i = 1; i < eventCount; i++) {
-        gaps.push(startTime[i] - endTime[i - 1]);
+    for (let i = 0; i < n; i++) {
+        occupiedWindowTime += endTime[i] - startTime[i];
+
+        const earliestPossibleStart = i <= k - 1 ? 0 : endTime[i - k];
+        const latestPossibleEnd = i === n - 1 ? eventTime : startTime[i + 1];
+
+        const currentFreeTime = latestPossibleEnd - earliestPossibleStart - occupiedWindowTime;
+        maxContinuousFreeTime = Math.max(maxContinuousFreeTime, currentFreeTime);
+
+        if (i >= k - 1) {
+            occupiedWindowTime -= endTime[i - k + 1] - startTime[i - k + 1];
+        }
     }
 
-    // Add gaps before the first meeting and after the last meeting
-    gaps.unshift(startTime[0]);
-    gaps.push(eventTime - endTime[eventCount - 1]);
-
-    // If k >= number of gaps, we can merge all gaps
-    if (k >= gaps.length - 1) {
-        return gaps.reduce((a, b) => a + b, 0);
-    }
-
-    // Sliding window to find the maximum sum of gaps after rescheduling k meetings
-    // In other words, merge (k + 1) adjacent gaps and see which creates the biggest gap
-    // For instance, if k=1, we merge any 2 adjacent gaps, and so on
-
-    let result = 0;
-    let freeTime = gaps.slice(0, k + 1).reduce((a, b) => a + b, 0);
-    result = freeTime;
-    for (let i = k + 1; i < gaps.length; i++) {
-        freeTime += gaps[i] - gaps[i - (k + 1)];
-        result = Math.max(result, freeTime);
-    }
-
-    return result;
-}
+    return maxContinuousFreeTime;
+};

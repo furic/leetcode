@@ -1,4 +1,4 @@
-# [TypeScript] Pascal’s Triangle Construction | 21 Lines | O(n²) |
+# [TypeScript] Pascal’s Triangle Construction | 21 Lines | O(n²) | 0ms
 
 # Intuition
 Pascal’s Triangle builds naturally by summing adjacent elements from the previous row. The first and last elements of each row are always `1`, and the inner elements are the sum of the two numbers directly above.

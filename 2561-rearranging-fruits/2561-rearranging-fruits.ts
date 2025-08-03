@@ -1,36 +1,28 @@
-const minCost = (basket1: number[], basket2: number[]): number => {
-    const fruitDelta = new Map<number, number>();
-    let globalMin = Infinity;
+function minCost(basket1: number[], basket2: number[]): number {
+    const freq = new Map<number, number>();
+    let m = Infinity;
 
-    // Count the difference in fruit frequency between baskets
-    for (const cost of basket1) {
-        fruitDelta.set(cost, (fruitDelta.get(cost) ?? 0) + 1);
-        globalMin = Math.min(globalMin, cost);
+    for (const b of basket1) {
+        freq.set(b, (freq.get(b) || 0) + 1);
+        m = Math.min(m, b);
     }
-    for (const cost of basket2) {
-        fruitDelta.set(cost, (fruitDelta.get(cost) ?? 0) - 1);
-        globalMin = Math.min(globalMin, cost);
+    for (const b of basket2) {
+        freq.set(b, (freq.get(b) || 0) - 1);
+        m = Math.min(m, b);
     }
 
-    // Collect extra fruits that need to be swapped
-    const swapCandidates: number[] = [];
-    for (const [fruitCost, count] of fruitDelta.entries()) {
-        if (count % 2 !== 0) return -1; // Cannot balance
-        for (let i = 0; i < Math.abs(count) / 2; i++) {
-            swapCandidates.push(fruitCost);
+    const merge: number[] = [];
+    for (const [k, c] of freq.entries()) {
+        if (c % 2 !== 0) return -1;
+        for (let i = 0; i < Math.abs(c) / 2; i++) {
+            merge.push(k);
         }
     }
 
-    // Sort to prioritize cheaper swaps
-    swapCandidates.sort((a, b) => a - b);
-
-    // We only need to swap half of them (rest are mirrored)
-    let totalCost = 0;
-    for (let i = 0; i < swapCandidates.length / 2; i++) {
-        const directSwapCost = swapCandidates[i];
-        const doubleMinCost = 2 * globalMin;
-        totalCost += Math.min(directSwapCost, doubleMinCost);
+    merge.sort((a, b) => a - b);
+    let res = 0;
+    for (let i = 0; i < merge.length / 2; i++) {
+        res += Math.min(2 * m, merge[i]);
     }
-
-    return totalCost;
+    return res;
 };

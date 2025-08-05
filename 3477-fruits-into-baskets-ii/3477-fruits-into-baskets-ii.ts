@@ -1,16 +1,19 @@
-function numOfUnplacedFruits(fruits: number[], baskets: number[]): number {
-    let count = 0;
-    const n = baskets.length;
-    for (const fruit of fruits) {
-        let unset = 1;
-        for (let i = 0; i < n; i++) {
-            if (fruit <= baskets[i]) {
-                baskets[i] = 0;
-                unset = 0;
+const numOfUnplacedFruits = (fruits: number[], baskets: number[]): number => {
+    let unplacedCount = 0;
+
+    for (const fruitQuantity of fruits) {
+        let isPlaced = false;
+
+        for (let i = 0; i < baskets.length; i++) {
+            if (baskets[i] >= fruitQuantity) {
+                baskets[i] = 0; // Mark the basket as used
+                isPlaced = true;
                 break;
             }
         }
-        count += unset;
+
+        if (!isPlaced) unplacedCount++;
     }
-    return count;
+
+    return unplacedCount;
 };

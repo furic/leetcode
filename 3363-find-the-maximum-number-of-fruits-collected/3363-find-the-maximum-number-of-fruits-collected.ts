@@ -1,62 +1,68 @@
-function maxCollectedFruits(fruits: number[][]): number {
-    let n = fruits.length;
-    let totalsum = 0, half = Math.ceil((n - 1) / 2);
-    //top left goes diagonically to bottom right
-    for (let i = 0; i < n; i++) {
-        totalsum += fruits[i][i];
-    }
-    //bottom left triangle
-    function updateFromLeftPaths(i, j) {
-        let maxFromLeft = 0;
-        if (i - 1 >= n - j) {
-            maxFromLeft = fruits[i - 1][j - 1];
-        }
-        if (i >= n - j) {
-            maxFromLeft = Math.max(maxFromLeft, fruits[i][j - 1]);
-        }
-        if (i + 1 >= n - j && i + 1 < n) {
-            maxFromLeft = Math.max(maxFromLeft, fruits[i + 1][j - 1]);
-        }
-        fruits[i][j] += maxFromLeft;
-    }
-    for (let j = 1; j <= half - 1; j++) {
-        for (let i = n - 1; i >= n - j - 1; i--) {
-            updateFromLeftPaths(i, j);
-        }
-    }
-    for (let j = half; j <= n - 2; j++) {
-        for (let i = n - 1; i >= j + 1; i--) {
-            updateFromLeftPaths(i, j);
-        }
-    }
-    //fruits[n-1][n-2] has max for topLeftKid
-    totalsum += fruits[n - 1][n - 2];
+const maxCollectedFruits = (fruits: number[][]): number => {
+    const gridSize = fruits.length;
+    const midPoint = Math.ceil((gridSize - 1) / 2);
+    let totalFruitsCollected = 0;
 
-    //top right
-    function updateFromTopPaths(i, j) {
+    // Child 1: Collect diagonal path (0,0) -> (n-1,n-1)
+    for (let i = 0; i < gridSize; i++) {
+        totalFruitsCollected += fruits[i][i];
+    }
+
+    // Child 3: Bottom-left triangle path (n-1,0) -> (n-1,n-2)
+    // Moves: up-right, right, down-right from previous column
+    const updateFromLeftNeighbors = (row: number, column: number) => {
+        let maxFromLeft = 0;
+        if (row - 1 >= gridSize - column) {
+            maxFromLeft = fruits[row - 1][column - 1];
+        }
+        if (row >= gridSize - column) {
+            maxFromLeft = Math.max(maxFromLeft, fruits[row][column - 1]);
+        }
+        if (row + 1 >= gridSize - column && row + 1 < gridSize) {
+            maxFromLeft = Math.max(maxFromLeft, fruits[row + 1][column - 1]);
+        }
+        fruits[row][column] += maxFromLeft;
+    };
+
+    for (let column = 1; column <= midPoint - 1; column++) {
+        for (let row = gridSize - 1; row >= gridSize - column - 1; row--) {
+            updateFromLeftNeighbors(row, column);
+        }
+    }
+    for (let column = midPoint; column <= gridSize - 2; column++) {
+        for (let row = gridSize - 1; row >= column + 1; row--) {
+            updateFromLeftNeighbors(row, column);
+        }
+    }
+    totalFruitsCollected += fruits[gridSize - 1][gridSize - 2];
+
+    // Child 2: Top-right triangle path (0,n-1) -> (n-2,n-1)  
+    // Moves: down-left, down, down-right from previous row
+    const updateFromTopNeighbors = (row: number, column: number) => {
         let maxFromTop = 0;
-        if (j - 1 >= n - i) {
-            maxFromTop = fruits[i - 1][j - 1];
+        if (column - 1 >= gridSize - row) {
+            maxFromTop = fruits[row - 1][column - 1];
         }
-        if (j >= n - i) {
-            maxFromTop = Math.max(maxFromTop, fruits[i - 1][j]);
+        if (column >= gridSize - row) {
+            maxFromTop = Math.max(maxFromTop, fruits[row - 1][column]);
         }
-        if (j + 1 >= n - i && j + 1 < n) {
-            maxFromTop = Math.max(maxFromTop, fruits[i - 1][j + 1]);
+        if (column + 1 >= gridSize - row && column + 1 < gridSize) {
+            maxFromTop = Math.max(maxFromTop, fruits[row - 1][column + 1]);
         }
-        fruits[i][j] += maxFromTop;
-    }
-    for (let i = 1; i <= half - 1; i++) {
-        for (let j = n - 1; j >= n - i - 1; j--) {
-            updateFromTopPaths(i, j);
-        }
-    }
-    for (let i = half; i <= n - 2; i++) {
-        for (let j = n - 1; j >= i + 1; j--) {
-            updateFromTopPaths(i, j);
+        fruits[row][column] += maxFromTop;
+    };
+
+    for (let row = 1; row <= midPoint - 1; row++) {
+        for (let column = gridSize - 1; column >= gridSize - row - 1; column--) {
+            updateFromTopNeighbors(row, column);
         }
     }
-    //fruits[n-2][n-1] has totalfruits for topright kid
-    totalsum += fruits[n - 2][n - 1];
-    return totalsum;
+    for (let row = midPoint; row <= gridSize - 2; row++) {
+        for (let column = gridSize - 1; column >= row + 1; column--) {
+            updateFromTopNeighbors(row, column);
+        }
+    }
+    totalFruitsCollected += fruits[gridSize - 2][gridSize - 1];
+
+    return totalFruitsCollected;
 };

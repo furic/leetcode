@@ -1,3 +1,5 @@
+# Trie + Signature Deduplication | 62 Lines | O(N log N) | 131ms
+
 # Intuition
 
 To efficiently detect and remove duplicate folders with identical subtree structures, we can model the folder hierarchy using a **Trie**. By generating a **unique serialized signature** for each subtree, we can identify duplicates globally and remove them in a single pass.

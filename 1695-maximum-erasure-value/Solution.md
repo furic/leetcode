@@ -1,3 +1,5 @@
+# Sliding Window Unique Sum | 29 Lines | O(n) | 25ms
+
 # Intuition
 
 To maximize the sum of a subarray with **all unique elements**, we need to find the longest possible window of unique numbers while tracking their sum efficiently. A **sliding window with a hash map** helps track duplicates, ensuring we adjust the window without re-scanning the entire array repeatedly.

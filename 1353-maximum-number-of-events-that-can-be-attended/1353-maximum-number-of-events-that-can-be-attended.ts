@@ -1,34 +1,31 @@
 const maxEvents = (events: number[][]): number => {
     events.sort((a, b) => a[0] - b[0]);
 
-    const pq = new MinPriorityQueue<number>();
-    let day = 0;
-    let i = 0;
-    let attended = 0;
+    const eventEndDays = new MinPriorityQueue<number>();
+    let currentDay = 0;
+    let eventIndex = 0;
+    let eventsAttended = 0;
 
-    while (i < events.length || !pq.isEmpty()) {
-        if (pq.isEmpty() && i < events.length) {
-            day = events[i][0];
+    while (eventIndex < events.length || !eventEndDays.isEmpty()) {
+        if (eventEndDays.isEmpty() && eventIndex < events.length) {
+            currentDay = events[eventIndex][0];
         }
 
-        // Add all events that start today or earlier
-        while (i < events.length && events[i][0] <= day) {
-            pq.enqueue(events[i][1]);
-            i++;
+        while (eventIndex < events.length && events[eventIndex][0] <= currentDay) {
+            eventEndDays.enqueue(events[eventIndex][1]);
+            eventIndex++;
         }
 
-        // Remove expired events
-        while (!pq.isEmpty() && pq.front()! < day) {
-            pq.dequeue();
+        while (!eventEndDays.isEmpty() && eventEndDays.front()! < currentDay) {
+            eventEndDays.dequeue();
         }
 
-        // Attend one event
-        if (!pq.isEmpty()) {
-            pq.dequeue();
-            attended++;
-            day++;
+        if (!eventEndDays.isEmpty()) {
+            eventEndDays.dequeue();
+            eventsAttended++;
+            currentDay++;
         }
     }
 
-    return attended;
+    return eventsAttended;
 };

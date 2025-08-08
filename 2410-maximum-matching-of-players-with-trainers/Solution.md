@@ -1,4 +1,4 @@
-# [TypeScript] Two-Pointer Matching | 18 Lines | O(n log n) | 89ms
+# Two-Pointer Matching | 18 Lines | O(n log n) | 89ms
 
 # Intuition
 

@@ -1,3 +1,5 @@
+# Tournament Recursion | 45 Lines | O(log n) | 2ms
+
 # Intuition
 
 We need to compute **both the earliest and latest rounds** two specific players can meet in a knockout tournament with flexible results for other matches. Since the tournament structure is recursive (half the players advance each round, with middle players auto-advancing if odd), we can recursively simulate:

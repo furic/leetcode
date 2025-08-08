@@ -1,3 +1,5 @@
+# Two-Pass Conflict Tracking | 41 Lines | O(n + m) | 63ms
+
 # Intuition
 
 We are given a sorted array `nums = [1, 2, ..., n]` and a list of conflicting pairs. If any conflicting pair `[a, b]` appears in a subarray, that subarray is invalid. We're allowed to remove **one conflicting pair**, and we want to **maximize** the total number of valid subarrays.

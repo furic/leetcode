@@ -1,3 +1,5 @@
+# Skip Duplicates, Track Transitions | 16 Lines | O(n) | 0ms
+
 # Intuition
 We want to count the number of "hills" and "valleys" in an integer array. A hill is where the current element is greater than both of its closest non-equal neighbors, and a valley is where it is smaller than both. To do this accurately, we must skip over adjacent duplicate elements and only consider transitions between distinct values.
 

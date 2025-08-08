@@ -1,4 +1,4 @@
-<h2><a href="https://leetcode.com/problems/finding-pairs-with-a-certain-sum">1865. Finding Pairs With a Certain Sum</a></h2><h3>Medium</h3><hr><p>You are given two integer arrays <code>nums1</code> and <code>nums2</code>. You are tasked to implement a data structure that supports queries of two types:</p>
+<h2><a href="https://leetcode.com/problems/finding-pairs-with-a-certain-sum/?envType=daily-question&envId=2025-07-06">1865. Finding Pairs With a Certain Sum</a></h2><h3>Medium</h3><hr><p>You are given two integer arrays <code>nums1</code> and <code>nums2</code>. You are tasked to implement a data structure that supports queries of two types:</p>
 
 <ol>
 	<li><strong>Add</strong> a positive integer to an element of a given index in the array <code>nums2</code>.</li>

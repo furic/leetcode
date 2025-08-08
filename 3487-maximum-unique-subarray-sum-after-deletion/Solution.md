@@ -1,3 +1,5 @@
+# Unique Subarray Max Sum | 9 Lines | O(n) | 1ms
+
 # Intuition
 
 To maximize the sum of a **unique elements subarray**, we need to:

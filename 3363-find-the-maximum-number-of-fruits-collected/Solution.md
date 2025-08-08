@@ -1,4 +1,4 @@
-# Dynamic Programming Paths | 52 Lines | O(n²) | 21ms
+# Dynamic Programming Paths | 52 Lines | O(n²) | 18ms
 
 # Intuition
 The problem involves three children moving from different corners to the bottom-right corner (n-1, n-1). Since all children end at the same position, we can treat this as three separate path optimization problems. The key insight is that we can solve each child's path independently using dynamic programming, where each child collects fruits optimally along their allowed movement patterns.

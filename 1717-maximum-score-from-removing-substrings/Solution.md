@@ -1,3 +1,5 @@
+# Greedy Stack Remove Pairs | 32 Lines | O(n) | 16ms
+
 # Intuition
 
 To maximize the total score, **always remove the higher-value pair first** whenever possible. Since removing "ab" and "ba" may overlap, we should prioritize removing the pair with the higher point value greedily to avoid wasting potential high-value removals.

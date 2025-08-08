@@ -1,3 +1,5 @@
+# Double Edge Removal Tree XOR | 65 Lines | O(n^2) | 90ms
+
 # Intuition
 
 We need to **remove two edges to form three connected components** in a tree and **minimize the difference between the largest and smallest XOR among the three components**. A brute-force check for all pairs of removable edges is feasible due to \( n \leq 1000 \), provided we compute subtree XORs efficiently.

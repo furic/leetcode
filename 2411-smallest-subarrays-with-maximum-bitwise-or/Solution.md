@@ -1,4 +1,4 @@
-# [TypeScript] Bit Tracking in Reverse | 20 Lines | O(n·logM) | 50ms
+# Bit Tracking in Reverse | 20 Lines | O(n·logM) | 50ms
 
 # Intuition
 To get the smallest subarray starting from each index `i` that reaches the maximum possible OR from `i` to `n-1`, we need to track how far we need to go to collect all significant bits.

@@ -1,9 +1,9 @@
 const sortPermutation = (nums: number[]): number => {
-    let res = Number.MAX_SAFE_INTEGER;
+    let res = -1;
     for (let i = 0; i < nums.length; i++) {
-        if (nums[i] === i) continue;
-        const k = nums[i] & i;
-        res = res & k;
+        if (nums[i] !== i) {
+            res &= i;
+        }
     }
-    return res === Number.MAX_SAFE_INTEGER ? 0 : res;
+    return res === -1 ? 0 : res;
 };

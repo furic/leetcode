@@ -4,7 +4,7 @@ const largestGoodInteger = (num: string): string => {
     // Find all digits that appear 3 times consecutively
     for (let i = 0; i < num.length - 2; i++) {
         if (num[i] === num[i + 1] && num[i + 1] === num[i + 2]) {
-            goodDigits.push(parseInt(num[i]));
+            goodDigits.push(Number(num[i]));
         }
     }
     

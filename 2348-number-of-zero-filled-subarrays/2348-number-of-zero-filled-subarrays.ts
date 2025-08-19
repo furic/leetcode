@@ -1,20 +1,15 @@
 const zeroFilledSubarray = (nums: number[]): number => {
-    let totalSubarrays = 0;
-    let consecutiveZeros = 0;
-    
-    for (const currentNumber of nums) {
-        if (currentNumber === 0) {
-            // Extend the current streak of zeros
-            consecutiveZeros++;
-            
-            // Add number of new subarrays ending at current position
-            // If we have n consecutive zeros, we can form n subarrays ending here
-            totalSubarrays += consecutiveZeros;
+    let result = 0;
+    let zeroConsecCount = 0;
+
+    for (let i = 0; i < nums.length; i++) {
+        if (nums[i] === 0) {
+            zeroConsecCount++;
+            result += zeroConsecCount;
         } else {
-            // Reset streak when we encounter a non-zero
-            consecutiveZeros = 0;
+            zeroConsecCount = 0;
         }
+        
     }
-    
-    return totalSubarrays;
+    return result;
 };

@@ -1,57 +1,68 @@
-function lenOfVDiagonal(grid: number[][]): number {
-    const DIRS = [
-        [1, 1],
-        [1, -1],
-        [-1, -1],
-        [-1, 1],
+const lenOfVDiagonal = (grid: number[][]): number => {
+    const DIAGONAL_DIRECTIONS = [
+        [1, 1],   // bottom-right
+        [1, -1],  // bottom-left  
+        [-1, -1], // top-left
+        [-1, 1],  // top-right
     ];
-    const m = grid.length,
-        n = grid[0].length;
-    const memo: number[] = new Array(m * n * 8).fill(-1);
+    
+    const totalRows = grid.length;
+    const totalColumns = grid[0].length;
+    const memoizationTable: number[] = new Array(totalRows * totalColumns * 8).fill(-1);
 
-    function dfs(
-        cx: number,
-        cy: number,
-        direction: number,
-        turn: boolean,
-        target: number,
-    ): number {
-        const nx = cx + DIRS[direction][0];
-        const ny = cy + DIRS[direction][1];
-        /* If it goes beyond the boundary or the next node's value is not the target
-         * value, then return */
-        if (nx < 0 || ny < 0 || nx >= m || ny >= n || grid[nx][ny] !== target) {
+    const findLongestPath = (
+        currentRow: number,
+        currentColumn: number,
+        directionIndex: number,
+        canStillTurn: boolean,
+        expectedValue: number,
+    ): number => {
+        const nextRow = currentRow + DIAGONAL_DIRECTIONS[directionIndex][0];
+        const nextColumn = currentColumn + DIAGONAL_DIRECTIONS[directionIndex][1];
+        
+        // Check boundaries and value match
+        if (nextRow < 0 || nextColumn < 0 || nextRow >= totalRows || nextColumn >= totalColumns || 
+            grid[nextRow][nextColumn] !== expectedValue) {
             return 0;
         }
 
-        const turnInt = turn ? 1 : 0;
-        const index = nx * n * 8 + ny * 8 + direction * 2 + turnInt;
-        if (memo[index] !== -1) {
-            return memo[index];
+        // Memoization key: position + direction + turn_status
+        const turnFlag = canStillTurn ? 1 : 0;
+        const memoIndex = nextRow * totalColumns * 8 + nextColumn * 8 + directionIndex * 2 + turnFlag;
+        if (memoizationTable[memoIndex] !== -1) {
+            return memoizationTable[memoIndex];
         }
 
-        /* Continue walking in the original direction. */
-        let maxStep = dfs(nx, ny, direction, turn, 2 - target);
-        if (turn) {
-            /* Clockwise rotate 90 degrees turn */
-            maxStep = Math.max(
-                maxStep,
-                dfs(nx, ny, (direction + 1) % 4, false, 2 - target),
+        // Continue in same direction with alternating target (2 becomes 0, 0 becomes 2)
+        let maxPathLength = findLongestPath(nextRow, nextColumn, directionIndex, canStillTurn, 2 - expectedValue);
+        
+        // If turn is still available, try clockwise 90-degree turn
+        if (canStillTurn) {
+            const clockwiseDirection = (directionIndex + 1) % 4;
+            maxPathLength = Math.max(
+                maxPathLength,
+                findLongestPath(nextRow, nextColumn, clockwiseDirection, false, 2 - expectedValue)
             );
         }
-        memo[index] = maxStep + 1;
-        return maxStep + 1;
-    }
+        
+        memoizationTable[memoIndex] = maxPathLength + 1;
+        return maxPathLength + 1;
+    };
 
-    let res = 0;
-    for (let i = 0; i < m; i++) {
-        for (let j = 0; j < n; j++) {
-            if (grid[i][j] === 1) {
+    let longestVSegment = 0;
+    
+    // Try starting from every cell with value 1
+    for (let rowIndex = 0; rowIndex < totalRows; rowIndex++) {
+        for (let columnIndex = 0; columnIndex < totalColumns; columnIndex++) {
+            if (grid[rowIndex][columnIndex] === 1) {
+                // Try all 4 diagonal directions from this starting point
                 for (let direction = 0; direction < 4; direction++) {
-                    res = Math.max(res, dfs(i, j, direction, true, 2) + 1);
+                    const pathLength = findLongestPath(rowIndex, columnIndex, direction, true, 2) + 1;
+                    longestVSegment = Math.max(longestVSegment, pathLength);
                 }
             }
         }
     }
-    return res;
+    
+    return longestVSegment;
 };

@@ -1,39 +1,26 @@
-const sortMatrix = (grid: number[][]): number[][] => {
+function sortMatrix(grid: number[][]): number[][] {
     const n = grid.length;
 
-    // Helper to collect and sort diagonals
-    const processDiagonal = (startRow: number, startCol: number, increasing: boolean) => {
-        let r = startRow, c = startCol;
-        const diagonal = [];
-
-        // Collect the diagonal
-        while (r < n && c < n) {
-            diagonal.push(grid[r][c]);
-            r++;
-            c++;
+    for (let i = 0; i < n; i++) {
+        let tmp: number[] = [];
+        for (let j = 0; i + j < n; j++) {
+            tmp.push(grid[i + j][j]);
         }
-
-        // Sort the diagonal
-        diagonal.sort((a, b) => increasing ? a - b : b - a);
-
-        // Replace the diagonal
-        r = startRow;
-        c = startCol;
-        for (const val of diagonal) {
-            grid[r][c] = val;
-            r++;
-            c++;
+        tmp.sort((a, b) => b - a);
+        for (let j = 0; i + j < n; j++) {
+            grid[i + j][j] = tmp[j];
         }
-    };
-
-    // Process bottom-left triangle (including middle diagonal) - non-increasing
-    for (let row = 0; row < n; row++) {
-        processDiagonal(row, 0, false);
     }
 
-    // Process top-right triangle - non-decreasing
-    for (let col = 1; col < n; col++) {
-        processDiagonal(0, col, true);
+    for (let j = 1; j < n; j++) {
+        let tmp: number[] = [];
+        for (let i = 0; j + i < n; i++) {
+            tmp.push(grid[i][j + i]);
+        }
+        tmp.sort((a, b) => a - b);
+        for (let i = 0; j + i < n; i++) {
+            grid[i][j + i] = tmp[i];
+        }
     }
 
     return grid;

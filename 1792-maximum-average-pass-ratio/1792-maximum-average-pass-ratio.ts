@@ -1,6 +1,6 @@
 const maxAverageRatio = (classes: number[][], extraStudents: number): number => {
     // Max heap to track classes by their potential improvement gain
-    const maxHeap = new PriorityQueue<[number, number, number]>((a, b) => b[2] - a[2]);
+    const maxHeap = new MaxPriorityQueue<[number, number, number]>((c) => c[2]);
 
     // Calculate initial gain for each class and add to heap
     for (const [passingStudents, totalStudents] of classes) {

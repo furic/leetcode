@@ -1,24 +1,39 @@
-function maxAverageRatio(classes: number[][], extraStudents: number): number {
+const maxAverageRatio = (classes: number[][], extraStudents: number): number => {
+    // Max heap to track classes by their potential improvement gain
     const maxHeap = new PriorityQueue<[number, number, number]>((a, b) => b[2] - a[2]);
 
-    for (const [pass, total] of classes) {
-        const gain = (pass + 1) / (total + 1) - (pass / total);
-        maxHeap.push([pass, total, gain]);
+    // Calculate initial gain for each class and add to heap
+    for (const [passingStudents, totalStudents] of classes) {
+        const currentRatio = passingStudents / totalStudents;
+        const improvedRatio = (passingStudents + 1) / (totalStudents + 1);
+        const improvementGain = improvedRatio - currentRatio;
+        maxHeap.push([passingStudents, totalStudents, improvementGain]);
     }
 
-    while (extraStudents > 0) {
-        let [pass, total, _] = maxHeap.pop();
-        pass++;
-        total++;
-        let newGain = (pass + 1) / (total + 1) - (pass / total);
-        maxHeap.push([pass, total, newGain]);
-        extraStudents--;
+    // Greedily assign each extra student to class with highest improvement gain
+    let remainingStudents = extraStudents;
+    while (remainingStudents > 0) {
+        const [passingStudents, totalStudents, _] = maxHeap.pop();
+        
+        // Add one student to this class
+        const newPassingStudents = passingStudents + 1;
+        const newTotalStudents = totalStudents + 1;
+        
+        // Recalculate improvement gain for this class
+        const currentRatio = newPassingStudents / newTotalStudents;
+        const improvedRatio = (newPassingStudents + 1) / (newTotalStudents + 1);
+        const newImprovementGain = improvedRatio - currentRatio;
+        
+        maxHeap.push([newPassingStudents, newTotalStudents, newImprovementGain]);
+        remainingStudents--;
     }
 
-    let sum = 0;
+    // Calculate final average pass ratio
+    let totalPassRatio = 0;
     while (maxHeap.size() > 0) {
-        const [pass, total, _] = maxHeap.pop();
-        sum += (pass / total);
+        const [passingStudents, totalStudents, _] = maxHeap.pop();
+        totalPassRatio += passingStudents / totalStudents;
     }
-    return sum / classes.length;
+    
+    return totalPassRatio / classes.length;
 };

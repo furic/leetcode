@@ -19,8 +19,7 @@ const numberOfPairs = (points: number[][]): number => {
             const bobPosition = points[bobIndex];
 
             // Check if Bob can be lower-right corner (outside forbidden region)
-            if (bobPosition[0] > forbiddenXMin &&
-                bobPosition[0] < forbiddenXMax &&
+            if (
                 bobPosition[1] > forbiddenYMin &&
                 bobPosition[1] < forbiddenYMax) {
                 

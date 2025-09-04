@@ -1,5 +1,11 @@
-const findClosest = (x: number, y: number, z: number): number => {
-    const xz = Math.abs(x - z);
-    const yz = Math.abs(y - z);
-    return xz < yz ? 1 : yz < xz ? 2 : 0;
-};
+function findClosest(x: number, y: number, z: number): number {
+    const dxz = Math.abs(x - z),
+        dyz = Math.abs(y - z);
+    if (dxz < dyz) {
+        return 1;
+    } else if (dxz > dyz) {
+        return 2;
+    } else {
+        return 0;
+    }
+}

@@ -1,0 +1,1 @@
+const minOperations = (nums: number[]): number => new Set(nums).size === 1 ? 0 : 1;

@@ -1,10 +1,4 @@
-function sumZero(n: number): number[] {
-    let ans: number[] = [];
-    for (let i = 1; i <= Math.floor(n / 2); i++) {
-        ans.push(i, -i);
-    }
-    if (n % 2 === 1) {
-        ans.push(0);
-    }
-    return ans;
-}
+const sumZero = (n: number): number[] => [
+    ...Array.from({ length: Math.floor(n / 2) }, (_, i) => [i + 1, -(i + 1)]).flat(),
+    ...(n % 2 ? [0] : []),
+];

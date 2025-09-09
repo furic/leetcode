@@ -1,26 +1,30 @@
-function peopleAwareOfSecret(n: number, delay: number, forget: number): number {
-    const MOD = 1000000007;
-    const know = new Deque<number[]>();
-    const share = new Deque<number[]>();
-    know.pushBack([1, 1]);
-    let knowCnt = 1,
-        shareCnt = 0;
+const peopleAwareOfSecret = (n: number, delay: number, forget: number): number => {
+    const MODULO = 1_000_000_007;
+    const newPeoplePerDay = new Array(n + 1).fill(0);
 
-    for (let i = 2; i <= n; i++) {
-        if (!know.isEmpty() && know.front()[0] === i - delay) {
-            const first = know.popFront();
-            knowCnt = (knowCnt - first[1] + MOD) % MOD;
-            shareCnt = (shareCnt + first[1]) % MOD;
-            share.pushBack(first);
+    newPeoplePerDay[1] = 1; // On day 1, one person discovers the secret
+    let activeSharers = 0; // People who can currently share (learned secret but haven't forgotten)
+
+    for (let currentDay = 2; currentDay <= n; currentDay++) {
+        // Add people who become eligible to share today (learned `delay` days ago)
+        if (currentDay - delay >= 1) {
+            activeSharers = (activeSharers + newPeoplePerDay[currentDay - delay]) % MODULO;
         }
-        if (!share.isEmpty() && share.front()[0] === i - forget) {
-            const first = share.popFront();
-            shareCnt = (shareCnt - first[1] + MOD) % MOD;
+
+        // Remove people who forget today (learned `forget` days ago)
+        if (currentDay - forget >= 1) {
+            activeSharers = (activeSharers - newPeoplePerDay[currentDay - forget] + MODULO) % MODULO;
         }
-        if (!share.isEmpty()) {
-            knowCnt = (knowCnt + shareCnt) % MOD;
-            know.pushBack([i, shareCnt]);
-        }
+
+        // Each active sharer tells one new person today
+        newPeoplePerDay[currentDay] = activeSharers;
     }
-    return (knowCnt + shareCnt) % MOD;
-}
+
+    // Count people who still remember: those who learned in the last `forget-1` days
+    let totalWhoRemember = 0;
+    for (let dayLearned = n - forget + 1; dayLearned <= n; dayLearned++) {
+        totalWhoRemember = (totalWhoRemember + newPeoplePerDay[dayLearned]) % MODULO;
+    }
+
+    return totalWhoRemember;
+};

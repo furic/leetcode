@@ -1,29 +1,18 @@
-function sortVowels(s: string): string {
-    const vowels = new Set(['a','e','i','o','u','A','E','I','O','U']);
-    const extractedVowels: string[] = [];
+const sortVowels = (s: string): string => {
+    const vowelSet = new Set(["a", "e", "i", "o", "u", "A", "E", "I", "O", "U"]);
 
-    // Extract vowels
-    for (let ch of s) {
-      if (vowels.has(ch)) {
-        extractedVowels.push(ch);
-      }
+    // Extract all vowels from string and sort by ASCII value
+    const sortedVowels = s.split("").filter(char => vowelSet.has(char)).sort();
+
+    let vowelIndex = 0; // Pointer to track current position in sorted vowels
+    const characters = s.split("");
+
+    // Replace vowels in original positions with sorted vowels
+    for (let charIndex = 0; charIndex < characters.length; charIndex++) {
+        if (vowelSet.has(characters[charIndex])) {
+            characters[charIndex] = sortedVowels[vowelIndex++];
+        }
     }
 
-    // Sort vowels by ASCII value
-    extractedVowels.sort((a, b) => a.charCodeAt(0) - b.charCodeAt(0));
-
-    // Rebuild string
-    let result = '';
-    let vowelIndex = 0;
-
-    for (let ch of s) {
-      if (vowels.has(ch)) {
-        result += extractedVowels[vowelIndex++];
-      } else {
-        result += ch;
-      }
-    }
-
-    return result;
-
+    return characters.join("");
 };

@@ -1,0 +1,1 @@
+const doesAliceWin = (s: string): boolean => s.split('').some((c) => "aeiou".includes(c));

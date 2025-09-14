@@ -1,50 +1,48 @@
+function devowelWord(word: string): string {
+    return word.toLowerCase().replaceAll(/(a|e|i|o|u)/g, '*');
+}
+
 function spellchecker(wordlist: string[], queries: string[]): string[] {
-    const exactMatchSet = new Set(wordlist);
+    
+    let output: string[] = [];
 
-    const caseInsensitiveMap: Map<string, string> = new Map();
-    const vowelInsensitiveMap: Map<string, string> = new Map();
+    const caseSensitiveDictionary: Set<string> = new Set(wordlist);
+    const caseInsensitiveDictionary: Map<string, string> = new Map();
+    const devoweledDictionary: Map<string, string> = new Map();
+    
+    for(const word of wordlist) {
+        const wordLowerCase = word.toLowerCase();
+        if(!caseInsensitiveDictionary.has(wordLowerCase)) {
+            caseInsensitiveDictionary.set(wordLowerCase, word);
+        }
 
-    const normalizeVowels = (word: string): string => {
-      const vowels = new Set(['a', 'e', 'i', 'o', 'u']);
-      return word
-        .toLowerCase()
-        .split("")
-        .map((ch) => (vowels.has(ch) ? "*" : ch))
-        .join("");
-    };
-
-    // Build maps
-    for (const word of wordlist) {
-      const lowerWord = word.toLowerCase();
-      if (!caseInsensitiveMap.has(lowerWord)) {
-        caseInsensitiveMap.set(lowerWord, word);
-      }
-      const vowelWord = normalizeVowels(lowerWord);
-      if (!vowelInsensitiveMap.has(vowelWord)) {
-        vowelInsensitiveMap.set(vowelWord, word);
-      }
+        const devoweledWord = devowelWord(wordLowerCase);
+        if(!devoweledDictionary.has(devoweledWord)) {
+            devoweledDictionary.set(devoweledWord, word);
+        }
     }
 
-    const results: string[] = [];
+    for(const query of queries) {
 
-    for (const query of queries) {
-      if (exactMatchSet.has(query)) {
-        results.push(query);
-        continue;
-      }
-      const lowerQuery = query.toLowerCase();
-      if (caseInsensitiveMap.has(lowerQuery)) {
-        results.push(caseInsensitiveMap.get(lowerQuery)!);
-        continue;
-      }
-      const vowelQuery = normalizeVowels(lowerQuery);
-      if (vowelInsensitiveMap.has(vowelQuery)) {
-        results.push(vowelInsensitiveMap.get(vowelQuery)!);
-        continue;
-      }
-      results.push("");
+        if(caseSensitiveDictionary.has(query)) {
+            output.push(query);
+            continue;
+        } 
+        
+        const lowerCaseQuery = query.toLowerCase();
+        if(caseInsensitiveDictionary.has(lowerCaseQuery)) {
+            output.push(caseInsensitiveDictionary.get(lowerCaseQuery))
+            continue;
+        }
+        
+        const devoweledWord = devowelWord(query);
+        if( devoweledDictionary.has(devoweledWord) ) {
+            output.push(devoweledDictionary.get(devoweledWord))
+            continue;
+        }
+
+        output.push("");
     }
 
-    return results;
-
+    return output;
 };

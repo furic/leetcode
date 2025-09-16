@@ -1,28 +1,32 @@
-function replaceNonCoprimes(nums: number[]): number[] {
-    const stack = [];
+const replaceNonCoprimes = (nums: number[]): number[] => {
+    const resultStack: number[] = [];
     
-    const gcd = (a, b) => {
-        while (b !== 0) {
-            const t = b;
-            b = a % b;
-            a = t;
+    const calculateGCD = (firstNumber: number, secondNumber: number): number => {
+        while (secondNumber !== 0) {
+            [firstNumber, secondNumber] = [secondNumber, firstNumber % secondNumber];
         }
-        return a;
+        return firstNumber;
     };
     
-    for (let num of nums) {
-        while (stack.length > 0) {
-            const top = stack[stack.length - 1];
-            const g = gcd(top, num);
-            if (g === 1) {
+    for (let currentNumber of nums) {
+        // Keep merging with stack top while they are non-coprime
+        while (resultStack.length > 0) {
+            const stackTop = resultStack[resultStack.length - 1];
+            const greatestCommonDivisor = calculateGCD(stackTop, currentNumber);
+            
+            // If coprime (GCD = 1), no more merging possible
+            if (greatestCommonDivisor === 1) {
                 break;
             }
-            stack.pop();
-            num = (top / g) * num;
+            
+            // Merge: remove stack top and calculate LCM
+            resultStack.pop();
+            // LCM(a,b) = (a*b)/GCD(a,b) = (a/GCD)*b (optimized to avoid overflow)
+            currentNumber = (stackTop / greatestCommonDivisor) * currentNumber;
         }
-        stack.push(num);
+        
+        resultStack.push(currentNumber);
     }
     
-    return stack;
-
+    return resultStack;
 };

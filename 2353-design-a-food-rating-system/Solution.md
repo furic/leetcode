@@ -1,4 +1,4 @@
-# Priority Queue Lazy Deletion | 48 Lines | O(log n) | 88ms
+# Priority Queue Lazy Deletion | 44 Lines | O(log n) | 88ms
 
 # Intuition
 This system needs to efficiently track the highest-rated food for each cuisine while supporting rating updates. The key insight is to use a priority queue for each cuisine to maintain ranking order, combined with a lookup table for authoritative data. Since priority queues don't support efficient arbitrary element updates, we can use a "lazy deletion" strategy where we add updated entries and filter out stale ones when accessing the top.

@@ -37,13 +37,8 @@ type FoodItem = {
     cuisine: string;
 };
 
-const compareStringLexicographically = (first: string, second: string): number => {
-    if (first === second) return 0;
-    return (first < second) ? -1 : 1;
-};
-
 const compareFoodItems = (first: FoodItem, second: FoodItem): number => {
-    return second.rating - first.rating || compareStringLexicographically(first.name, second.name);
+    return second.rating - first.rating || first.name.localeCompare(second.name);
 };
 
 class FoodRatings {

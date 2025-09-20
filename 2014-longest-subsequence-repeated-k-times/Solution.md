@@ -1,4 +1,4 @@
-# [TypeScript] BFS + Greedy Lexical Build | 52 Lines | O(Σ * n) | 381ms
+# BFS + Greedy Lexical Build | 52 Lines | O(Σ * n) | 381ms
 
 # Intuition
 We need to find the **longest subsequence** that, when repeated `k` times, is still a subsequence of `s`. Since longer valid subsequences are better, and ties are broken by **lexicographically larger**, we can systematically **build candidate subsequences** and check if repeating them `k` times fits inside `s`.

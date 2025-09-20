@@ -73,10 +73,6 @@ jobs:
             echo "No changes to commit"
           else
             git add README.md
-            git commit -m "🤖 Update LeetCode stats: Rating ${{ steps.leetcode.outputs.rating }}, Ranking ${{ steps.leetcode.outputs.ranking }}/${{ steps.leetcode.outputs.total }}, Solved ${{ steps.leetcode.outputs.solved }}/${{ steps.leetcode.outputs.questions }} (${{ steps.leetcode.outputs.percentage }}%)
-
-🤖 Generated with [Claude Code](https://claude.ai/code)
-
-Co-Authored-By: Claude <noreply@anthropic.com>"
+            git commit -m "🤖 Update LeetCode stats: Rating ${{ steps.leetcode.outputs.rating }}, Ranking ${{ steps.leetcode.outputs.ranking }}/${{ steps.leetcode.outputs.total }}, Solved ${{ steps.leetcode.outputs.solved }}/${{ steps.leetcode.outputs.questions }} (${{ steps.leetcode.outputs.percentage }}%)"
             git push
           fi

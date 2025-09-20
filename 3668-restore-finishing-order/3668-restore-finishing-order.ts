@@ -1,0 +1,1 @@
+const recoverOrder = (order: number[], friends: number[]): number[] => order.filter((order) => friends.includes(order));

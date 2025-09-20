@@ -1,4 +1,4 @@
-<h2><a href="https://leetcode.com/problems/longest-subsequence-repeated-k-times">2014. Longest Subsequence Repeated k Times</a></h2><h3>Hard</h3><hr><p>You are given a string <code>s</code> of length <code>n</code>, and an integer <code>k</code>. You are tasked to find the <strong>longest subsequence repeated</strong> <code>k</code> times in string <code>s</code>.</p>
+<h2><a href="https://leetcode.com/problems/longest-subsequence-repeated-k-times/">2014. Longest Subsequence Repeated k Times</a></h2><h3>Hard</h3><hr><p>You are given a string <code>s</code> of length <code>n</code>, and an integer <code>k</code>. You are tasked to find the <strong>longest subsequence repeated</strong> <code>k</code> times in string <code>s</code>.</p>
 
 <p>A <strong>subsequence</strong> is a string that can be derived from another string by deleting some or no characters without changing the order of the remaining characters.</p>
 
@@ -41,7 +41,7 @@
 
 <ul>
 	<li><code>n == s.length</code></li>
-	<li><code>2 &lt;= n, k &lt;= 2000</code></li>
-	<li><code>2 &lt;= n &lt; k * 8</code></li>
+	<li><code>2 &lt;= k &lt;= 2000</code></li>
+	<li><code>2 &lt;= n &lt; min(2001, k * 8)</code></li>
 	<li><code>s</code> consists of lowercase English letters.</li>
 </ul>

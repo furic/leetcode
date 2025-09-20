@@ -5,6 +5,8 @@
   "main": "categorize-solution.js",
   "scripts": {
     "categorize": "node categorize-solution.js",
+    "categorize:manual": "node categorize-manual.js",
+    "categorize:patterns": "node categorize-patterns.js",
     "categorize:watch": "node update-stats.js && node categorize-solution.js",
     "update-stats": "node update-stats.js",
     "setup": "echo 'Please set your Claude API key: export CLAUDE_API_KEY=\"your-api-key\"'",

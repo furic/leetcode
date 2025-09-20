@@ -1,56 +1,71 @@
 # 🤖 LeetCode Solution Auto-Categorization Guide
 
-This guide explains how to use the intelligent categorization system for your LeetCode solutions using Claude AI.
+This guide explains how to use the intelligent categorization system for your LeetCode solutions with multiple categorization options.
 
 ## 🚀 Quick Start
 
-### 1. Setup
+### Choose Your Categorization Method
 
-First, get your Claude API key:
-1. Visit [Anthropic Console](https://console.anthropic.com/)
-2. Create an account and get your API key
-3. Set the environment variable:
-
+**Option 1: Pattern-Based (Recommended - No API needed)**
 ```bash
-export CLAUDE_API_KEY="your-api-key-here"
+npm run categorize:patterns  # Fast automated categorization
 ```
 
-### 2. Run Auto-Categorization
+**Option 2: Manual Interactive**
+```bash
+npm run categorize:manual    # Guided manual categorization
+```
+
+**Option 3: Claude AI (Requires API key)**
+```bash
+# First set up Claude API key:
+export CLAUDE_API_KEY="your-api-key-here"
+npm run categorize           # AI-powered categorization
+```
+
+### Complete Workflow
 
 ```bash
-# Make the script executable (one time)
-chmod +x auto-categorize.sh
-
-# Run the complete workflow
-./auto-categorize.sh
-
-# Or run individual commands
-npm run update-stats        # Update solution count statistics
-npm run categorize          # Categorize new solutions only
-npm run categorize:watch    # Update stats + categorize
+# Update statistics + categorize
+npm run update-stats         # Update solution count statistics
+npm run categorize:patterns  # Or use :manual or regular categorize
 ```
 
 ## 📁 How It Works
 
-### 1. **Detection**
+### 1. **Detection** (All Methods)
 - Scans for directories matching pattern `\d{4}-*` (e.g., `0001-two-sum`)
 - Compares against existing entries in README.md
 - Identifies new solutions that need categorization
 
-### 2. **Analysis**
+### 2. **Analysis** (All Methods)
 - Reads problem description from `README.md`
 - Analyzes solution code from `{problem-id}-{problem-name}.ts`
 - Includes solution explanation from `Solution.md` if available
 
-### 3. **AI Categorization**
-- Sends problem context to Claude AI
+### 3. **Categorization Methods**
+
+**Pattern-Based Categorization:**
+- Analyzes code patterns and keywords automatically
+- Uses predefined rules for common algorithm patterns
+- Fast and requires no external dependencies
+- ~80-90% accuracy for standard problems
+
+**Manual Categorization:**
+- Shows problem info and code preview
+- Interactive selection of category and subcategory
+- 100% accuracy with human judgment
+- Educational - helps you learn problem patterns
+
+**Claude AI Categorization:**
+- Sends problem context to Claude AI (requires API key)
 - Gets intelligent categorization based on:
   - Algorithm patterns (Two Pointers, Dynamic Programming, etc.)
   - Data structures used (Arrays, Trees, Hash Tables, etc.)
   - Problem complexity and approach
   - Existing category structure
 
-### 4. **README Update**
+### 4. **README Update** (All Methods)
 - Automatically places solution in appropriate category
 - Creates new subcategories when needed
 - Maintains existing structure and formatting
@@ -60,7 +75,9 @@ npm run categorize:watch    # Update stats + categorize
 
 ```
 leetcode/
-├── categorize-solution.js      # Main categorization script
+├── categorize-solution.js      # Claude AI categorization script
+├── categorize-patterns.js      # Pattern-based categorization (recommended)
+├── categorize-manual.js        # Interactive manual categorization
 ├── update-stats.js            # Statistics updater
 ├── auto-categorize.sh         # Complete workflow script
 ├── package.json               # NPM configuration
@@ -78,12 +95,23 @@ leetcode/
 ### Environment Variables
 
 ```bash
-# Required: Claude API key
+# Optional: Claude API key (only needed for AI categorization)
 export CLAUDE_API_KEY="your-api-key"
 
-# Optional: Custom configuration
+# Optional: Custom configuration for Claude AI
 export CATEGORIZE_MODEL="claude-3-5-sonnet-20241022"  # AI model
 export CATEGORIZE_MAX_TOKENS="2000"                   # Response limit
+```
+
+### Pattern-Based Configuration
+
+Pattern rules are defined in `categorize-patterns.js` and can be customized:
+
+```javascript
+'Two-Pointer & Sliding Window': {
+  keywords: ['two pointer', 'sliding window', 'left', 'right'],
+  codePatterns: [/left.*right/, /while.*left.*right/, /window/i]
+}
 ```
 
 ### Categories
@@ -121,18 +149,24 @@ The repository includes automatic categorization via GitHub Actions:
 
 ### Setup GitHub Actions
 
+**For Pattern-Based (Recommended):**
+- No setup required - works out of the box
+- Workflow uses `categorize-patterns.js` by default
+
+**For Claude AI (Optional):**
 1. **Add API Key to GitHub Secrets:**
    - Go to your repository → Settings → Secrets and variables → Actions
    - Add new secret: `CLAUDE_API_KEY` with your API key
+   - Modify workflow to use `categorize-solution.js`
 
-2. **Workflow Triggers:**
-   - **Automatic**: When new solution directories are pushed
-   - **Manual**: Dispatch from GitHub Actions tab
+### Workflow Triggers
+- **Automatic**: When new solution directories are pushed
+- **Manual**: Dispatch from GitHub Actions tab
 
 ### Workflow Features
 
 - ✅ Detects new solutions automatically
-- 🤖 Categorizes using Claude AI
+- 🤖 Categorizes using pattern matching (or Claude AI if configured)
 - 📊 Updates statistics
 - 📝 Commits changes back to repository
 - 🚫 Skips if no new solutions found
@@ -142,8 +176,10 @@ The repository includes automatic categorization via GitHub Actions:
 ### NPM Scripts
 
 ```bash
-npm run categorize          # Categorize new solutions
-npm run categorize:watch    # Update stats + categorize
+npm run categorize:patterns # Pattern-based categorization (recommended)
+npm run categorize:manual   # Interactive manual categorization
+npm run categorize          # Claude AI categorization (requires API key)
+npm run categorize:watch    # Update stats + AI categorization
 npm run update-stats       # Update solution count only
 npm run setup             # Show setup instructions
 npm run verify            # Verify configuration
@@ -152,7 +188,9 @@ npm run verify            # Verify configuration
 ### Direct Node.js
 
 ```bash
-node categorize-solution.js    # Main categorization
+node categorize-patterns.js   # Pattern-based categorization
+node categorize-manual.js     # Manual interactive categorization
+node categorize-solution.js   # Claude AI categorization
 node update-stats.js          # Statistics only
 ```
 
@@ -166,7 +204,20 @@ node update-stats.js          # Statistics only
 
 ### Custom Categories
 
-To add new categories, edit the `existingCategories` object in `categorize-solution.js`:
+**For Pattern-Based:** Edit the `patterns` object in `categorize-patterns.js`:
+
+```javascript
+patterns: {
+  'Your New Category': {
+    'Your Subcategory': {
+      keywords: ['keyword1', 'keyword2'],
+      codePatterns: [/pattern1/, /pattern2/]
+    }
+  }
+}
+```
+
+**For Claude AI:** Edit the `existingCategories` object in `categorize-solution.js`:
 
 ```javascript
 existingCategories: {
@@ -202,22 +253,33 @@ SOLUTIONS="0001-two-sum,0002-add-two-numbers" node categorize-solution.js
 
 **❌ "CLAUDE_API_KEY environment variable is required"**
 ```bash
-# Solution: Set your API key
+# Solution 1: Use pattern-based instead (recommended)
+npm run categorize:patterns
+
+# Solution 2: Set API key for Claude AI
 export CLAUDE_API_KEY="your-api-key-here"
 ```
 
 **❌ "Could not find category section"**
 - Check that README.md follows the expected format
 - Ensure category names match exactly
+- Try updating with a simple case first
 
-**❌ "API call failed"**
+**❌ Pattern categorization seems inaccurate**
+- Use manual categorization for complex cases
+- Adjust pattern rules in `categorize-patterns.js`
+- Review and manually fix any mistakes
+
+**❌ "API call failed" (Claude AI only)**
 - Verify API key is correct
 - Check internet connection
 - Ensure you have API credits
+- Switch to pattern-based as fallback
 
-**❌ "No JSON found in response"**
+**❌ "No JSON found in response" (Claude AI only)**
 - Claude's response format changed
 - Check and update prompt if needed
+- Use pattern-based as alternative
 
 ### Debug Mode
 
@@ -229,7 +291,9 @@ DEBUG=true node categorize-solution.js
 
 ### Rate Limiting
 
-The script includes automatic delays between API calls to respect rate limits. Adjust if needed:
+**Pattern-Based:** No rate limiting needed - runs locally
+
+**Claude AI:** The script includes automatic delays between API calls:
 
 ```javascript
 // In categorize-solution.js
@@ -241,7 +305,8 @@ await new Promise(resolve => setTimeout(resolve, 1000)); // 1 second delay
 ### 1. **Regular Updates**
 - Run after adding new solutions
 - Use GitHub Actions for automation
-- Keep API key secure
+- Pattern-based method works without any setup
+- Keep API key secure (if using Claude AI)
 
 ### 2. **Solution Structure**
 - Ensure each solution has proper README.md
@@ -249,9 +314,10 @@ await new Promise(resolve => setTimeout(resolve, 1000)); // 1 second delay
 - Use descriptive variable names in code
 
 ### 3. **Manual Review**
-- Review AI categorizations occasionally
-- Adjust categories as needed
-- Provide feedback for improvements
+- Review automated categorizations occasionally
+- Use manual mode for complex or edge cases
+- Adjust pattern rules as needed
+- Fix any categorization mistakes
 
 ### 4. **Statistics Accuracy**
 - Run `update-stats.js` regularly
@@ -260,33 +326,38 @@ await new Promise(resolve => setTimeout(resolve, 1000)); // 1 second delay
 
 ## 🔒 Security
 
-- **Never commit API keys** to the repository
-- Use environment variables or GitHub Secrets
-- Regularly rotate API keys
-- Monitor API usage and costs
+- **Pattern-based method:** No security concerns - runs locally
+- **Claude AI method:**
+  - Never commit API keys to the repository
+  - Use environment variables or GitHub Secrets
+  - Regularly rotate API keys
+  - Monitor API usage and costs
 
 ## 🚀 Contributing
 
 To improve the categorization system:
 
 1. **Fork the repository**
-2. **Improve prompts** in `buildCategorizationPrompt()`
-3. **Add new categories** to configuration
-4. **Enhance error handling**
-5. **Submit pull request**
+2. **Improve pattern rules** in `categorize-patterns.js`
+3. **Enhance prompts** in `buildCategorizationPrompt()` (Claude AI)
+4. **Add new categories** to configuration
+5. **Enhance error handling**
+6. **Submit pull request**
 
 ## 📞 Support
 
 If you encounter issues:
 
 1. Check this guide first
-2. Review error messages carefully
-3. Enable debug mode for more details
-4. Check Claude API status
-5. Create an issue with detailed error info
+2. Try pattern-based method as fallback
+3. Review error messages carefully
+4. Enable debug mode for more details
+5. Check Claude API status (if using AI method)
+6. Use manual categorization for edge cases
+7. Create an issue with detailed error info
 
 ---
 
 **Happy coding! 🎉**
 
-*This system helps you focus on solving problems while AI handles the organization.*
+*This system helps you focus on solving problems while automation handles the organization.*

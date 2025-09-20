@@ -1,9 +1,9 @@
 # LeetCode Solutions in TypeScript
 
-[![Contest Rating](https://img.shields.io/badge/Contest_Rating-1672-orange?style=for-the-badge&logo=leetcode&logoColor=white)](https://leetcode.com/u/furic/)
-[![Global Ranking](https://img.shields.io/badge/Global_Ranking-112,896/760,696-brightgreen?style=for-the-badge&logo=leetcode&logoColor=white)](https://leetcode.com/u/furic/)
-[![Problems Solved](https://img.shields.io/badge/Solved-250/3,686-blue?style=for-the-badge&logo=leetcode&logoColor=white)](https://leetcode.com/u/furic/)
-[![Solve Percentage](https://img.shields.io/badge/Solve_Rate-6.8%25-success?style=for-the-badge&logo=leetcode&logoColor=white)](https://leetcode.com/u/furic/)
+[![Ranking](https://img.shields.io/badge/dynamic/json?style=for-the-badge&labelColor=black&color=orange&label=Ranking&query=ranking&url=https%3A%2F%2Fleetcode-badge.vercel.app%2Fapi%2Fusers%2Ffuric&logo=leetcode&logoColor=yellow)](https://leetcode.com/furic/)
+[![Contest Rating](https://img.shields.io/badge/dynamic/json?style=for-the-badge&labelColor=black&color=brightgreen&label=Global%20Rating&query=rating&url=https%3A%2F%2Fleetcode-badge.vercel.app%2Fapi%2Fusers%2Ffuric&logo=leetcode&logoColor=yellow)](https://leetcode.com/furic/)
+[![Problems Solved](https://img.shields.io/badge/dynamic/json?style=for-the-badge&labelColor=black&color=blue&label=Problems%20Solved&query=solvedOverTotal&url=https%3A%2F%2Fleetcode-badge.vercel.app%2Fapi%2Fusers%2Ffuric&logo=leetcode&logoColor=yellow)](https://leetcode.com/furic/)
+[![Solve Percentage](https://img.shields.io/badge/dynamic/json?style=for-the-badge&labelColor=black&color=success&label=Solve%20Percentage&query=solvedPercentage&url=https%3A%2F%2Fleetcode-badge.vercel.app%2Fapi%2Fusers%2Ffuric&logo=leetcode&logoColor=yellow)](https://leetcode.com/furic/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 
 A collection of LeetCode solutions implemented in TypeScript. This repository contains my solutions to various LeetCode problems, organized by problem ID and name.

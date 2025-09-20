@@ -1,0 +1,73 @@
+name: Auto-Categorize LeetCode Solutions
+
+on:
+  push:
+    paths:
+      - '[0-9][0-9][0-9][0-9]-*/**'  # Trigger on new solution directories
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  categorize:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
+    - name: Check for new solutions
+      id: check-new
+      run: |
+        # Check if there are any new solution directories not in README
+        NEW_SOLUTIONS=$(find . -maxdepth 1 -type d -name '[0-9][0-9][0-9][0-9]-*' | wc -l)
+        README_SOLUTIONS=$(grep -c '\[.*\](./.*/)'  README.md || echo 0)
+
+        if [ $NEW_SOLUTIONS -gt $README_SOLUTIONS ]; then
+          echo "has-new=true" >> $GITHUB_OUTPUT
+          echo "Found $NEW_SOLUTIONS directories but only $README_SOLUTIONS in README"
+        else
+          echo "has-new=false" >> $GITHUB_OUTPUT
+          echo "No new solutions to categorize"
+        fi
+
+    - name: Update statistics
+      if: steps.check-new.outputs.has-new == 'true'
+      run: node update-stats.js
+
+    - name: Categorize new solutions
+      if: steps.check-new.outputs.has-new == 'true'
+      env:
+        CLAUDE_API_KEY: ${{ secrets.CLAUDE_API_KEY }}
+      run: node categorize-solution.js
+
+    - name: Commit and push changes
+      if: steps.check-new.outputs.has-new == 'true'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+
+        if git diff --quiet README.md; then
+          echo "No changes to commit"
+        else
+          git add README.md
+          git commit -m "🤖 Auto-categorize new LeetCode solutions
+
+          - Updated solution categories and statistics
+          - Automatically categorized using Claude AI
+
+          Co-authored-by: github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
+          git push
+        fi
+
+    - name: Summary
+      if: steps.check-new.outputs.has-new == 'true'
+      run: |
+        echo "✅ Auto-categorization workflow completed"
+        echo "📝 README.md has been updated with new categorizations"

@@ -1,80 +1,93 @@
 class Router {
-    private memoryLimit: number;
-    private queue: [number, number, number][];
-    private packetSet: Set<string>;
-    private destMap: Map<number, number[]>;
-
+    private size: number;
+    private packets: Map<bigint, [number, number, number]>;
+    private cnt: Map<number, number[]>;
+    private queue: bigint[];
+    private head: number;
     constructor(memoryLimit: number) {
-        this.memoryLimit = memoryLimit;
+        this.size = memoryLimit;
+        this.packets = new Map();
+        this.cnt = new Map();
         this.queue = [];
-        this.packetSet = new Set();
-        this.destMap = new Map();
+        this.head = 0;
+    }
+    private _encode(source: number, destination: number, timestamp: number): bigint {
+        return (BigInt(source) << 40n) | (BigInt(destination) << 20n) | BigInt(timestamp);
+    }
+
+    private _lb(a: number[], x: number): number {
+        let l = 0, r = a.length;
+        while (l < r) {
+            const m = (l + r) >> 1;
+            if (a[m] >= x) 
+                r = m;
+            else l = m + 1;
+        }
+        return l;
+    }
+
+    private _ub(a: number[], x: number): number {
+        let l = 0, r = a.length;
+        while (l < r) {
+            const m = (l + r) >> 1;
+            if (a[m] > x)
+                r = m;
+            else l = m + 1;
+        }
+        return l;
     }
 
     addPacket(source: number, destination: number, timestamp: number): boolean {
-        const key = `${source}-${destination}-${timestamp}`;
-        if (this.packetSet.has(key)) return false;
-
-        if (this.queue.length === this.memoryLimit) {
-            const [oldSource, oldDestination, oldTimestamp] =
-                this.queue.shift()!;
-            this.packetSet.delete(
-                `${oldSource}-${oldDestination}-${oldTimestamp}`
-            );
-            this.removeDestPacket(oldDestination);
+        const key = this._encode(source, destination, timestamp);
+        if (this.packets.has(key)) 
+            return false;
+        if (this.packets.size >= this.size) {
+            this.forwardPacket();
         }
-
-        this.queue.push([source, destination, timestamp]);
-        this.packetSet.add(key);
-        if (!this.destMap.has(destination)) this.destMap.set(destination, []);
-        this.destMap.get(destination)!.push(timestamp);
+        this.packets.set(key, [source, destination, timestamp]);
+        this.queue.push(key);
+        const v = this.cnt.get(destination) || [];
+        const pos = this._lb(v, timestamp);
+        v.splice(pos, 0, timestamp);
+        this.cnt.set(destination, v);
 
         return true;
     }
 
     forwardPacket(): number[] {
-        if (this.queue.length === 0) return [];
+        if (this.packets.size === 0) 
+            return [];
+        if (this.head >= this.queue.length) 
+            return [];
+        const key = this.queue[this.head++];
+        const packet = this.packets.get(key);
+        if (!packet) 
+            return [];
 
-        const [source, destination, timestamp] = this.queue.shift()!;
-        this.packetSet.delete(`${source}-${destination}-${timestamp}`);
-        this.removeDestPacket(destination);
+        this.packets.delete(key);
 
-        return [source, destination, timestamp];
+        const dest = packet[1], ts = packet[2];
+        const v = this.cnt.get(dest);
+        if (v && v.length) {
+            const pos = this._lb(v, ts);
+            if (pos < v.length && v[pos] === ts) 
+                v.splice(pos, 1);
+        }
+
+        if (this.head > 1024 && this.head * 2 > this.queue.length) {
+            this.queue = this.queue.slice(this.head);
+            this.head = 0;
+        }
+
+        return packet;
     }
 
     getCount(destination: number, startTime: number, endTime: number): number {
-        const timeList = this.destMap.get(destination);
-        if (!timeList) return 0;
-
-        // Binary search helpers
-        const lowerBound = (target: number): number => {
-            let left = 0,
-                right = timeList.length;
-            while (left < right) {
-                const mid = (left + right) >> 1;
-                if (timeList[mid] < target) left = mid + 1;
-                else right = mid;
-            }
-            return left;
-        };
-
-        const upperBound = (target: number): number => {
-            let left = 0,
-                right = timeList.length;
-            while (left < right) {
-                const mid = (left + right) >> 1;
-                if (timeList[mid] <= target) left = mid + 1;
-                else right = mid;
-            }
-            return left;
-        };
-
-        return upperBound(endTime) - lowerBound(startTime);
-    }
-
-    removeDestPacket(destination: number) {
-        const timeList = this.destMap.get(destination)!;
-        timeList.shift(); // Remove the oldest timestamp (guaranteed order)
-        if (timeList.length === 0) this.destMap.delete(destination);
+        const v = this.cnt.get(destination) || [];
+        if (v.length === 0) 
+            return 0;
+        const L = this._lb(v, startTime);
+        const R = this._ub(v, endTime);
+        return R - L;
     }
 }

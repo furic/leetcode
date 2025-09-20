@@ -1,4 +1,4 @@
-<h2><a href="https://leetcode.com/problems/implement-router/">3508. Implement Router</a></h2><h3>Medium</h3><hr><p>Design a data structure that can efficiently manage data packets in a network router. Each data packet consists of the following attributes:</p>
+<h2><a href="https://leetcode.com/problems/implement-router">3508. Implement Router</a></h2><h3>Medium</h3><hr><p>Design a data structure that can efficiently manage data packets in a network router. Each data packet consists of the following attributes:</p>
 
 <ul>
 	<li><code>source</code>: A unique identifier for the machine that generated the packet.</li>

@@ -1,8 +1,10 @@
 # LeetCode Solutions in TypeScript
 
+[![Contest Rating](https://img.shields.io/badge/Contest_Rating-1672-orange?style=for-the-badge&logo=leetcode&logoColor=white)](https://leetcode.com/u/furic/)
+[![Global Ranking](https://img.shields.io/badge/Global_Ranking-112,896/760,696-brightgreen?style=for-the-badge&logo=leetcode&logoColor=white)](https://leetcode.com/u/furic/)
+[![Problems Solved](https://img.shields.io/badge/Solved-250/3,686-blue?style=for-the-badge&logo=leetcode&logoColor=white)](https://leetcode.com/u/furic/)
+[![Solve Percentage](https://img.shields.io/badge/Solve_Rate-6.8%25-success?style=for-the-badge&logo=leetcode&logoColor=white)](https://leetcode.com/u/furic/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![LeetCode](https://img.shields.io/badge/LeetCode-000000?style=for-the-badge&logo=LeetCode&logoColor=#d16c06)](https://leetcode.com/)
-[![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/)
 
 A collection of LeetCode solutions implemented in TypeScript. This repository contains my solutions to various LeetCode problems, organized by problem ID and name.
 
@@ -12,6 +14,7 @@ Each problem is organized in its own directory following the format:
 ```
 {problem_id}-{problem_name}/
 ├── README.md                    # Problem description and constraints
+├── Solution.md                  # Solution explanation and approach
 └── {problem_id}-{problem_name}.ts  # TypeScript solution implementation
 ```
 
@@ -19,7 +22,8 @@ Each problem is organized in its own directory following the format:
 
 1. Navigate to the problem directory you're interested in
 2. Read the `README.md` for problem description and constraints
-3. Check the `{problem_id}-{problem_name}.ts` file for the TypeScript implementation
+3. Check the `Solution.md` for detailed solution explanation, approach, and complexity analysis
+4. Review the `{problem_id}-{problem_name}.ts` file for the TypeScript implementation
 
 ## 📝 Current Solutions
 

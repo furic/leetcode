@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:leetcode-badge.vercel.app)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:alfa-leetcode-api.onrender.com)",
+      "Bash(chmod:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

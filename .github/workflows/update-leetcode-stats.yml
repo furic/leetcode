@@ -6,6 +6,9 @@ on:
     - cron: '0 6 * * *'
   workflow_dispatch: # Allow manual trigger
 
+permissions:
+  contents: write
+
 jobs:
   update-stats:
     runs-on: ubuntu-latest
@@ -22,26 +25,40 @@ jobs:
         id: leetcode
         run: |
           # Fetch contest ranking info
+          echo "Fetching contest stats..."
           contest_response=$(curl -s "https://alfa-leetcode-api.onrender.com/userContestRankingInfo/furic")
 
-          # Extract contest values using jq
-          rating=$(echo "$contest_response" | jq -r '.rating' | cut -d'.' -f1)
-          global_ranking=$(echo "$contest_response" | jq -r '.globalRanking')
-          total_participants=$(echo "$contest_response" | jq -r '.totalParticipants')
+          # Check if contest API returned valid data
+          if echo "$contest_response" | jq -e '.rating' > /dev/null 2>&1; then
+            rating=$(echo "$contest_response" | jq -r '.rating' | cut -d'.' -f1)
+            global_ranking=$(echo "$contest_response" | jq -r '.globalRanking')
+            total_participants=$(echo "$contest_response" | jq -r '.totalParticipants')
+            formatted_ranking=$(echo "$global_ranking" | sed ':a;s/\B[0-9]\{3\}\>/,&/;ta')
+            formatted_total=$(echo "$total_participants" | sed ':a;s/\B[0-9]\{3\}\>/,&/;ta')
+          else
+            echo "Contest API failed, using fallback values"
+            rating="1672"
+            formatted_ranking="112,896"
+            formatted_total="760,696"
+          fi
 
           # Fetch user profile for solved problems
+          echo "Fetching profile stats..."
           profile_response=$(curl -s "https://alfa-leetcode-api.onrender.com/userProfile/furic")
 
-          # Extract solve statistics
-          total_solved=$(echo "$profile_response" | jq -r '.totalSolved')
-          total_questions=$(echo "$profile_response" | jq -r '.totalQuestions')
-          solve_percentage=$(echo "scale=1; $total_solved * 100 / $total_questions" | bc)
-
-          # Format numbers with commas
-          formatted_ranking=$(echo "$global_ranking" | sed ':a;s/\B[0-9]\{3\}\>/,&/;ta')
-          formatted_total=$(echo "$total_participants" | sed ':a;s/\B[0-9]\{3\}\>/,&/;ta')
-          formatted_solved=$(echo "$total_solved" | sed ':a;s/\B[0-9]\{3\}\>/,&/;ta')
-          formatted_questions=$(echo "$total_questions" | sed ':a;s/\B[0-9]\{3\}\>/,&/;ta')
+          # Extract solve statistics with error handling
+          if echo "$profile_response" | jq -e '.totalSolved' > /dev/null 2>&1; then
+            total_solved=$(echo "$profile_response" | jq -r '.totalSolved')
+            total_questions=$(echo "$profile_response" | jq -r '.totalQuestions')
+            solve_percentage=$(echo "scale=1; $total_solved * 100 / $total_questions" | bc)
+            formatted_solved=$(echo "$total_solved" | sed ':a;s/\B[0-9]\{3\}\>/,&/;ta')
+            formatted_questions=$(echo "$total_questions" | sed ':a;s/\B[0-9]\{3\}\>/,&/;ta')
+          else
+            echo "Profile API failed, using fallback values"
+            formatted_solved="250"
+            formatted_questions="3,686"
+            solve_percentage="6.8"
+          fi
 
           echo "rating=$rating" >> $GITHUB_OUTPUT
           echo "ranking=$formatted_ranking" >> $GITHUB_OUTPUT

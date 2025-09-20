@@ -5,7 +5,8 @@
       "WebFetch(domain:leetcode-badge.vercel.app)",
       "WebFetch(domain:github.com)",
       "WebFetch(domain:alfa-leetcode-api.onrender.com)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []

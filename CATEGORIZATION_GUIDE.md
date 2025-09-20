@@ -26,9 +26,10 @@ npm run categorize           # AI-powered categorization
 ### Complete Workflow
 
 ```bash
-# Update statistics + categorize
-npm run update-stats         # Update solution count statistics
-npm run categorize:patterns  # Or use :manual or regular categorize
+# Choose your categorization method
+npm run categorize:patterns  # Pattern-based (recommended)
+npm run categorize:manual    # Interactive manual
+npm run categorize           # Claude AI (requires API key)
 ```
 
 ## 📁 How It Works
@@ -69,7 +70,6 @@ npm run categorize:patterns  # Or use :manual or regular categorize
 - Automatically places solution in appropriate category
 - Creates new subcategories when needed
 - Maintains existing structure and formatting
-- Updates solution count statistics
 
 ## 🏗️ Project Structure
 
@@ -78,7 +78,6 @@ leetcode/
 ├── categorize-solution.js      # Claude AI categorization script
 ├── categorize-patterns.js      # Pattern-based categorization (recommended)
 ├── categorize-manual.js        # Interactive manual categorization
-├── update-stats.js            # Statistics updater
 ├── auto-categorize.sh         # Complete workflow script
 ├── package.json               # NPM configuration
 ├── CATEGORIZATION_GUIDE.md    # This guide
@@ -179,8 +178,6 @@ The repository includes automatic categorization via GitHub Actions:
 npm run categorize:patterns # Pattern-based categorization (recommended)
 npm run categorize:manual   # Interactive manual categorization
 npm run categorize          # Claude AI categorization (requires API key)
-npm run categorize:watch    # Update stats + AI categorization
-npm run update-stats       # Update solution count only
 npm run setup             # Show setup instructions
 npm run verify            # Verify configuration
 ```
@@ -191,7 +188,6 @@ npm run verify            # Verify configuration
 node categorize-patterns.js   # Pattern-based categorization
 node categorize-manual.js     # Manual interactive categorization
 node categorize-solution.js   # Claude AI categorization
-node update-stats.js          # Statistics only
 ```
 
 ### Shell Script
@@ -319,10 +315,6 @@ await new Promise(resolve => setTimeout(resolve, 1000)); // 1 second delay
 - Adjust pattern rules as needed
 - Fix any categorization mistakes
 
-### 4. **Statistics Accuracy**
-- Run `update-stats.js` regularly
-- Verify counts match actual solutions
-- Update total problem count periodically
 
 ## 🔒 Security
 

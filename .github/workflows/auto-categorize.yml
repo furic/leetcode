@@ -37,15 +37,18 @@ jobs:
           echo "No new solutions to categorize"
         fi
 
-    - name: Update statistics
-      if: steps.check-new.outputs.has-new == 'true'
-      run: node update-stats.js
-
     - name: Categorize new solutions
       if: steps.check-new.outputs.has-new == 'true'
       env:
         CLAUDE_API_KEY: ${{ secrets.CLAUDE_API_KEY }}
-      run: node categorize-solution.js
+      run: |
+        if [ -n "$CLAUDE_API_KEY" ]; then
+          echo "Using Claude AI categorization..."
+          node categorize-solution.js
+        else
+          echo "Using pattern-based categorization..."
+          node categorize-patterns.js
+        fi
 
     - name: Commit and push changes
       if: steps.check-new.outputs.has-new == 'true'
@@ -59,8 +62,8 @@ jobs:
           git add README.md
           git commit -m "🤖 Auto-categorize new LeetCode solutions
 
-          - Updated solution categories and statistics
-          - Automatically categorized using Claude AI
+          - Updated solution categories
+          - Automatically categorized using pattern matching
 
           Co-authored-by: github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
           git push

@@ -8,14 +8,6 @@ set -e  # Exit on any error
 echo "🚀 LeetCode Auto-Categorization Workflow"
 echo "========================================"
 
-# Check if Claude API key is set
-if [ -z "$CLAUDE_API_KEY" ]; then
-    echo "❌ Error: CLAUDE_API_KEY environment variable is required"
-    echo "💡 Set it with: export CLAUDE_API_KEY=\"your-api-key-here\""
-    echo "🔗 Get your API key from: https://console.anthropic.com/"
-    exit 1
-fi
-
 # Check if Node.js is available
 if ! command -v node &> /dev/null; then
     echo "❌ Error: Node.js is required but not installed"
@@ -26,14 +18,14 @@ fi
 echo "✅ Prerequisites check passed"
 echo ""
 
-# Update statistics
-echo "📊 Step 1: Updating statistics..."
-node update-stats.js
-
-# Categorize new solutions
-echo ""
-echo "🔍 Step 2: Categorizing new solutions..."
-node categorize-solution.js
+# Choose categorization method based on available API key
+if [ -z "$CLAUDE_API_KEY" ]; then
+    echo "🔍 Using pattern-based categorization (no API key found)..."
+    node categorize-patterns.js
+else
+    echo "🔍 Using Claude AI categorization..."
+    node categorize-solution.js
+fi
 
 echo ""
 echo "🎉 Auto-categorization workflow complete!"

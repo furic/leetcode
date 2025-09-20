@@ -1,145 +1,126 @@
-function minOperations(nums: number[], x: number, k: number): number {
-  const n = nums.length;
-  const windowCount = n - x + 1;
+const minOperations = (nums: number[], windowSize: number, numSubarrays: number): number => {
+    const arrayLength = nums.length;
+    const totalWindows = arrayLength - windowSize + 1;
+    
+    // Built-in Heap - requires comparator
+    const lowerHalf = new Heap<number>((a, b) => b - a); // Max heap
+    const upperHalf = new Heap<number>((a, b) => a - b); // Min heap
+    
+    // Manual tracking (built-in Heap doesn't have these)
+    let lowerSum = 0;
+    let upperSum = 0;
+    let lowerSize = 0;
+    let upperSize = 0;
+    
+    // Lazy deletion tracking
+    const lowerDeleted = new Map<number, number>();
+    const upperDeleted = new Map<number, number>();
+    
+    const costPerWindow: number[] = [];
 
-  class Heap {
-    private data: number[] = [];
-    private comparator: (a: number, b: number) => number;
-    private lazy = new Map<number, number>();
-    private _size = 0;
-    public sum = 0;
+    const cleanHeap = (heap: Heap<number>, deleted: Map<number, number>) => {
+        while (heap.size() > 0 && deleted.has(heap.top())) {
+            const val = heap.pop();
+            deleted.set(val, deleted.get(val)! - 1);
+            if (deleted.get(val) === 0) deleted.delete(val);
+        }
+    };
 
-    constructor(comparator: (a: number, b: number) => number) {
-      this.comparator = comparator;
+    const rebalanceHeaps = () => {
+        while (lowerSize > upperSize + 1) {
+            cleanHeap(lowerHalf, lowerDeleted);
+            const val = lowerHalf.pop();
+            upperHalf.push(val);
+            lowerSum -= val;
+            upperSum += val;
+            lowerSize--;
+            upperSize++;
+        }
+        while (lowerSize < upperSize) {
+            cleanHeap(upperHalf, upperDeleted);
+            const val = upperHalf.pop();
+            lowerHalf.push(val);
+            upperSum -= val;
+            lowerSum += val;
+            upperSize--;
+            lowerSize++;
+        }
+    };
+
+    const insertNumber = (value: number) => {
+        cleanHeap(lowerHalf, lowerDeleted);
+        if (lowerSize === 0 || value <= lowerHalf.top()) {
+            lowerHalf.push(value);
+            lowerSum += value;
+            lowerSize++;
+        } else {
+            upperHalf.push(value);
+            upperSum += value;
+            upperSize++;
+        }
+        rebalanceHeaps();
+    };
+
+    const deleteNumber = (value: number) => {
+        cleanHeap(lowerHalf, lowerDeleted);
+        if (value <= lowerHalf.top()) {
+            lowerDeleted.set(value, (lowerDeleted.get(value) ?? 0) + 1);
+            lowerSum -= value;
+            lowerSize--;
+        } else {
+            upperDeleted.set(value, (upperDeleted.get(value) ?? 0) + 1);
+            upperSum -= value;
+            upperSize--;
+        }
+        rebalanceHeaps();
+    };
+
+    const calculateMedianCost = (): number => {
+        cleanHeap(lowerHalf, lowerDeleted);
+        const median = lowerHalf.top();
+        const costLeft = median * lowerSize - lowerSum;
+        const costRight = upperSum - median * upperSize;
+        return costLeft + costRight;
+    };
+
+    // Build initial window
+    for (let i = 0; i < windowSize; i++) {
+        insertNumber(nums[i]);
+    }
+    costPerWindow.push(calculateMedianCost());
+
+    // Slide window and calculate costs
+    for (let i = windowSize; i < arrayLength; i++) {
+        deleteNumber(nums[i - windowSize]);
+        insertNumber(nums[i]);
+        costPerWindow.push(calculateMedianCost());
     }
 
-    size = () => this._size;
-
-    push = (val: number) => {
-      this.data.push(val);
-      this.sum += val;
-      this._size++;
-      this._siftUp(this.data.length - 1);
-    };
-
-    pop = (): number => {
-      this._prune();
-      if (this.data.length === 0) return null;
-      const top = this.data[0];
-      this.sum -= top;
-      this._size--;
-      this._swap(0, this.data.length - 1);
-      this.data.pop();
-      this._siftDown(0);
-      return top;
-    };
-
-    peek = (): number => {
-      this._prune();
-      return this.data.length === 0 ? null : this.data[0];
-    };
-
-    remove = (val: number) => {
-      this.lazy.set(val, (this.lazy.get(val) || 0) + 1);
-      this._size--;
-      this.sum -= val;
-      this._prune();
-    };
-
-    private _prune = () => {
-      while (this.data.length > 0) {
-        const top = this.data[0];
-        if (this.lazy.has(top)) {
-          this.lazy.set(top, this.lazy.get(top)! - 1);
-          if (this.lazy.get(top) === 0) this.lazy.delete(top);
-          this._swap(0, this.data.length - 1);
-          this.data.pop();
-          this._siftDown(0);
-        } else break;
-      }
-    };
-
-    private _siftUp = (i: number) => {
-      let parent = Math.floor((i - 1) / 2);
-      while (i > 0 && this.comparator(this.data[i], this.data[parent]) < 0) {
-        this._swap(i, parent);
-        i = parent;
-        parent = Math.floor((i - 1) / 2);
-      }
-    };
-
-    private _siftDown = (i: number) => {
-      const n = this.data.length;
-      while (true) {
-        const left = 2 * i + 1, right = 2 * i + 2;
-        let smallest = i;
-        if (left < n && this.comparator(this.data[left], this.data[smallest]) < 0) smallest = left;
-        if (right < n && this.comparator(this.data[right], this.data[smallest]) < 0) smallest = right;
-        if (smallest !== i) {
-          this._swap(i, smallest);
-          i = smallest;
-        } else break;
-      }
-    };
-
-    private _swap = (i: number, j: number) => {
-      [this.data[i], this.data[j]] = [this.data[j], this.data[i]];
-    };
-  }
-
-  const low = new Heap((a, b) => b - a); // Max-heap
-  const high = new Heap((a, b) => a - b); // Min-heap
-
-  const balanceHeaps = () => {
-    while (low.size() > high.size() + 1) high.push(low.pop());
-    while (low.size() < high.size()) low.push(high.pop());
-  };
-
-  const addNum = (num: number) => {
-    if (low.size() === 0 || num <= low.peek()) low.push(num);
-    else high.push(num);
-    balanceHeaps();
-  };
-
-  const removeNum = (num: number) => {
-    if (num <= low.peek()) low.remove(num);
-    else high.remove(num);
-    balanceHeaps();
-  };
-
-  const getWindowCost = (): number => {
-    const median = low.peek();
-    const costLeft = median * low.size() - low.sum;
-    const costRight = high.sum - median * high.size();
-    return costLeft + costRight;
-  };
-
-  const windowCosts: number[] = [];
-
-  for (let i = 0; i < x; i++) addNum(nums[i]);
-  windowCosts.push(getWindowCost());
-
-  for (let i = x; i < n; i++) {
-    removeNum(nums[i - x]);
-    addNum(nums[i]);
-    windowCosts.push(getWindowCost());
-  }
-
-  const dp: number[][] = Array.from({ length: k + 1 }, () =>
-    Array(windowCount).fill(Infinity)
-  );
-
-  for (let i = 0; i < windowCount; i++) {
-    dp[1][i] = windowCosts[i];
-  }
-
-  for (let t = 2; t <= k; t++) {
-    let best = Infinity;
-    for (let i = 0; i < windowCount; i++) {
-      if (i - x >= 0) best = Math.min(best, dp[t - 1][i - x]);
-      if (best < Infinity) dp[t][i] = best + windowCosts[i];
+    // DP: dp[k][i] = min cost using k subarrays up to window i
+    const dp: number[][] = Array.from({ length: numSubarrays + 1 }, () => 
+        Array(totalWindows).fill(Infinity)
+    );
+    
+    // Base case: using exactly 1 subarray
+    for (let windowIndex = 0; windowIndex < totalWindows; windowIndex++) {
+        dp[1][windowIndex] = costPerWindow[windowIndex];
     }
-  }
 
-  return Math.min(...dp[k]);
-}
+    // Fill DP table
+    for (let subarrayCount = 2; subarrayCount <= numSubarrays; subarrayCount++) {
+        let minPreviousCost = Infinity;
+        
+        for (let currentWindow = 0; currentWindow < totalWindows; currentWindow++) {
+            const previousWindowEnd = currentWindow - windowSize;
+            if (previousWindowEnd >= 0) {
+                minPreviousCost = Math.min(minPreviousCost, dp[subarrayCount - 1][previousWindowEnd]);
+            }
+            
+            if (minPreviousCost < Infinity) {
+                dp[subarrayCount][currentWindow] = minPreviousCost + costPerWindow[currentWindow];
+            }
+        }
+    }
+
+    return Math.min(...dp[numSubarrays]);
+};

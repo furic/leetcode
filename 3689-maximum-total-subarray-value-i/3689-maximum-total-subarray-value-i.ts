@@ -1,0 +1,1 @@
+const maxTotalValue = (nums: number[], k: number): number => (Math.max(...nums) - Math.min(...nums)) * k;

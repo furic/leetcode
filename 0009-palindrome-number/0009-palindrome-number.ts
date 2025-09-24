@@ -1,8 +1,15 @@
 const isPalindrome = (x: number): boolean => {
-    const s = x.toString().split('');
-    const n = s.length;
-    for (let i = 0; i < n / 2; i++) {
-        if (s[i] !== s[n - i - 1]) return false;
+    if (x < 0) {
+        return false;
     }
-    return true;
+    
+    let workingNumber = x;
+    let reversedNumber = 0;
+    
+    while (workingNumber !== 0) {
+        reversedNumber = reversedNumber * 10 + workingNumber % 10;
+        workingNumber = Math.floor(workingNumber / 10);
+    }
+    
+    return reversedNumber === x;
 };

@@ -1,22 +1,30 @@
-function fractionToDecimal(numerator: number, denominator: number): string {
+const fractionToDecimal = (numerator: number, denominator: number): string => {
     if (numerator === 0) return "0";
-    const sign = (numerator < 0) !== (denominator < 0) ? "-" : "";
-    let num = Math.abs(numerator);
-    let den = Math.abs(denominator);
-    let result: string[] = [sign + Math.floor(num / den).toString()];
-    let rem = num % den;
-    if (rem === 0) return result.join("");
-    result.push(".");
-    const seen = new Map<number, number>();
-    while (rem !== 0) {
-        if (seen.has(rem)) {
-            const pos = seen.get(rem)!;
-            return result.slice(0, pos).join("") + "(" + result.slice(pos).join("") + ")";
+    
+    const resultSign = (numerator < 0) !== (denominator < 0) ? "-" : "";
+    const absoluteNumerator = Math.abs(numerator);
+    const absoluteDenominator = Math.abs(denominator);
+    
+    const decimalParts: string[] = [resultSign + Math.floor(absoluteNumerator / absoluteDenominator).toString()];
+    let remainder = absoluteNumerator % absoluteDenominator;
+    
+    if (remainder === 0) return decimalParts.join("");
+    
+    decimalParts.push(".");
+    const remainderPositions = new Map<number, number>();
+    
+    while (remainder !== 0) {
+        if (remainderPositions.has(remainder)) {
+            const cycleStartPosition = remainderPositions.get(remainder)!;
+            return decimalParts.slice(0, cycleStartPosition).join("") + 
+                   "(" + decimalParts.slice(cycleStartPosition).join("") + ")";
         }
-        seen.set(rem, result.length);
-        rem *= 10;
-        result.push(Math.floor(rem / den).toString());
-        rem %= den;
+        
+        remainderPositions.set(remainder, decimalParts.length);
+        remainder *= 10;
+        decimalParts.push(Math.floor(remainder / absoluteDenominator).toString());
+        remainder %= absoluteDenominator;
     }
-    return result.join("");
-}
+    
+    return decimalParts.join("");
+};

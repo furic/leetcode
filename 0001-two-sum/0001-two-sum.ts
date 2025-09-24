@@ -1,16 +1,16 @@
 const twoSum = (nums: number[], target: number): number[] => {
-    const map = new Map()
-
-    const output = nums.reduce((acc,curr, index)=> {
-        if(acc.length) return acc
-
-        if(!map.has(target - curr)){
-              map.set(curr, index )
-              return acc
+    const valueToIndex = new Map<number, number>();
+    
+    for (let currentIndex = 0; currentIndex < nums.length; currentIndex++) {
+        const currentNumber = nums[currentIndex];
+        const complement = target - currentNumber;
+        
+        if (valueToIndex.has(complement)) {
+            return [valueToIndex.get(complement)!, currentIndex];
         }
-        return [map.get(target - curr),index]
-    },[])
-
-    return output
-
+        
+        valueToIndex.set(currentNumber, currentIndex);
+    }
+    
+    return [];
 };

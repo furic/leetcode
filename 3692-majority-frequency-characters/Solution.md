@@ -1,17 +1,14 @@
 # Frequency Grouping | 33 Lines | O(n) | 4ms
 
 # Intuition
-To find the majority frequency group, I need to first count character frequencies, then group characters by their frequencies, and finally identify which frequency group has the most characters (with higher frequency as tiebreaker).
+We need to find which frequency appears most often among characters, then return all characters with that frequency. If there's a tie in group sizes, we pick the higher frequency.
 
 # Approach
-1. Count the frequency of each character in the string using a Map
-2. Group characters by their frequency - create a mapping from frequency to count of characters having that frequency
-3. Find the majority frequency by finding the frequency with the largest group size, using frequency value as tiebreaker
-4. Collect all characters that have the majority frequency and return them as a string
+First, count the frequency of each character in the string. Then group characters by their frequencies to see how many characters share each frequency count. Find the frequency that has the most characters (largest group size), with higher frequency as tiebreaker. Finally, collect all characters that have this majority frequency.
 
 # Complexity
 - Time complexity: $$O(n)$$
-- Space complexity: $$O(n)$$
+- Space complexity: $$O(1)$$ for counting at most 26 lowercase letters
 
 # Code
 ```typescript
@@ -26,34 +23,25 @@ const majorityFrequencyGroup = (s: string): string => {
         frequencyGroupSizes.set(frequency, (frequencyGroupSizes.get(frequency) || 0) + 1);
     }
 
-    const findMajorityFrequency = (): number => {
-        let majorityFreq = 0;
-        let largestGroupSize = 0;
+    let majorityFreq = 0;
+    let largestGroupSize = 0;
+    
+    for (const [frequency, groupSize] of frequencyGroupSizes) {
+        const isLargerGroup = groupSize > largestGroupSize;
+        const isSameGroupSizeButHigherFreq = groupSize === largestGroupSize && frequency > majorityFreq;
         
-        for (const [frequency, groupSize] of frequencyGroupSizes) {
-            const isLargerGroup = groupSize > largestGroupSize;
-            const isSameGroupSizeButHigherFreq = groupSize === largestGroupSize && frequency > majorityFreq;
-            
-            if (isLargerGroup || isSameGroupSizeButHigherFreq) {
-                majorityFreq = frequency;
-                largestGroupSize = groupSize;
-            }
+        if (isLargerGroup || isSameGroupSizeButHigherFreq) {
+            majorityFreq = frequency;
+            largestGroupSize = groupSize;
         }
-        
-        return majorityFreq;
-    };
+    }
 
-    const collectCharactersWithFrequency = (targetFrequency: number): string => {
-        let result = "";
-        for (const [char, frequency] of charFrequencies) {
-            if (frequency === targetFrequency) {
-                result += char;
-            }
+    let result = "";
+    for (const [char, frequency] of charFrequencies) {
+        if (frequency === majorityFreq) {
+            result += char;
         }
-        return result;
-    };
-
-    const majorityFreq = findMajorityFrequency();
-    return collectCharactersWithFrequency(majorityFreq);
+    }
+    
+    return result;
 };
-```

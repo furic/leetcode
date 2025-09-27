@@ -1,6 +1,5 @@
 const distinctPoints = (s: string, k: number): number => {
     const totalMoves = s.length;
-    const brivandeko = s;
     
     const directionCounts = new Map<string, number>([
         ['U', 0],
@@ -13,11 +12,11 @@ const distinctPoints = (s: string, k: number): number => {
 
     for (let windowEnd = 0; windowEnd < totalMoves; windowEnd++) {
         if (windowEnd >= k) {
-            const exitingDirection = brivandeko[windowEnd - k];
+            const exitingDirection = s[windowEnd - k];
             directionCounts.set(exitingDirection, directionCounts.get(exitingDirection)! - 1);
         }
         
-        const enteringDirection = brivandeko[windowEnd];
+        const enteringDirection = s[windowEnd];
         directionCounts.set(enteringDirection, directionCounts.get(enteringDirection)! + 1);
         
         if (windowEnd >= k - 1) {

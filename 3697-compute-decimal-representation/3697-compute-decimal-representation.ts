@@ -1,9 +1,8 @@
-function decimalRepresentation(n: number): number[] {
-  return (n + "")
-    .split("")
-    .reverse()
-    .map((d, i) => d + "0".repeat(i))
-    .reverse()
-    .map(d => parseInt(d, 10))
-    .filter(d => d !== 0)
-}
+const decimalRepresentation = (n: number): number[] =>
+    n.toString()
+        .split('')
+        .reverse()
+        .map((digit, positionIndex) => digit + '0'.repeat(positionIndex))
+        .reverse()
+        .map(componentString => parseInt(componentString, 10))
+        .filter(component => component !== 0);

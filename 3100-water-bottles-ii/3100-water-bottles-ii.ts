@@ -5,7 +5,7 @@ function maxBottlesDrunk(numBottles: number, numExchange: number): number {
     // Keep exchanging empty bottles for full ones while we have enough to exchange
     while (emptyBottles >= numExchange) {
         totalBottlesDrunk++;
-        emptyBottles = emptyBottles - numExchange + 1;
+        emptyBottles -= numExchange - 1;
         numExchange++;
     }
 

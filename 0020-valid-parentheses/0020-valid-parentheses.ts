@@ -1,20 +1,32 @@
-function isValid(s: string): boolean {
-    const stack = [];
-    for (let i = 0; i < s.length; i++) {
-        if (s[i] === '(' || s[i] === '[' || s[i] === '{') {
-            stack.push(s[i])
+const isValid = (s: string): boolean => {
+    const openBrackets: string[] = [];
+    const bracketPairs: Record<string, string> = {
+        ')': '(',
+        ']': '[',
+        '}': '{'
+    };
+    
+    for (const char of s) {
+        const isOpenBracket = char === '(' || char === '[' || char === '{';
+        
+        if (isOpenBracket) {
+            openBrackets.push(char);
         } else {
-            if (stack.length === 0) {
+            // Closing bracket with no matching open bracket
+            if (openBrackets.length === 0) {
                 return false;
             }
-            const top = stack.pop();
-            if (s[i] == ')' && top != '(') return false;
-
-            if (s[i] == ']' && top != '[') return false;
-
-            if (s[i] == '}' && top != '{') return false;
+            
+            const lastOpenBracket = openBrackets.pop()!;
+            const expectedOpenBracket = bracketPairs[char];
+            
+            // Mismatched bracket types
+            if (lastOpenBracket !== expectedOpenBracket) {
+                return false;
+            }
         }
     }
-
-    return stack.length === 0;
+    
+    // All brackets must be closed
+    return openBrackets.length === 0;
 };

@@ -9,6 +9,8 @@ on:
 jobs:
   categorize:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
     - name: Checkout repository
@@ -16,6 +18,7 @@ jobs:
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         fetch-depth: 0
+        persist-credentials: true
 
     - name: Setup Node.js
       uses: actions/setup-node@v4

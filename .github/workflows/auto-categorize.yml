@@ -25,13 +25,18 @@ jobs:
     - name: Check for new solutions
       id: check-new
       run: |
-        # Check if there are any new solution directories not in README
-        NEW_SOLUTIONS=$(find . -maxdepth 1 -type d -name '[0-9][0-9][0-9][0-9]-*' | wc -l)
-        README_SOLUTIONS=$(grep -c '\[.*\](./.*/)'  README.md || echo 0)
+        # Check if there are any solution directories not linked in README
+        HAS_NEW=false
+        for dir in ./[0-9][0-9][0-9][0-9]-*/; do
+          dir_name=$(basename "$dir")
+          if ! grep -q "(\.\/$dir_name\/)" README.md; then
+            echo "New solution found: $dir_name"
+            HAS_NEW=true
+          fi
+        done
 
-        if [ $NEW_SOLUTIONS -gt $README_SOLUTIONS ]; then
+        if [ "$HAS_NEW" = true ]; then
           echo "has-new=true" >> $GITHUB_OUTPUT
-          echo "Found $NEW_SOLUTIONS directories but only $README_SOLUTIONS in README"
         else
           echo "has-new=false" >> $GITHUB_OUTPUT
           echo "No new solutions to categorize"

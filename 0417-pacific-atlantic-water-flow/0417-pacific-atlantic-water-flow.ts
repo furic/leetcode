@@ -1,38 +1,31 @@
 function pacificAtlantic(heights: number[][]): number[][] {
-    if (!heights || heights.length === 0) return [];
+    
+    const m: number = heights.length, n: number = heights[0].length;
+    const pac: boolean[][] = Array.from({length: m}, () => Array(n).fill(false));
+    for (let i = 0; i < m; i++) dfs(i, 0, 0, pac);
+    for (let i = 0; i < n; i++) dfs(0, i, 0, pac);
 
-    const m = heights.length, n = heights[0].length;
-    const pacific: boolean[][] = Array.from({ length: m }, () => Array(n).fill(false));
-    const atlantic: boolean[][] = Array.from({ length: m }, () => Array(n).fill(false));
-    const dirs: number[][] = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+    const atl: boolean[][] = Array.from({length: m}, () => Array(n).fill(false));
+    for (let i = 0; i < m; i++) dfs(i, n - 1, 0, atl);
+    for (let i = 0; i < n; i++) dfs(m - 1, i, 0, atl);
 
-    const dfs = (r: number, c: number, visited: boolean[][]) => {
-        visited[r][c] = true;
-        for (const [dr, dc] of dirs) {
-            const nr = r + dr, nc = c + dc;
-            if (
-                nr >= 0 && nr < m && nc >= 0 && nc < n &&
-                !visited[nr][nc] && heights[nr][nc] >= heights[r][c]
-            ) {
-                dfs(nr, nc, visited);
-            }
-        }
-    };
+    function dfs(x: number, y: number, prev: number, visited: boolean[][]): void {
+        if (x < 0 || y < 0 || x >= m || y >= n) return;
+        if (prev > heights[x][y]) return;
+        if (visited[x][y]) return;
+        visited[x][y] = true;
 
-    for (let i = 0; i < m; i++) {
-        dfs(i, 0, pacific);
-        dfs(i, n - 1, atlantic);
-    }
-    for (let j = 0; j < n; j++) {
-        dfs(0, j, pacific);
-        dfs(m - 1, j, atlantic);
+        dfs(x - 1, y, heights[x][y], visited);
+        dfs(x + 1, y, heights[x][y], visited);
+        dfs(x, y - 1, heights[x][y], visited);
+        dfs(x, y + 1, heights[x][y], visited);
     }
 
-    const res: number[][] = [];
+    const result: number[][] = [];
     for (let i = 0; i < m; i++) {
         for (let j = 0; j < n; j++) {
-            if (pacific[i][j] && atlantic[i][j]) res.push([i, j]);
+            if (pac[i][j] && atl[i][j]) result.push([i, j]);
         }
     }
-    return res;
+    return result;
 };

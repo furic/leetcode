@@ -1,31 +1,70 @@
-function pacificAtlantic(heights: number[][]): number[][] {
+const pacificAtlantic = (heights: number[][]): number[][] => {
+    if (!heights || heights.length === 0) return [];
+
+    const rows = heights.length;
+    const cols = heights[0].length;
     
-    const m: number = heights.length, n: number = heights[0].length;
-    const pac: boolean[][] = Array.from({length: m}, () => Array(n).fill(false));
-    for (let i = 0; i < m; i++) dfs(i, 0, 0, pac);
-    for (let i = 0; i < n; i++) dfs(0, i, 0, pac);
+    const reachesPacific: boolean[][] = Array.from(
+        { length: rows }, 
+        () => Array(cols).fill(false)
+    );
+    const reachesAtlantic: boolean[][] = Array.from(
+        { length: rows }, 
+        () => Array(cols).fill(false)
+    );
+    
+    const directions: number[][] = [
+        [1, 0],   // down
+        [-1, 0],  // up
+        [0, 1],   // right
+        [0, -1]   // left
+    ];
 
-    const atl: boolean[][] = Array.from({length: m}, () => Array(n).fill(false));
-    for (let i = 0; i < m; i++) dfs(i, n - 1, 0, atl);
-    for (let i = 0; i < n; i++) dfs(m - 1, i, 0, atl);
+    // DFS to mark all cells that can reach the given ocean
+    const markReachableCells = (row: number, col: number, canReachOcean: boolean[][]): void => {
+        canReachOcean[row][col] = true;
+        
+        for (const [rowDelta, colDelta] of directions) {
+            const neighborRow = row + rowDelta;
+            const neighborCol = col + colDelta;
+            
+            // Check if neighbor is valid and water can flow from neighbor to current cell
+            if (
+                neighborRow >= 0 && neighborRow < rows && 
+                neighborCol >= 0 && neighborCol < cols &&
+                !canReachOcean[neighborRow][neighborCol] && 
+                heights[neighborRow][neighborCol] >= heights[row][col]
+            ) {
+                markReachableCells(neighborRow, neighborCol, canReachOcean);
+            }
+        }
+    };
 
-    function dfs(x: number, y: number, prev: number, visited: boolean[][]): void {
-        if (x < 0 || y < 0 || x >= m || y >= n) return;
-        if (prev > heights[x][y]) return;
-        if (visited[x][y]) return;
-        visited[x][y] = true;
-
-        dfs(x - 1, y, heights[x][y], visited);
-        dfs(x + 1, y, heights[x][y], visited);
-        dfs(x, y - 1, heights[x][y], visited);
-        dfs(x, y + 1, heights[x][y], visited);
+    // Start DFS from all Pacific Ocean borders (top and left edges)
+    for (let row = 0; row < rows; row++) {
+        markReachableCells(row, 0, reachesPacific);
+    }
+    for (let col = 0; col < cols; col++) {
+        markReachableCells(0, col, reachesPacific);
     }
 
+    // Start DFS from all Atlantic Ocean borders (bottom and right edges)
+    for (let row = 0; row < rows; row++) {
+        markReachableCells(row, cols - 1, reachesAtlantic);
+    }
+    for (let col = 0; col < cols; col++) {
+        markReachableCells(rows - 1, col, reachesAtlantic);
+    }
+
+    // Find cells that can reach both oceans
     const result: number[][] = [];
-    for (let i = 0; i < m; i++) {
-        for (let j = 0; j < n; j++) {
-            if (pac[i][j] && atl[i][j]) result.push([i, j]);
+    for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+            if (reachesPacific[row][col] && reachesAtlantic[row][col]) {
+                result.push([row, col]);
+            }
         }
     }
+    
     return result;
 };

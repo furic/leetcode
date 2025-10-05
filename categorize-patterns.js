@@ -28,8 +28,8 @@ class PatternCategorizer {
           codePatterns: [/\.sort\(/, /merge/, /partition/, /quick.*sort/i]
         },
         'Matrix Problems': {
-          keywords: ['matrix', 'grid', '2d', 'spiral'],
-          codePatterns: [/matrix/, /grid/, /\[i\]\[j\]/, /rows.*cols/]
+          keywords: ['matrix', 'grid', '2d', 'spiral', 'island', 'water flow', 'ocean', 'diagonal'],
+          codePatterns: [/matrix/, /grid/, /\[i\]\[j\]/, /rows.*cols/, /pacific|atlantic/i, /ocean/i]
         },
         'Counting, Frequency & Miscellaneous': {
           keywords: ['count', 'frequency', 'map', 'hash'],
@@ -63,9 +63,13 @@ class PatternCategorizer {
         }
       },
       'Math & Bit Manipulation': {
-        'Math & Bit Manipulation': {
-          keywords: ['bit', 'xor', 'and', 'or', 'shift', 'math'],
-          codePatterns: [/<<|>>/, /\^/, /&(?!\&)/, /\|(?!\|)/, /Math\./, /gcd|lcm/i]
+        'Bit Manipulation': {
+          keywords: ['bitwise', 'xor', 'bit mask', 'shift', 'power of two', 'binary'],
+          codePatterns: [/<<|>>/, /\^.*\^/, /&=|&(?!\&).*&(?!\&)/, /\|=|\|(?!\|).*\|(?!\|)/, /1\s*<</, />>>?/]
+        },
+        'Pure Math': {
+          keywords: ['gcd', 'lcm', 'prime', 'factorial', 'coprime', 'modulo', 'fibonacci', 'pascal', 'triangle'],
+          codePatterns: [/gcd|lcm/i, /prime/i, /factorial/i, /coprime/i, /Math\.pow/, /Math\.sqrt/, /isPrime/i]
         }
       },
       'System Design': {

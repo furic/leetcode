@@ -28,8 +28,8 @@ class PatternCategorizer {
           codePatterns: [/\.sort\(/, /merge/, /partition/, /quick.*sort/i]
         },
         'Matrix Problems': {
-          keywords: ['matrix', 'grid', '2d', 'spiral', 'island', 'water flow', 'ocean', 'diagonal'],
-          codePatterns: [/matrix/, /grid/, /\[i\]\[j\]/, /rows.*cols/, /pacific|atlantic/i, /ocean/i]
+          keywords: ['matrix', 'grid', '2d', 'spiral', 'island', 'water flow', 'ocean', 'diagonal', 'swim', 'rising water'],
+          codePatterns: [/matrix/, /grid/, /\[i\]\[j\]/, /rows.*cols/, /pacific|atlantic/i, /ocean/i, /swim/i]
         },
         'Counting, Frequency & Miscellaneous': {
           keywords: ['count', 'frequency', 'map', 'hash'],

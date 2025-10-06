@@ -1,18 +1,36 @@
 function swimInWater(grid: number[][]): number {
-    const [rows, cols] = [grid.length, grid[0].length];
-    const directions: number[][] = [[0, 1], [0, -1], [1, 0], [-1, 0]];
-    let heap = new MinPriorityQueue<[number, number, number]>((el) => el[0]);
-    heap.enqueue([grid[0][0], 0, 0]);
-    let visited: Set<string> = new Set<string>();
-    while ( heap.size() > 0 ) {
-        const [time, row, col] = heap.dequeue();
-        visited.add(row + ',' + col);
-        if ( row === rows - 1 && col === cols - 1 ) return time;
-        for ( const [ar, ac] of directions ) {
-            const [nr, nc] = [ar + row, ac + col];
-            if ( nr < 0 || nc < 0 || nr >= rows || nc >= cols || visited.has(nr + ',' + nc) ) continue;
-            heap.enqueue([Math.max(time, grid[nr][nc]), nr, nc]);
+    let n = grid.length;
+    let directions = [
+        [0,1],
+        [0,-1],
+        [1,0],
+        [-1,0]
+    ];
+
+    let visited = new Set();
+    let minHeap = new MinPriorityQueue((entry => entry[0]));
+    minHeap.enqueue([grid[0][0], 0, 0]);
+    visited.add('0,0');
+    while(!minHeap.isEmpty()) {
+        let curr = minHeap.dequeue();
+        let t = curr[0];
+        let x = curr[1];
+        let y = curr[2];
+
+        if(x==n-1 && y == n-1) {
+            return t;
         }
+
+        for(let direction of directions) {
+            let nx = x+direction[0];
+            let ny = y+direction[1];
+            if(
+                nx<0 || ny<0 || nx>=n || ny>=n || visited.has(`${nx},${ny}`)
+            ) continue;
+
+            visited.add(`${nx},${ny}`);
+            minHeap.enqueue([Math.max(t, grid[nx][ny]), nx, ny])
+        }
+
     }
-    return -1;
 };

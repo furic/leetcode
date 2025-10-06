@@ -1,36 +1,64 @@
-function swimInWater(grid: number[][]): number {
-    let n = grid.length;
-    let directions = [
-        [0,1],
-        [0,-1],
-        [1,0],
-        [-1,0]
+type PathState = [waterLevel: number, row: number, col: number];
+
+const swimInWater = (grid: number[][]): number => {
+    const gridSize = grid.length;
+    const directions: number[][] = [
+        [0, 1],   // right
+        [0, -1],  // left
+        [1, 0],   // down
+        [-1, 0]   // up
     ];
 
-    let visited = new Set();
-    let minHeap = new MinPriorityQueue((entry => entry[0]));
-    minHeap.enqueue([grid[0][0], 0, 0]);
-    visited.add('0,0');
-    while(!minHeap.isEmpty()) {
-        let curr = minHeap.dequeue();
-        let t = curr[0];
-        let x = curr[1];
-        let y = curr[2];
+    const visitedCells = new Set<string>();
+    
+    // Min heap: prioritize paths with lower maximum water level
+    const minHeap = new MinPriorityQueue<PathState>((state) => state[0]);
+    
+    const startRow = 0;
+    const startCol = 0;
+    const startWaterLevel = grid[startRow][startCol];
+    
+    minHeap.enqueue([startWaterLevel, startRow, startCol]);
+    visitedCells.add(`${startRow},${startCol}`);
+    
+    const targetRow = gridSize - 1;
+    const targetCol = gridSize - 1;
 
-        if(x==n-1 && y == n-1) {
-            return t;
+    while (!minHeap.isEmpty()) {
+        const [currentWaterLevel, currentRow, currentCol] = minHeap.dequeue();
+
+        // Reached destination
+        if (currentRow === targetRow && currentCol === targetCol) {
+            return currentWaterLevel;
         }
 
-        for(let direction of directions) {
-            let nx = x+direction[0];
-            let ny = y+direction[1];
-            if(
-                nx<0 || ny<0 || nx>=n || ny>=n || visited.has(`${nx},${ny}`)
-            ) continue;
+        // Explore all 4 neighbors
+        for (const [rowDelta, colDelta] of directions) {
+            const neighborRow = currentRow + rowDelta;
+            const neighborCol = currentCol + colDelta;
+            const cellKey = `${neighborRow},${neighborCol}`;
 
-            visited.add(`${nx},${ny}`);
-            minHeap.enqueue([Math.max(t, grid[nx][ny]), nx, ny])
+            // Skip if out of bounds or already visited
+            if (
+                neighborRow < 0 || 
+                neighborRow >= gridSize || 
+                neighborCol < 0 || 
+                neighborCol >= gridSize ||
+                visitedCells.has(cellKey)
+            ) {
+                continue;
+            }
+
+            visitedCells.add(cellKey);
+            
+            // Water level must be at least the max of current path and neighbor's elevation
+            const neighborElevation = grid[neighborRow][neighborCol];
+            const requiredWaterLevel = Math.max(currentWaterLevel, neighborElevation);
+            
+            minHeap.enqueue([requiredWaterLevel, neighborRow, neighborCol]);
         }
-
     }
+
+    // Should never reach here if input is valid
+    return -1;
 };

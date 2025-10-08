@@ -3,7 +3,10 @@ const replaceNonCoprimes = (nums: number[]): number[] => {
     
     const calculateGCD = (firstNumber: number, secondNumber: number): number => {
         while (secondNumber !== 0) {
-            [firstNumber, secondNumber] = [secondNumber, firstNumber % secondNumber];
+            // [firstNumber, secondNumber] = [secondNumber, firstNumber % secondNumber];
+            const tmpNumber = secondNumber;
+            secondNumber = firstNumber % secondNumber;
+            firstNumber = tmpNumber;
         }
         return firstNumber;
     };

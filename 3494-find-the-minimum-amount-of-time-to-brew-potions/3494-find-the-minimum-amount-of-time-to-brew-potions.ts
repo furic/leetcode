@@ -1,17 +1,15 @@
 function minTime(skill: number[], mana: number[]): number {
-    const n = skill.length,
-        m = mana.length;
-    const times: number[] = new Array(n).fill(0);
+    const n = skill.length, m = mana.length;
+    const done: number[] = new Array(n + 1).fill(0);
 
     for (let j = 0; j < m; j++) {
-        let curTime = 0;
         for (let i = 0; i < n; i++) {
-            curTime = Math.max(curTime, times[i]) + skill[i] * mana[j];
+            done[i + 1] = Math.max(done[i + 1], done[i]) + mana[j] * skill[i];
         }
-        times[n - 1] = curTime;
-        for (let i = n - 2; i >= 0; i--) {
-            times[i] = times[i + 1] - skill[i + 1] * mana[j];
+        for (let i = n - 1; i > 0; i--) {
+            done[i] = done[i + 1] - mana[j] * skill[i];
         }
     }
-    return times[n - 1];
+
+    return done[n];
 }

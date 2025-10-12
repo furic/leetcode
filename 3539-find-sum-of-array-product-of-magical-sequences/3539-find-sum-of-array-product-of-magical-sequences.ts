@@ -1,101 +1,126 @@
-function magicalSum(m: number, k: number, nums: number[]): number {
-    const n = nums.length;
-    const mod = 1000000007n;
+const magicalSum = (m: number, k: number, nums: number[]): number => {
+    const numsLength = nums.length;
+    const MOD = 1000000007n;
 
-    const fac: bigint[] = new Array(m + 1).fill(1n);
+    // Precompute factorials: factorial[i] = i!
+    const factorial: bigint[] = new Array(m + 1).fill(1n);
     for (let i = 1; i <= m; i++) {
-        fac[i] = (fac[i - 1] * BigInt(i)) % mod;
+        factorial[i] = (factorial[i - 1] * BigInt(i)) % MOD;
     }
 
-    const ifac: bigint[] = new Array(m + 1).fill(1n);
+    // Precompute inverse factorials: invFactorial[i] = 1/i!
+    const invFactorial: bigint[] = new Array(m + 1).fill(1n);
     for (let i = 2; i <= m; i++) {
-        ifac[i] = quickmul(BigInt(i), mod - 2n, mod);
+        invFactorial[i] = modularExponentiation(BigInt(i), MOD - 2n, MOD);
     }
     for (let i = 2; i <= m; i++) {
-        ifac[i] = (ifac[i - 1] * ifac[i]) % mod;
+        invFactorial[i] = (invFactorial[i - 1] * invFactorial[i]) % MOD;
     }
 
-    const numsPower: bigint[][] = new Array(n);
-    for (let i = 0; i < n; i++) {
-        numsPower[i] = new Array(m + 1).fill(1n);
-        for (let j = 1; j <= m; j++) {
-            numsPower[i][j] = (numsPower[i][j - 1] * BigInt(nums[i])) % mod;
+    // Precompute powers: numsPowers[i][j] = nums[i]^j
+    const numsPowers: bigint[][] = new Array(numsLength);
+    for (let numIndex = 0; numIndex < numsLength; numIndex++) {
+        numsPowers[numIndex] = new Array(m + 1).fill(1n);
+        for (let power = 1; power <= m; power++) {
+            numsPowers[numIndex][power] = 
+                (numsPowers[numIndex][power - 1] * BigInt(nums[numIndex])) % MOD;
         }
     }
 
-    const f: bigint[][][][] = new Array(n);
-    for (let i = 0; i < n; i++) {
-        f[i] = new Array(m + 1);
+    // DP table: dp[position][usedCount][powerSum][setBits]
+    // - position: current position in nums array
+    // - usedCount: how many elements from this position have been used
+    // - powerSum: sum of 2^(indices) for tracking set bits
+    // - setBits: current count of set bits in the binary sum
+    const dp: bigint[][][][] = new Array(numsLength);
+    for (let i = 0; i < numsLength; i++) {
+        dp[i] = new Array(m + 1);
         for (let j = 0; j <= m; j++) {
-            f[i][j] = new Array(m * 2 + 1);
-            for (let p = 0; p <= m * 2; p++) {
-                f[i][j][p] = new Array(k + 1).fill(0n);
+            dp[i][j] = new Array(m * 2 + 1);
+            for (let powerSum = 0; powerSum <= m * 2; powerSum++) {
+                dp[i][j][powerSum] = new Array(k + 1).fill(0n);
             }
         }
     }
 
-    for (let j = 0; j <= m; j++) {
-        f[0][j][j][0] = (numsPower[0][j] * ifac[j]) % mod;
+    // Base case: first element with different usage counts
+    for (let usedCount = 0; usedCount <= m; usedCount++) {
+        dp[0][usedCount][usedCount][0] = 
+            (numsPowers[0][usedCount] * invFactorial[usedCount]) % MOD;
     }
 
-    for (let i = 0; i + 1 < n; i++) {
-        for (let j = 0; j <= m; j++) {
-            for (let p = 0; p <= m * 2; p++) {
-                for (let q = 0; q <= k; q++) {
-                    if (f[i][j][p][q] === 0n) {
+    // Fill DP table
+    for (let position = 0; position + 1 < numsLength; position++) {
+        for (let usedCount = 0; usedCount <= m; usedCount++) {
+            for (let powerSum = 0; powerSum <= m * 2; powerSum++) {
+                for (let setBits = 0; setBits <= k; setBits++) {
+                    if (dp[position][usedCount][powerSum][setBits] === 0n) {
                         continue;
                     }
-                    const q2 = (p % 2) + q;
-                    if (q2 > k) {
+
+                    const newSetBits = (powerSum % 2) + setBits;
+                    if (newSetBits > k) {
                         break;
                     }
-                    for (let r = 0; r + j <= m; r++) {
-                        const p2 = Math.floor(p / 2) + r;
-                        if (p2 > m * 2) {
+
+                    // Try using 0 to (m - usedCount) copies of next element
+                    for (let additionalUses = 0; additionalUses + usedCount <= m; additionalUses++) {
+                        const newPowerSum = Math.floor(powerSum / 2) + additionalUses;
+                        if (newPowerSum > m * 2) {
                             break;
                         }
-                        f[i + 1][j + r][p2][q2] =
-                            (f[i + 1][j + r][p2][q2] +
-                                ((((f[i][j][p][q] * numsPower[i + 1][r]) %
-                                    mod) *
-                                    ifac[r]) %
-                                    mod)) %
-                            mod;
+
+                        const contribution = 
+                            (((dp[position][usedCount][powerSum][setBits] * 
+                                numsPowers[position + 1][additionalUses]) % MOD) * 
+                                invFactorial[additionalUses]) % MOD;
+
+                        dp[position + 1][usedCount + additionalUses][newPowerSum][newSetBits] = 
+                            (dp[position + 1][usedCount + additionalUses][newPowerSum][newSetBits] + 
+                                contribution) % MOD;
                     }
                 }
             }
         }
     }
 
-    let res = 0n;
-    for (let p = 0; p <= m * 2; p++) {
-        for (let q = 0; q <= k; q++) {
-            if (bitCount(p) + q === k) {
-                res = (res + ((f[n - 1][m][p][q] * fac[m]) % mod)) % mod;
+    // Collect results: sum all valid states at the last position
+    let totalSum = 0n;
+    for (let powerSum = 0; powerSum <= m * 2; powerSum++) {
+        for (let setBits = 0; setBits <= k; setBits++) {
+            // Valid if total set bits equals k
+            if (countSetBits(powerSum) + setBits === k) {
+                totalSum = (totalSum + 
+                    ((dp[numsLength - 1][m][powerSum][setBits] * factorial[m]) % MOD)) % MOD;
             }
         }
     }
-    return Number(res);
-}
 
-function quickmul(x: bigint, y: bigint, mod: bigint): bigint {
-    let res = 1n;
-    let cur = x % mod;
-    while (y > 0n) {
-        if (y & 1n) {
-            res = (res * cur) % mod;
+    return Number(totalSum);
+};
+
+// Fast modular exponentiation: compute (base^exponent) % modulo
+const modularExponentiation = (base: bigint, exponent: bigint, modulo: bigint): bigint => {
+    let result = 1n;
+    let currentPower = base % modulo;
+    
+    while (exponent > 0n) {
+        if (exponent & 1n) {
+            result = (result * currentPower) % modulo;
         }
-        y >>= 1n;
-        cur = (cur * cur) % mod;
+        exponent >>= 1n;
+        currentPower = (currentPower * currentPower) % modulo;
     }
-    return res;
-}
+    
+    return result;
+};
 
-function bitCount(n: number): number {
+// Count number of set bits (1s) in binary representation
+const countSetBits = (num: number): number => {
     let count = 0;
-    while (n > 0) {
-        count += n & 1;
-        n >>= 1;
+    while (num > 0) {
+        count += num & 1;
+        num >>= 1;
     }
     return count;
-}
+};

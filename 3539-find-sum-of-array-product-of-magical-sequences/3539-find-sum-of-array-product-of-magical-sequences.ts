@@ -1,86 +1,101 @@
-const magicalSum = (m: number, k: number, nums: number[]): number => {
-    const MOD = BigInt(1e9 + 7);
+function magicalSum(m: number, k: number, nums: number[]): number {
     const n = nums.length;
+    const mod = 1000000007n;
 
-    // Precompute factorial and inverse factorial with BigInt
-    const factorial: bigint[] = Array(m + 1).fill(BigInt(1));
+    const fac: bigint[] = new Array(m + 1).fill(1n);
     for (let i = 1; i <= m; i++) {
-        factorial[i] = factorial[i - 1] * BigInt(i) % MOD;
+        fac[i] = (fac[i - 1] * BigInt(i)) % mod;
     }
 
-    const modPow = (base: bigint, exp: bigint, mod: bigint): bigint => {
-        let result = BigInt(1);
-        base %= mod;
-        while (exp > 0) {
-            if (exp % BigInt(2) === BigInt(1)) result = (result * base) % mod;
-            base = (base * base) % mod;
-            exp /= BigInt(2);
-        }
-        return result;
-    };
-
-    const inverseFactorial: bigint[] = Array(m + 1).fill(BigInt(1));
-    inverseFactorial[m] = modPow(factorial[m], MOD - BigInt(2), MOD);
-    for (let i = m; i >= 1; i--) {
-        inverseFactorial[i - 1] = inverseFactorial[i] * BigInt(i) % MOD;
+    const ifac: bigint[] = new Array(m + 1).fill(1n);
+    for (let i = 2; i <= m; i++) {
+        ifac[i] = quickmul(BigInt(i), mod - 2n, mod);
+    }
+    for (let i = 2; i <= m; i++) {
+        ifac[i] = (ifac[i - 1] * ifac[i]) % mod;
     }
 
-    // Precompute powers of nums
-    const powNums: bigint[][] = Array.from({ length: n }, () =>
-        Array(m + 1).fill(BigInt(1))
-    );
+    const numsPower: bigint[][] = new Array(n);
     for (let i = 0; i < n; i++) {
-        for (let c = 1; c <= m; c++) {
-            powNums[i][c] = powNums[i][c - 1] * BigInt(nums[i]) % MOD;
+        numsPower[i] = new Array(m + 1).fill(1n);
+        for (let j = 1; j <= m; j++) {
+            numsPower[i][j] = (numsPower[i][j - 1] * BigInt(nums[i])) % mod;
         }
     }
 
-    // DP array: dp[i][m1][k1][carry] = count of ways
-    const dp = Array.from({ length: n + 1 }, () =>
-        Array.from({ length: m + 1 }, () =>
-            Array.from({ length: k + 1 }, () =>
-                Array<bigint>(m + 1).fill(BigInt(0))
-            )
-        )
-    );
-    dp[0][0][0][0] = BigInt(1);
-
+    const f: bigint[][][][] = new Array(n);
     for (let i = 0; i < n; i++) {
-        for (let m1 = 0; m1 <= m; m1++) {
-            for (let k1 = 0; k1 <= k; k1++) {
-                for (let carry = 0; carry <= m; carry++) {
-                    const val = dp[i][m1][k1][carry];
-                    if (val === BigInt(0)) continue;
-                    for (let c = 0; c <= m - m1; c++) {
-                        const m2 = m1 + c;
-                        const sumBits = c + carry;
-                        const nextCarry = sumBits >> 1;
-                        const addedSetBits = sumBits & 1;
-                        const k2 = k1 + addedSetBits;
-                        if (k2 > k) continue;
+        f[i] = new Array(m + 1);
+        for (let j = 0; j <= m; j++) {
+            f[i][j] = new Array(m * 2 + 1);
+            for (let p = 0; p <= m * 2; p++) {
+                f[i][j][p] = new Array(k + 1).fill(0n);
+            }
+        }
+    }
 
-                        const contrib = val * inverseFactorial[c] % MOD * powNums[i][c] % MOD;
-                        dp[i + 1][m2][k2][nextCarry] =
-                            (dp[i + 1][m2][k2][nextCarry] + contrib) % MOD;
+    for (let j = 0; j <= m; j++) {
+        f[0][j][j][0] = (numsPower[0][j] * ifac[j]) % mod;
+    }
+
+    for (let i = 0; i + 1 < n; i++) {
+        for (let j = 0; j <= m; j++) {
+            for (let p = 0; p <= m * 2; p++) {
+                for (let q = 0; q <= k; q++) {
+                    if (f[i][j][p][q] === 0n) {
+                        continue;
+                    }
+                    const q2 = (p % 2) + q;
+                    if (q2 > k) {
+                        break;
+                    }
+                    for (let r = 0; r + j <= m; r++) {
+                        const p2 = Math.floor(p / 2) + r;
+                        if (p2 > m * 2) {
+                            break;
+                        }
+                        f[i + 1][j + r][p2][q2] =
+                            (f[i + 1][j + r][p2][q2] +
+                                ((((f[i][j][p][q] * numsPower[i + 1][r]) %
+                                    mod) *
+                                    ifac[r]) %
+                                    mod)) %
+                            mod;
                     }
                 }
             }
         }
     }
 
-    // Sum valid final states
-    let result = BigInt(0);
-    for (let k1 = 0; k1 <= k; k1++) {
-        for (let carry = 0; carry <= m; carry++) {
-            const val = dp[n][m][k1][carry];
-            if (val === BigInt(0)) continue;
-            const bits = carry.toString(2).split("1").length - 1;
-            if (k1 + bits === k) {
-                result = (result + val) % MOD;
+    let res = 0n;
+    for (let p = 0; p <= m * 2; p++) {
+        for (let q = 0; q <= k; q++) {
+            if (bitCount(p) + q === k) {
+                res = (res + ((f[n - 1][m][p][q] * fac[m]) % mod)) % mod;
             }
         }
     }
+    return Number(res);
+}
 
-    result = result * factorial[m] % MOD;
-    return Number(result);
-};
+function quickmul(x: bigint, y: bigint, mod: bigint): bigint {
+    let res = 1n;
+    let cur = x % mod;
+    while (y > 0n) {
+        if (y & 1n) {
+            res = (res * cur) % mod;
+        }
+        y >>= 1n;
+        cur = (cur * cur) % mod;
+    }
+    return res;
+}
+
+function bitCount(n: number): number {
+    let count = 0;
+    while (n > 0) {
+        count += n & 1;
+        n >>= 1;
+    }
+    return count;
+}

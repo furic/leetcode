@@ -1,4 +1,4 @@
-# Multiset DP with Factorials | 109 Lines | O(n × m³ × k) | 410ms
+# Multiset DP with Factorials | 109 Lines | O(n × m³ × k) | 400ms
 
 # Intuition
 We need to count sequences where indices form a specific bit pattern and sum their products. The key insight is that sequences can have repeated indices, so we're dealing with multisets. We can use dynamic programming to track how many times each element is used while maintaining the bit constraint.

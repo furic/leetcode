@@ -1,31 +1,17 @@
-const maxIncreasingSubarrays = (nums: number[]): number => {
-    let currentSegmentLength = 1;
-    let previousSegmentLength = 0;
-    let maxSubarrayLength = 0;
-
-    for (let index = 1; index < nums.length; index++) {
-        if (nums[index] > nums[index - 1]) {
-            // Continue current increasing segment
-            currentSegmentLength++;
+function maxIncreasingSubarrays(nums: number[]): number {
+    const n = nums.length;
+    let cnt = 1,
+        precnt = 0,
+        ans = 0;
+    for (let i = 1; i < n; ++i) {
+        if (nums[i] > nums[i - 1]) {
+            ++cnt;
         } else {
-            // Current segment breaks, start new segment
-            previousSegmentLength = currentSegmentLength;
-            currentSegmentLength = 1;
+            precnt = cnt;
+            cnt = 1;
         }
-
-        // Two ways to have adjacent k-length increasing subarrays:
-        // 1. Use tail of previous segment and head of current segment
-        const adjacentSegmentsLength = Math.min(previousSegmentLength, currentSegmentLength);
-        
-        // 2. Split current segment into two equal halves
-        const halfCurrentSegmentLength = Math.floor(currentSegmentLength / 2);
-
-        maxSubarrayLength = Math.max(
-            maxSubarrayLength,
-            adjacentSegmentsLength,
-            halfCurrentSegmentLength
-        );
+        ans = Math.max(ans, Math.min(precnt, cnt));
+        ans = Math.max(ans, Math.floor(cnt / 2));
     }
-
-    return maxSubarrayLength;
-};
+    return ans;
+}

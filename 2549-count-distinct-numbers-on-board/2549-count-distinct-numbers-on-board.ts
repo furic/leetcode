@@ -1,0 +1,1 @@
+const distinctIntegers = (n: number): number => n > 1 ? n - 1 : 1;

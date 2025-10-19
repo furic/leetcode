@@ -61,7 +61,7 @@ We need to find the longest subarray where the count of distinct even numbers eq
 
 # Code
 ```typescript
-function longestBalanced(nums: number[]): number {
+const longestBalanced = (nums: number[]): number => {
     let maxLength = 0;
     
     for (let i = 0; i < nums.length; i++) {

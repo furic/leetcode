@@ -1,21 +1,38 @@
-function isBalance(x) {
-    const count = new Array(10).fill(0);
-    while (x > 0) {
-        count[x % 10]++;
-        x = Math.floor(x / 10);
+const isNumericallyBalanced = (num: number): boolean => {
+    const digitFrequency = new Array(10).fill(0);
+    let remainingNumber = num;
+    
+    // Count frequency of each digit
+    while (remainingNumber > 0) {
+        const digit = remainingNumber % 10;
+        digitFrequency[digit]++;
+        remainingNumber = Math.floor(remainingNumber / 10);
     }
-    for (let d = 0; d < 10; d++) {
-        if (count[d] > 0 && count[d] != d) {
+    
+    // Check if each digit d appears exactly d times
+    for (let digit = 0; digit < 10; digit++) {
+        const frequency = digitFrequency[digit];
+        
+        // If digit appears, it must appear exactly 'digit' times
+        if (frequency > 0 && frequency !== digit) {
             return false;
         }
     }
+    
     return true;
-}
+};
 
-var nextBeautifulNumber = function (n) {
-    for (let i = n + 1; i <= 1224444; i++) {
-        if (isBalance(i)) {
-            return i;
+const nextBeautifulNumber = (n: number): number => {
+    // Upper bound: largest known balanced number in valid range
+    const MAX_BALANCED_NUMBER = 1224444;
+    
+    // Try each number starting from n+1
+    for (let candidate = n + 1; candidate <= MAX_BALANCED_NUMBER; candidate++) {
+        if (isNumericallyBalanced(candidate)) {
+            return candidate;
         }
     }
+    
+    // Should never reach here given the constraints
+    return -1;
 };

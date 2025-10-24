@@ -1,16 +1,30 @@
-function scoreBalance(s: string): boolean {
-    const len = s.length;
-    let total = 0;
-
-    for (let i = 0; i < len; i++) {
-        total += s.charCodeAt(i) - 'a'.charCodeAt(0) + 1;
+const scoreBalance = (s: string): boolean => {
+    // Calculate total score of the string
+    let totalScore = 0;
+    for (const char of s) {
+        const charScore = char.charCodeAt(0) - 96; // 'a'=1, 'b'=2, ..., 'z'=26
+        totalScore += charScore;
     }
-
-    let left = 0;
-    for (let i = 0; i < len - 1; i++) {
-        left += s.charCodeAt(i) - 'a'.charCodeAt(0) + 1;
-        if (left === total - left) return true;
+    
+    // If total score is odd, cannot split evenly
+    if (totalScore % 2 !== 0) {
+        return false;
     }
-
+    
+    const targetScore = totalScore / 2;
+    let leftScore = 0;
+    
+    // Try each split position (must leave at least 1 character on right)
+    for (let index = 0; index < s.length - 1; index++) {
+        const char = s[index];
+        const charScore = char.charCodeAt(0) - 96;
+        leftScore += charScore;
+        
+        // Check if left score equals half of total (implies right score also equals half)
+        if (leftScore === targetScore) {
+            return true;
+        }
+    }
+    
     return false;
-}
+};

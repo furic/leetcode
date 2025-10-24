@@ -3,11 +3,10 @@ const scoreBalance = (s: string): boolean => {
     
     // Build prefix sum array: prefixSum[i] = sum of scores from index 0 to i
     const prefixSum: number[] = new Array(stringLength);
-    prefixSum[0] = s.charCodeAt(0) - 96;
     
-    for (let index = 1; index < stringLength; index++) {
+    for (let index = 0; index < stringLength; index++) {
         const charScore = s.charCodeAt(index) - 96;
-        prefixSum[index] = prefixSum[index - 1] + charScore;
+        prefixSum[index] = (index > 0 ? prefixSum[index - 1] : 0) + charScore;
     }
     
     const totalScore = prefixSum[stringLength - 1];

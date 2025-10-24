@@ -77,7 +77,7 @@ const scoreBalance = (s: string): boolean => {
     
     for (let index = 0; index < stringLength; index++) {
         const charScore = s.charCodeAt(index) - 96;
-        prefixSum[index] = prefixSum[index - 1] + charScore;
+        prefixSum[index] = (index > 0 ? prefixSum[index - 1] : 0) + charScore;
     }
     
     const totalScore = prefixSum[stringLength - 1];

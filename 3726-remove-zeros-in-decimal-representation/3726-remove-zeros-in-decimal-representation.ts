@@ -1,1 +1,1 @@
-const removeZeros = (n: number): number => Number(n.toString().split('').filter((c) => c != '0').join(''));
+const removeZeros = (n: number): number => Number(n.toString().replace(/0/g, ''));

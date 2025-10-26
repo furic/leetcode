@@ -1,27 +1,48 @@
-function numGoodSubarrays(v: number[], k: number): number {
-    const mp = new Map<number, number>();
-    const n = v.length;
-    mp.set(0, 1);
-    let sum = 0;
-    let cnt = 0;
+const numGoodSubarrays = (nums: number[], k: number): number => {
+    const prefixSumModCounts = new Map<number, number>();
+    const arrayLength = nums.length;
+    
+    // Initialize: empty subarray has sum 0
+    prefixSumModCounts.set(0, 1);
+    
+    let currentPrefixSumMod = 0;
+    let goodSubarrayCount = 0;
 
-    for (let i = 0; i < n;) {
-        let j = i;
-        let sum2 = sum;
-
-        while (j < n && v[j] === v[i]) {
-            sum2 = (sum2 + v[j]) % k;
-            cnt += mp.get(sum2 % k) || 0;
-            j++;
+    let startIndex = 0;
+    
+    // Process array in groups of equal consecutive values
+    while (startIndex < arrayLength) {
+        const currentValue = nums[startIndex];
+        let groupEndIndex = startIndex;
+        
+        // Phase 1: Count good subarrays ending within this group
+        // Use temporary sum to avoid modifying the main prefix sum yet
+        let tempPrefixSumMod = currentPrefixSumMod;
+        
+        while (groupEndIndex < arrayLength && nums[groupEndIndex] === currentValue) {
+            tempPrefixSumMod = (tempPrefixSumMod + nums[groupEndIndex]) % k;
+            
+            // Count subarrays: if we've seen this remainder before, those form valid subarrays
+            goodSubarrayCount += prefixSumModCounts.get(tempPrefixSumMod) || 0;
+            groupEndIndex++;
         }
 
-        j = i;
-        while (i < n && v[j] === v[i]) {
-            sum = (sum + v[j]) % k;
-            mp.set(sum, (mp.get(sum) || 0) + 1);
-            i++;
+        // Phase 2: Update prefix sum map for future groups
+        // Reset to process the same group again to update the map
+        groupEndIndex = startIndex;
+        
+        while (startIndex < arrayLength && nums[groupEndIndex] === nums[startIndex]) {
+            currentPrefixSumMod = (currentPrefixSumMod + nums[groupEndIndex]) % k;
+            
+            // Record this prefix sum remainder for future lookups
+            prefixSumModCounts.set(
+                currentPrefixSumMod, 
+                (prefixSumModCounts.get(currentPrefixSumMod) || 0) + 1
+            );
+            
+            startIndex++;
         }
     }
 
-    return cnt;
-}
+    return goodSubarrayCount;
+};

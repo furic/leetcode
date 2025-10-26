@@ -1,120 +1,125 @@
-# String Filter Conversion | 1 Line | O(d) | 1ms
+# String Replacement | 1 Line | O(d) | 1ms
 
 # Intuition
-We need to remove all '0' digits from the number's decimal representation. The most straightforward approach is to convert the number to a string, filter out '0' characters, and convert back to a number.
+We need to remove all occurrences of the digit '0' from a number. The simplest approach is to convert the number to a string, remove all '0' characters, and convert back to a number.
 
 # Approach
-**String Manipulation Pipeline:**
-- Convert number to string to access individual digits
-- Filter out all '0' characters
-- Join remaining characters and convert back to number
+**String Manipulation with Regex:**
+- Convert number to string representation
+- Use regex to replace all '0' characters with empty string
+- Convert resulting string back to number
 
 **Step-by-Step Process:**
 
 1. **Convert to String:**
-   - `n.toString()` converts the number to its string representation
+   - `n.toString()` gives decimal string representation
    - Example: 1020030 → "1020030"
-   - This allows character-level manipulation
 
-2. **Split into Characters:**
-   - `.split('')` breaks the string into an array of individual characters
-   - Example: "1020030" → ['1','0','2','0','0','3','0']
-   - Each digit becomes a separate element
+2. **Remove All Zeros:**
+   - Use `replace(/0/g, '')` with regex
+   - `/0/g` matches all '0' characters (g flag = global, all occurrences)
+   - Replace with empty string effectively removes them
+   - Example: "1020030" → "123"
 
-3. **Filter Out Zeros:**
-   - `.filter((c) => c != '0')` keeps only non-zero characters
-   - Example: ['1','0','2','0','0','3','0'] → ['1','2','3']
-   - Removes all '0' characters from the array
-
-4. **Join Back to String:**
-   - `.join('')` concatenates array elements back into a string
-   - Example: ['1','2','3'] → "123"
-   - Creates the final string without zeros
-
-5. **Convert to Number:**
-   - `Number(...)` parses the string back to an integer
+3. **Convert Back to Number:**
+   - `Number()` or `parseInt()` converts string to integer
    - Example: "123" → 123
-   - Returns the numeric result
+   - Automatically handles parsing without leading zeros
 
 **Why This Works:**
 
-**Correctness:**
-- String operations preserve digit order
-- Filter correctly identifies and removes all '0' characters
-- Number conversion handles the result correctly
-
-**Simplicity:**
-- Single-line solution using functional programming
-- No manual loops or digit manipulation
-- Built-in methods handle edge cases
-
-**Example Walkthrough (n = 1020030):**
-```
-1020030
-  → "1020030"           (toString)
-  → ['1','0','2','0','0','3','0']  (split)
-  → ['1','2','3']       (filter)
-  → "123"               (join)
-  → 123                 (Number)
-```
-
-**Edge Cases Handled:**
-
-**No zeros:**
-- Input: 123
-- Process: "123" → ['1','2','3'] → ['1','2','3'] → "123" → 123
-- Result: unchanged ✓
-
-**All zeros except one digit:**
-- Input: 1000
-- Process: "1000" → ['1','0','0','0'] → ['1'] → "1" → 1
-- Result: 1 ✓
-
-**Single digit:**
-- Input: 5
-- Process: "5" → ['5'] → ['5'] → "5" → 5
-- Result: 5 ✓
-
-**Leading zeros after removal:**
-- Not possible since input is positive integer (no leading zeros in input)
+**String Processing Benefits:**
+- Strings provide character-level access
+- Regex enables concise pattern matching
+- No need to handle digit extraction manually
 
 **Alternative Approaches:**
 
-**Mathematical approach:**
+**Digit-by-Digit (Mathematical):**
 ```typescript
-let result = 0;
-let multiplier = 1;
-while (n > 0) {
-    const digit = n % 10;
-    if (digit !== 0) {
-        result = digit * multiplier + result;
-        multiplier *= 10;
+const removeZeros = (n: number): number => {
+    let result = 0;
+    let multiplier = 1;
+    
+    while (n > 0) {
+        const digit = n % 10;
+        if (digit !== 0) {
+            result = digit * multiplier + result;
+            multiplier *= 10;
+        }
+        n = Math.floor(n / 10);
     }
-    n = Math.floor(n / 10);
-}
-return result;
+    
+    return result;
+};
 ```
-- More complex, not more efficient
-- Harder to read and maintain
+- More complex but avoids string conversion
+- O(d) time, O(1) space
+- Processes digits from right to left
 
-**Regex approach:**
+**Filter Array:**
 ```typescript
-return Number(n.toString().replace(/0/g, ''));
+const removeZeros = (n: number): number => 
+    Number(n.toString().split('').filter(c => c !== '0').join(''));
 ```
-- Similar performance
-- Slightly less clear about "removing all instances"
+- More verbose than regex
+- Same complexity
 
-**Why String Approach is Best:**
-- Most readable and concise
-- Leverages high-level built-in methods
-- Performance is adequate for this problem
-- Easy to understand and maintain
+**Example Walkthrough (n = 1020030):**
+
+- toString(): "1020030"
+- replace(/0/g, ''): "123"
+- Number(): 123
+- Result: 123 ✓
+
+**Example 2 (n = 1):**
+
+- toString(): "1"
+- replace(/0/g, ''): "1" (no matches, unchanged)
+- Number(): 1
+- Result: 1 ✓
+
+**Edge Cases:**
+
+**All zeros except one digit:**
+- Input: 10000 → Output: 1
+
+**No zeros:**
+- Input: 12345 → Output: 12345
+
+**Leading zeros after removal:**
+- Not possible as input is positive integer
+- String "0123" would become "123" → 123
+
+**Single digit:**
+- 0: Technically not valid (positive integer constraint)
+- 5: Returns 5
+
+**Regex Explanation:**
+
+- `/0/` - Matches the character '0'
+- `/g` - Global flag: match all occurrences, not just first
+- Without `g`: "1020030".replace(/0/, '') → "120030" (only first '0' removed)
+- With `g`: "1020030".replace(/0/g, '') → "123" (all '0's removed)
+
+**Performance Considerations:**
+
+- String operations are generally O(d) where d is number of digits
+- For typical integers (up to 10^9), d ≤ 10
+- String approach is simple and performant enough
+- Mathematical approach has O(1) space but more complex logic
+
+**Why Not Other Methods:**
+
+- Splitting to array then filtering: More overhead than regex
+- Multiple passes: Regex is single pass
+- Recursive approach: Unnecessary complexity
 
 # Complexity
-- Time complexity: $$O(d)$$ where d is the number of digits - each digit processed once through filter
-- Space complexity: $$O(d)$$ for temporary string and array storage
+- Time complexity: $$O(d)$$ where d is the number of digits in n
+- Space complexity: $$O(d)$$ for string representation
 
 # Code
 ```typescript
-const removeZeros = (n: number): number => Number(n.toString().split('').filter((c) => c != '0').join(''));
+const removeZeros = (n: number): number => Number(n.toString().replace(/0/g, ''));
 ```

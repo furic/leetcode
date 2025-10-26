@@ -1,76 +1,61 @@
 class Bank {
     private accountBalances: number[];
-    private accountCount: number;
 
     constructor(balance: number[]) {
         this.accountBalances = balance;
-        this.accountCount = balance.length;
     }
 
-    /**
-     * Checks if an account number is valid (between 1 and n)
-     */
-    private isValidAccount = (accountNumber: number): boolean => {
-        return accountNumber >= 1 && accountNumber <= this.accountCount;
-    };
-
-    /**
-     * Checks if an account has sufficient balance
-     */
-    private hasSufficientBalance = (accountNumber: number, amount: number): boolean => {
-        return this.accountBalances[accountNumber - 1] >= amount;
-    };
-
-    /**
-     * Transfer money from account1 to account2
-     * Returns true if successful, false otherwise
-     */
-    transfer = (account1: number, account2: number, money: number): boolean => {
-        // Validate both accounts exist and source account has sufficient funds
+    transfer = (fromAccount: number, toAccount: number, amount: number): boolean => {
+        // Validate both accounts exist and source has sufficient funds
         if (
-            !this.isValidAccount(account1) ||
-            !this.isValidAccount(account2) ||
-            !this.hasSufficientBalance(account1, money)
+            !this.isValidAccount(fromAccount) ||
+            !this.isValidAccount(toAccount) ||
+            !this.hasSufficientBalance(fromAccount, amount)
         ) {
             return false;
         }
 
         // Perform transfer
-        this.accountBalances[account1 - 1] -= money;
-        this.accountBalances[account2 - 1] += money;
+        this.accountBalances[fromAccount - 1] -= amount;
+        this.accountBalances[toAccount - 1] += amount;
         return true;
     };
 
-    /**
-     * Deposit money into an account
-     * Returns true if successful, false otherwise
-     */
-    deposit = (accountNumber: number, money: number): boolean => {
+    deposit = (account: number, amount: number): boolean => {
         // Validate account exists
-        if (!this.isValidAccount(accountNumber)) {
+        if (!this.isValidAccount(account)) {
             return false;
         }
 
         // Perform deposit
-        this.accountBalances[accountNumber - 1] += money;
+        this.accountBalances[account - 1] += amount;
         return true;
     };
 
-    /**
-     * Withdraw money from an account
-     * Returns true if successful, false otherwise
-     */
-    withdraw = (accountNumber: number, money: number): boolean => {
+    withdraw = (account: number, amount: number): boolean => {
         // Validate account exists and has sufficient funds
-        if (
-            !this.isValidAccount(accountNumber) ||
-            !this.hasSufficientBalance(accountNumber, money)
-        ) {
+        if (!this.isValidAccount(account) || !this.hasSufficientBalance(account, amount)) {
             return false;
         }
 
         // Perform withdrawal
-        this.accountBalances[accountNumber - 1] -= money;
+        this.accountBalances[account - 1] -= amount;
         return true;
     };
+
+    private isValidAccount = (accountNumber: number): boolean => {
+        return accountNumber >= 1 && accountNumber <= this.accountBalances.length;
+    };
+
+    private hasSufficientBalance = (accountNumber: number, requiredAmount: number): boolean => {
+        return this.accountBalances[accountNumber - 1] >= requiredAmount;
+    };
 }
+
+/**
+ * Your Bank object will be instantiated and called as such:
+ * var obj = new Bank(balance)
+ * var param_1 = obj.transfer(account1, account2, money)
+ * var param_2 = obj.deposit(account, money)
+ * var param_3 = obj.withdraw(account, money)
+ */

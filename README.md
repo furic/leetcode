@@ -470,7 +470,6 @@ Each problem is organized in its own directory following the format:
 <details>
 <summary>🌳 Trees & Graphs</summary>
 
-### Tree & Graph Problems
 - [0124. Binary Tree Maximum Path Sum](./0124-binary-tree-maximum-path-sum/)
 - [0199. Binary Tree Right Side View](./0199-binary-tree-right-side-view/)
 - [0200. Number of Islands](./0200-number-of-islands/)
@@ -528,9 +527,8 @@ Each problem is organized in its own directory following the format:
 </details>
 
 <details>
-<summary>🔢 Math & Bit Manipulation</summary>
+<summary>🔢 Bit Manipulation</summary>
 
-### Bit Manipulation
 - [0231. Power Of Two](./0231-power-of-two/)
 - [0342. Power Of Four](./0342-power-of-four/)
 - [0869. Reordered Power Of 2](./0869-reordered-power-of-2/)
@@ -555,7 +553,11 @@ Each problem is organized in its own directory following the format:
 - [3688. Bitwise Or Of Even Numbers In An Array](./3688-bitwise-or-of-even-numbers-in-an-array/)
 - [3702. Longest Subsequence With Non Zero Bitwise Xor](./3702-longest-subsequence-with-non-zero-bitwise-xor/)
 
-### Pure Math
+</details>
+
+<details>
+<summary>🔢 Pure Math</summary>
+
 - [0002. Add Two Numbers](./0002-add-two-numbers/)
 - [0118. Pascals Triangle](./0118-pascals-triangle/)
 - [0120. Triangle](./0120-triangle/)

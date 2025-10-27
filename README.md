@@ -333,8 +333,6 @@ Each problem is organized in its own directory following the format:
 <details>
 <summary>🔤 Strings</summary>
 
-### String Manipulation
-
 <details>
 <summary>Lexicographical & Ordering</summary>
 

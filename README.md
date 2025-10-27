@@ -442,9 +442,10 @@ Each problem is organized in its own directory following the format:
 
 </details>
 
-</details>
 
-### Strings & Palindromes
+<details>
+<summary>Strings & Palindromes</summary>
+
 - [0009. Palindrome Number](./0009-palindrome-number/)
 - [0020. Valid Parentheses](./0020-valid-parentheses/)
 - [0165. Compare Version Numbers](./0165-compare-version-numbers/)
@@ -463,6 +464,8 @@ Each problem is organized in its own directory following the format:
 - [3598. Longest Common Prefix Between Adjacent Strings After Removals](./3598-longest-common-prefix-between-adjacent-strings-after-removals/)
 - [3606. Coupon Code Validator](./3606-coupon-code-validator/)
 - [3664. Two Letter Card Game](./3664-two-letter-card-game/)
+
+</details>
 
 </details>
 

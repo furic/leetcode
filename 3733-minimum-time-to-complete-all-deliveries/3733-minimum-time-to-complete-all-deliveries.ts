@@ -1,37 +1,46 @@
-function minimumTime(d: number[], r: number[]): number {
-    const gcd = (a: number, b: number): number => {
-        while (b !== 0) {
-            [a, b] = [b, a % b];
-        }
-        return a;
+const minimumTime = (deliveries: number[], rechargeIntervals: number[]): number => {
+    // Calculate greatest common divisor using Euclidean algorithm
+    const calculateGCD = (a: number, b: number): number => {
+        return b === 0 ? a : calculateGCD(b, a % b);
     };
+
+    // Binary search bounds
+    let minTime = 0;
+    let maxTime = 1e18; // Upper bound large enough for all practical cases
     
-    const lcmValue = (r[0] * r[1]) / gcd(r[0], r[1]);
-    
-    const canComplete = (T: number): boolean => {
-        const only1 = Math.floor(T / r[1]) - Math.floor(T / lcmValue);
+    // Optimize upper bound based on problem constraints
+    const estimatedMax = (deliveries[0] + deliveries[1]) * Math.max(rechargeIntervals[0], rechargeIntervals[1]);
+    maxTime = Math.min(maxTime, Math.max(100, estimatedMax));
+
+    // Binary search for minimum time
+    while (minTime <= maxTime) {
+        const candidateTime = Math.floor((minTime + maxTime) / 2);
         
-        const only2 = Math.floor(T / r[0]) - Math.floor(T / lcmValue);
+        // Calculate available delivery slots for each drone individually
+        const drone1Slots = candidateTime - Math.floor(candidateTime / rechargeIntervals[0]);
+        const drone2Slots = candidateTime - Math.floor(candidateTime / rechargeIntervals[1]);
         
-        const both = T - Math.floor(T / r[0]) - Math.floor(T / r[1]) + Math.floor(T / lcmValue);
+        // Calculate LCM to find overlapping recharge hours
+        const gcd = calculateGCD(rechargeIntervals[0], rechargeIntervals[1]);
+        const lcm = (rechargeIntervals[0] / gcd) * rechargeIntervals[1];
         
-        const need1 = Math.max(0, d[0] - only1);
-        const need2 = Math.max(0, d[1] - only2);
+        // Calculate total slots considering both drones can't deliver simultaneously during recharge
+        const totalRechargeHours = Math.floor(candidateTime / rechargeIntervals[0]) + 
+                                    Math.floor(candidateTime / rechargeIntervals[1]) - 
+                                    Math.floor(candidateTime / lcm);
+        const totalSlots = candidateTime - totalRechargeHours;
         
-        return need1 + need2 <= both;
-    };
-    
-    let left = 1;
-    let right = 3e13; // Upper bound
-    
-    while (left < right) {
-        const mid = Math.floor((left + right) / 2);
-        if (canComplete(mid)) {
-            right = mid;
+        // Check feasibility: each drone individually + combined capacity
+        if (drone1Slots >= deliveries[0] && 
+            drone2Slots >= deliveries[1] && 
+            drone1Slots + drone2Slots - totalSlots >= deliveries[0] + deliveries[1]) {
+            // Time is sufficient, try smaller
+            maxTime = candidateTime - 1;
         } else {
-            left = mid + 1;
+            // Time is insufficient, need more
+            minTime = candidateTime + 1;
         }
     }
-    
-    return left;
-}
+
+    return minTime;
+};

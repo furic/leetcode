@@ -1,17 +1,23 @@
-function minCost(colors: string, neededTime: number[]): number {
-    let j: number = 0;
-    let cant: number = 0;
+const minCost = (colors: string, neededTime: number[]): number => {
+    let previousBalloonIndex = 0;
+    let totalRemovalTime = 0;
 
-    for (let i = 1; i < colors.length; i++) {
-        if (colors[i] == colors[j]) {
-            if (neededTime[i] < neededTime[j]) {
-                cant += neededTime[i]
+    // Compare each balloon with the previous non-duplicate balloon
+    for (let currentIndex = 1; currentIndex < colors.length; currentIndex++) {
+        if (colors[currentIndex] === colors[previousBalloonIndex]) {
+            // Same color as previous - must remove one balloon
+            // Remove the one with less time (keep the more expensive one)
+            if (neededTime[currentIndex] < neededTime[previousBalloonIndex]) {
+                totalRemovalTime += neededTime[currentIndex];
             } else {
-                cant += neededTime[j]
-                j = i
+                totalRemovalTime += neededTime[previousBalloonIndex];
+                previousBalloonIndex = currentIndex;
             }
-        } else j = i
+        } else {
+            // Different color - update reference balloon
+            previousBalloonIndex = currentIndex;
+        }
     }
 
-    return cant
+    return totalRemovalTime;
 };

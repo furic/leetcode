@@ -144,7 +144,7 @@ The naive approach of processing each window independently requires O(n × k log
 - Space complexity: $$O(k)$$ for the two ordered sets storing window elements
 
 # Code
-```typescript
+```typescript []
 const findXSum = (nums: number[], k: number, x: number): number[] => {
     const frequencyMap = new Map<number, number>();
     const topXElements = new OrderedSet();

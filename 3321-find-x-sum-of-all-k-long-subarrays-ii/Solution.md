@@ -243,7 +243,6 @@ const findXSum = (nums: number[], k: number, x: number): number[] => {
 ```
 
 ```typescript
-// Red-Black Tree Node
 class RBNode {
     key: number;
     value: number;
@@ -260,7 +259,6 @@ class RBNode {
     }
 }
 
-// Red-Black Tree implementation
 class RBTree {
     nil: RBNode;
     root: RBNode;
@@ -272,7 +270,6 @@ class RBTree {
         this.root = this.nil;
     }
 
-    // Compare [key, value] pairs: sort by value first, then by key
     static compareKeyValue(a: [number, number], b: [number, number]): number {
         return a[1] === b[1] ? a[0] - b[0] : a[1] - b[1];
     }
@@ -282,7 +279,6 @@ class RBTree {
         let parent = this.nil;
         let current = this.root;
 
-        // Find insertion position
         while (current !== this.nil) {
             parent = current;
             const comparison = RBTree.compareKeyValue([newNode.key, newNode.value], [current.key, current.value]);
@@ -308,7 +304,6 @@ class RBTree {
     delete(key: number, value: number): boolean {
         let targetNode = this.root;
         
-        // Find node to delete
         while (targetNode !== this.nil) {
             const comparison = RBTree.compareKeyValue([key, value], [targetNode.key, targetNode.value]);
             if (comparison === 0) break;
@@ -519,7 +514,6 @@ class RBTree {
 ```
 
 ```typescript
-// Ordered Set wrapper around Red-Black Tree
 class OrderedSet {
     private tree = new RBTree();
     size = 0;

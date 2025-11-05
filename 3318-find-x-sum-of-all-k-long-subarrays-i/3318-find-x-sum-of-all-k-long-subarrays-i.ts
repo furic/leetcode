@@ -1,25 +1,45 @@
-function findXSum(nums: number[], k: number, x: number): number[] {
-    const n = nums.length;
-    const result = [];
-    for (let start = 0; start + k <= n; start++) {
-        const counts = new Array(51).fill(0);
+const findXSum = (nums: number[], k: number, x: number): number[] => {
+    const arrayLength = nums.length;
+    const result: number[] = [];
+    
+    // Process each sliding window of size k
+    for (let windowStart = 0; windowStart + k <= arrayLength; windowStart++) {
+        // Count frequency of each value in current window (values are 1-50)
+        const frequencyCount = new Array(51).fill(0);
         let windowSum = 0;
-        for (let i = start; i < start + k; i++) {
-            counts[nums[i]]++;
-            windowSum += nums[i];
+        
+        for (let index = windowStart; index < windowStart + k; index++) {
+            frequencyCount[nums[index]]++;
+            windowSum += nums[index];
         }
-        const freqList = [];
-        for (let val = 1; val <= 50; val++) {
-            if (counts[val] > 0) freqList.push([counts[val], val]);
+        
+        // Build list of [frequency, value] pairs for non-zero frequencies
+        const frequencyValuePairs: [number, number][] = [];
+        for (let value = 1; value <= 50; value++) {
+            if (frequencyCount[value] > 0) {
+                frequencyValuePairs.push([frequencyCount[value], value]);
+            }
         }
-        if (freqList.length <= x) {
+        
+        // If distinct elements <= x, x-sum is just the window sum
+        if (frequencyValuePairs.length <= x) {
             result.push(windowSum);
         } else {
-            freqList.sort((p, q) => (q[0] - p[0] || q[1] - p[1]));
+            // Sort by frequency (desc), then by value (desc) as tiebreaker
+            frequencyValuePairs.sort((a, b) => {
+                return b[0] - a[0] || b[1] - a[1];
+            });
+            
+            // Calculate x-sum: sum of top x most frequent elements
             let xSum = 0;
-            for (let i = 0; i < x; i++) xSum += freqList[i][0] * freqList[i][1];
+            for (let rank = 0; rank < x; rank++) {
+                const [frequency, value] = frequencyValuePairs[rank];
+                xSum += frequency * value;
+            }
+            
             result.push(xSum);
         }
     }
+    
     return result;
 };

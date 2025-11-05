@@ -516,7 +516,9 @@ class RBTree {
         node.parent = leftChild;
     }
 }
+```
 
+```typescript
 // Ordered Set wrapper around Red-Black Tree
 class OrderedSet {
     private tree = new RBTree();

@@ -1,13 +1,15 @@
 function minNumber(nums1: number[], nums2: number[]): number {
-    nums1.sort((a, b) => a - b);
-
-    for (let i = 0; i < nums1.length; i++) {
-        if (nums2.includes(nums1[i])) {
-            return nums1[i];
+    let smallest = Infinity;
+    let pointer = 0;
+    for (let num of nums1){
+        for (let num2 of nums2) {
+            if (num === num2) {
+                smallest = Math.min(smallest, num)
+            } else {
+                const val = num < num2 ? `${num}${num2}` : `${num2}${num}`
+                smallest = Math.min(smallest, parseInt(val))
+            }
         }
     }
-
-    const firstChar = nums1[0];
-    const secondChar = Math.min(...nums2);
-    return Math.min(+`${firstChar}${secondChar}`, +`${secondChar}${firstChar}`)
+    return smallest;
 };

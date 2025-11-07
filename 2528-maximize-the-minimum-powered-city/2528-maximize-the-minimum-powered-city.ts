@@ -1,47 +1,70 @@
-function maxPower(stations: number[], r: number, k: number): number {
-    const n: number = stations.length;
-    const cnt: number[] = new Array(n + 1).fill(0);
+const maxPower = (stations: number[], r: number, k: number): number => {
+    const cityCount = stations.length;
+    
+    // Build difference array for efficient range updates
+    // powerDiff[i] represents the change in power at city i
+    const powerDiff: number[] = new Array(cityCount + 1).fill(0);
 
-    for (let i = 0; i < n; i++) {
-        const left: number = Math.max(0, i - r);
-        const right: number = Math.min(n, i + r + 1);
-        cnt[left] += stations[i];
-        cnt[right] -= stations[i];
+    // Convert stations to difference array
+    // Each station contributes to cities in range [i-r, i+r]
+    for (let cityIndex = 0; cityIndex < cityCount; cityIndex++) {
+        const rangeStart = Math.max(0, cityIndex - r);
+        const rangeEnd = Math.min(cityCount, cityIndex + r + 1);
+        
+        powerDiff[rangeStart] += stations[cityIndex];
+        powerDiff[rangeEnd] -= stations[cityIndex];
     }
 
-    const check = (val: number): boolean => {
-        const diff: number[] = [...cnt];
-        let sum: number = 0;
-        let remaining: number = k;
+    // Check if we can achieve targetMinPower using at most k additional stations
+    const canAchieveMinPower = (targetMinPower: number): boolean => {
+        const tempPowerDiff = [...powerDiff];
+        let currentCityPower = 0;
+        let remainingStations = k;
 
-        for (let i = 0; i < n; i++) {
-            sum += diff[i];
-            if (sum < val) {
-                const add: number = val - sum;
-                if (remaining < add) {
+        for (let cityIndex = 0; cityIndex < cityCount; cityIndex++) {
+            // Calculate actual power at current city
+            currentCityPower += tempPowerDiff[cityIndex];
+
+            // If power is insufficient, add stations
+            if (currentCityPower < targetMinPower) {
+                const stationsNeeded = targetMinPower - currentCityPower;
+                
+                // Not enough stations available
+                if (remainingStations < stationsNeeded) {
                     return false;
                 }
-                remaining -= add;
-                const end: number = Math.min(n, i + 2 * r + 1);
-                diff[end] -= add;
-                sum += add;
+
+                remainingStations -= stationsNeeded;
+                
+                // Add stations at optimal position (rightmost in range to help future cities)
+                // Station at position cityIndex affects cities [cityIndex-r, cityIndex+r]
+                // So we place it to maximize coverage: at cityIndex+r (or last affected city)
+                const stationPosition = cityIndex + r;
+                const coverageEnd = Math.min(cityCount, stationPosition + r + 1);
+                
+                tempPowerDiff[coverageEnd] -= stationsNeeded;
+                currentCityPower += stationsNeeded;
             }
         }
+        
         return true;
     };
 
-    let lo: number = Math.min(...stations);
-    let hi: number = stations.reduce((a, b) => a + b, 0) + k;
-    let res: number = 0;
+    // Binary search on the answer: minimum power across all cities
+    let minPossiblePower = Math.min(...stations);
+    let maxPossiblePower = stations.reduce((sum, power) => sum + power, 0) + k;
+    let maxAchievableMinPower = 0;
 
-    while (lo <= hi) {
-        const mid: number = Math.floor(lo + (hi - lo) / 2);
-        if (check(mid)) {
-            res = mid;
-            lo = mid + 1;
+    while (minPossiblePower <= maxPossiblePower) {
+        const midPower = Math.floor(minPossiblePower + (maxPossiblePower - minPossiblePower) / 2);
+        
+        if (canAchieveMinPower(midPower)) {
+            maxAchievableMinPower = midPower;
+            minPossiblePower = midPower + 1; // Try higher
         } else {
-            hi = mid - 1;
+            maxPossiblePower = midPower - 1; // Try lower
         }
     }
-    return res;
-}
+    
+    return maxAchievableMinPower;
+};

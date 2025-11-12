@@ -1,4 +1,4 @@
-# GCD Shortest Subarray | 50 Lines | O(n²) | 2ms
+# GCD Shortest Subarray | 50 Lines | O(n² log M) | 2ms
 
 # Intuition
 To make all elements 1, we need at least one 1 in the array (or be able to create one). If we already have 1's, we can spread them to adjacent elements. If not, we need to find a subarray whose GCD is 1, reduce it to a single 1, then spread. If the entire array's GCD > 1, it's impossible.

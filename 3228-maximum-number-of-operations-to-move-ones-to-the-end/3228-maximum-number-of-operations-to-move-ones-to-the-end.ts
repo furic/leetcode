@@ -1,13 +1,17 @@
-const maxOperations = (s: string): number => {
-    const pref: number[] = [];
-    for (const c of s) 
-        pref.push((pref.at(-1) ?? 0) + +c);
-
-    const seen = new Set<number>();
-    for (let i = 0; i < s.length; i++) {
-        if (s[i] === '0')
-            seen.add(pref[i]);
+function maxOperations(s: string): number {
+    let countOne = 0;
+    let ans = 0;
+    let i = 0;
+    while (i < s.length) {
+        if (s[i] === "0") {
+            while (i + 1 < s.length && s[i + 1] === "0") {
+                i++;
+            }
+            ans += countOne;
+        } else {
+            countOne++;
+        }
+        i++;
     }
-
-    return [...seen].reduce((a, c) => a + c, 0);
+    return ans;
 };

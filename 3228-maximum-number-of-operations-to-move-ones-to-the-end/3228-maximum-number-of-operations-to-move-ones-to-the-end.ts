@@ -1,17 +1,25 @@
-function maxOperations(s: string): number {
-    let countOne = 0;
-    let ans = 0;
-    let i = 0;
-    while (i < s.length) {
-        if (s[i] === "0") {
-            while (i + 1 < s.length && s[i + 1] === "0") {
-                i++;
+const maxOperations = (s: string): number => {
+    let onesCount = 0;
+    let totalOperations = 0;
+    let index = 0;
+
+    while (index < s.length) {
+        if (s[index] === '0') {
+            // Skip consecutive zeros - they form a single "gap"
+            // All 1's to the left will need to move past this entire gap
+            while (index + 1 < s.length && s[index + 1] === '0') {
+                index++;
             }
-            ans += countOne;
+            
+            // Each 1 encountered so far needs to move past this gap
+            totalOperations += onesCount;
         } else {
-            countOne++;
+            // Found a 1, increment count
+            onesCount++;
         }
-        i++;
+        
+        index++;
     }
-    return ans;
+
+    return totalOperations;
 };

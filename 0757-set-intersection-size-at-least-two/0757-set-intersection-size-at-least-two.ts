@@ -1,39 +1,65 @@
-function intersectionSizeTwo(it: number[][]): number {
-    it.sort((a,b)=>a[1]-b[1]);
-    const rst:number[]=[];
-    const check = (tg:number[])=>{
-        let ct=0;
-        for(let i=rst.length-1;i>=0;i--){
-            if(rst[i]>=tg[0] && rst[i]<=tg[1]){
-                ct++;
+const intersectionSizeTwo = (intervals: number[][]): number => {
+    // Greedy approach: sort intervals by end point
+    intervals.sort((a, b) => a[1] - b[1]);
+    
+    const selectedNumbers: number[] = [];
+    
+    // Count how many selected numbers are in the given interval
+    const countCoverage = (interval: number[]): number => {
+        const [start, end] = interval;
+        let coverageCount = 0;
+        
+        // Check from the end of selectedNumbers (most recent additions)
+        for (let index = selectedNumbers.length - 1; index >= 0; index--) {
+            const selectedNum = selectedNumbers[index];
+            
+            // If number is in the interval range
+            if (selectedNum >= start && selectedNum <= end) {
+                coverageCount++;
             }
-            if(ct>=2){
+            
+            // Early termination: already found 2 numbers
+            if (coverageCount >= 2) {
                 return 2;
             }
-            if(rst[i]<tg[0]){
-                return ct;
+            
+            // If we've gone past the start, no more numbers can be in range
+            if (selectedNum < start) {
+                return coverageCount;
             }
         }
-        return ct;
-    }
-    for(let c of it){
-        let count=check(c);
-        if(count===2){
+        
+        return coverageCount;
+    };
+    
+    // Process each interval
+    for (const currentInterval of intervals) {
+        const [start, end] = currentInterval;
+        const coverage = countCoverage(currentInterval);
+        
+        if (coverage === 2) {
+            // Interval already has 2 numbers, skip
             continue;
-        } else {
-            if(count===0){
-                rst.push(c[1]-1);
-                rst.push(c[1]);
+        } else if (coverage === 0) {
+            // Need 2 numbers: greedily pick the two largest in range
+            selectedNumbers.push(end - 1);
+            selectedNumbers.push(end);
+        } else if (coverage === 1) {
+            // Need 1 more number
+            const lastSelected = selectedNumbers[selectedNumbers.length - 1];
+            
+            if (lastSelected === end) {
+                // Last selected is already at the end, pick second largest
+                selectedNumbers.push(end - 1);
+            } else {
+                // Pick the largest to maximize future coverage
+                selectedNumbers.push(end);
             }
-            if(count === 1) {
-                if(rst[rst.length-1] === c[1]) {
-                    rst.push(c[1]-1);
-                } else {
-                    rst.push(c[1]);
-                }
-                rst.sort((a,b)=>a-b);
-            }
+            
+            // Keep array sorted for efficient checking
+            selectedNumbers.sort((a, b) => a - b);
         }
     }
-    return rst.length;
+    
+    return selectedNumbers.length;
 };

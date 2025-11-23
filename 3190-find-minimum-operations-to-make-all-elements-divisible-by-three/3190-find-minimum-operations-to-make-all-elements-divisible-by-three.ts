@@ -1,1 +1,3 @@
-const minimumOperations = (nums: number[]): number => nums.reduce((ops, num) => ops += num % 3 === 0 ? 0 : 1, 0);
+function minimumOperations(nums: number[]): number {
+    return nums.reduce((pre, v) => (pre += Math.min(3 - (v % 3), v % 3)), 0);
+}

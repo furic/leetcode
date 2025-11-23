@@ -1,33 +1,38 @@
-var maxSumDivThree = function (nums) {
-    const v = [[], [], []];
-    for (const num of nums) {
-        v[num % 3].push(num);
-    }
-    v[1].sort((a, b) => b - a);
-    v[2].sort((a, b) => b - a);
+function maxSumDivThree(nums: number[]): number {
+    let sum = 0;
 
-    let ans = 0;
-    const lb = v[1].length;
-    const lc = v[2].length;
-    for (let cntb = lb - 2; cntb <= lb; ++cntb) {
-        if (cntb >= 0) {
-            for (let cntc = lc - 2; cntc <= lc; ++cntc) {
-                if (cntc >= 0 && (cntb - cntc) % 3 === 0) {
-                    ans = Math.max(
-                        ans,
-                        getSum(v[1], 0, cntb) + getSum(v[2], 0, cntc),
-                    );
-                }
-            }
+    let m1a = Infinity, m1b = Infinity;
+    let m2a = Infinity, m2b = Infinity;
+
+    for (let x of nums) {
+        sum += x;
+        const r = x % 3;
+
+        if (r === 1) {
+            if (x < m1a) { m1b = m1a; m1a = x; }
+            else if (x < m1b) m1b = x;
+        } else if (r === 2) {
+            if (x < m2a) { m2b = m2a; m2a = x; }
+            else if (x < m2b) m2b = x;
         }
     }
-    return ans + getSum(v[0], 0, v[0].length);
-};
 
-const getSum = (list, start, end) => {
-    let sum = 0;
-    for (let i = start; i < end; ++i) {
-        sum += list[i];
+    const rem = sum % 3;
+    if (rem === 0) return sum;
+
+    let remove = Infinity;
+
+    if (rem === 1) {
+        remove = Math.min(
+            m1a,
+            m2b < Infinity ? m2a + m2b : Infinity
+        );
+    } else {
+        remove = Math.min(
+            m2a,
+            m1b < Infinity ? m1a + m1b : Infinity
+        );
     }
-    return sum;
-};
+
+    return remove === Infinity ? 0 : sum - remove;
+}

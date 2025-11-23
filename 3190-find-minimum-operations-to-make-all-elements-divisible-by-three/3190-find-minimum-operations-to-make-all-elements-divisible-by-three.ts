@@ -1,0 +1,1 @@
+const minimumOperations = (nums: number[]): number => nums.reduce((ops, num) => ops += num % 3 === 0 ? 0 : 1, 0);

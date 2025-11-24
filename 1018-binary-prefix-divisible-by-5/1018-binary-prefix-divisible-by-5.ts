@@ -1,10 +1,11 @@
-var prefixesDivBy5 = function (nums) {
-    const answer = [];
-    let prefix = 0;
-    const length = nums.length;
-    for (let i = 0; i < length; i++) {
-        prefix = ((prefix << 1) + nums[i]) % 5;
-        answer.push(prefix === 0);
+function prefixesDivBy5(nums: number[]): boolean[] {
+    let n = 0;
+    let res = Array(nums.length);
+
+    for (let i = 0; i < nums.length; i += 1) {
+        n = (n << 1 | nums[i]) % 5;
+        res[i] = n === 0;
     }
-    return answer;
+
+    return res;
 };

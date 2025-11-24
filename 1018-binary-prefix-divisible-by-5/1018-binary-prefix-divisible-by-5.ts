@@ -1,11 +1,13 @@
-function prefixesDivBy5(nums: number[]): boolean[] {
-    let n = 0;
-    let res = Array(nums.length);
+const prefixesDivBy5 = (nums: number[]): boolean[] => {
+    let remainderMod5 = 0;
+    const result: boolean[] = Array(nums.length);
 
-    for (let i = 0; i < nums.length; i += 1) {
-        n = (n << 1 | nums[i]) % 5;
-        res[i] = n === 0;
+    for (let i = 0; i < nums.length; i++) {
+        // Build number bit by bit: shift left (×2) and add new bit, then mod 5
+        // (n << 1 | nums[i]) is equivalent to (n * 2 + nums[i])
+        remainderMod5 = (remainderMod5 * 2 + nums[i]) % 5;
+        result[i] = remainderMod5 === 0;
     }
 
-    return res;
+    return result;
 };

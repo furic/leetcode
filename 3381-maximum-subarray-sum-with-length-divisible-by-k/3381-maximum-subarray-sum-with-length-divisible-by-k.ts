@@ -5,11 +5,11 @@
  */
 const maxSubarraySum = (nums: number[], k: number): number => {
     let currentPrefixSum = 0;
-    let maxSum = -Infinity;
+    let maxSum = -Number.MAX_SAFE_INTEGER;
 
     // Track minimum prefix sum for each remainder class (0 to k-1)
     // minPrefixByRemainder[r] = smallest prefix sum at index where index % k === r
-    const minPrefixByRemainder: number[] = Array(k).fill(Infinity);
+    const minPrefixByRemainder: number[] = Array(k).fill(Number.MAX_SAFE_INTEGER / 2);
 
     // Initialize: "prefix sum before index 0" is 0, conceptually at index -1
     // For subarray [0..i] to have length divisible by k, we need (i+1) % k === 0

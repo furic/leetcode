@@ -1,4 +1,1 @@
-function minOperations(nums: number[], k: number): number {
-    const total = nums.reduce((a, b) => a + b, 0);
-    return total % k;
-};
+const minOperations = (nums: number[], k: number): number => nums.reduce((sum, cur) => sum + cur, 0) % k;

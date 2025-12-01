@@ -1,19 +1,23 @@
 function maxRunTime(n: number, batteries: number[]): number {
-    let total = batteries.reduce((a, b) => a + b, 0);
-    let left = 0, right = Math.floor(total / n);
-
-    while (left < right) {
-        let mid = Math.floor((left + right + 1) / 2);
-        let need = mid * n;
-        let have = 0;
-
-        for (let b of batteries) {
-            have += Math.min(b, mid);
+    const S = batteries.length;
+    const sum = batteries.reduce((acc, b) => acc + b, 0);
+    function canPower(x: number): boolean {
+        const goal = n * x;
+        let t = 0;
+        for (const b of batteries) {
+            t += Math.min(b, x);
+            if (t >= goal) return true;
         }
-
-        if (have >= need) left = mid;
-        else right = mid - 1;
+        return false;
     }
-
-    return left;
-}
+    let l = 1, r = Math.floor(sum / n);
+    while (l <= r) {
+        const m = Math.floor((l + r) / 2);
+        if (canPower(m)) {
+            l = m + 1;
+        } else {
+            r = m - 1;
+        }
+    }
+    return r;
+};

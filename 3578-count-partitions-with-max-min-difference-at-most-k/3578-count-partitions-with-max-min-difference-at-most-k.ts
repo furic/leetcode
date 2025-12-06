@@ -1,45 +1,67 @@
-function countPartitions(nums: number[], k: number): number {
-    const n = nums.length;
-    const mod = 1e9 + 7;
-    const dp = new Array<number>(n + 1).fill(0);
-    const prefix = new Array<number>(n + 1).fill(0);
-    const minQ: number[] = [];
-    const maxQ: number[] = [];
+/**
+ * Counts ways to partition array into segments where max - min <= k in each segment
+ * Uses DP with sliding window and monotonic queues to track valid segment ranges
+ */
+const countPartitions = (nums: number[], k: number): number => {
+    const numElements = nums.length;
+    const MOD = 1e9 + 7;
+    
+    // dp[i] = number of ways to partition nums[0...i-1]
+    const partitionWays = new Array<number>(numElements + 1).fill(0);
+    
+    // prefixSum[i] = sum of partitionWays[0...i] for efficient range sum queries
+    const prefixSum = new Array<number>(numElements + 1).fill(0);
+    
+    // Monotonic queues storing indices (not values)
+    // maxIndexQueue: indices in decreasing order of their values
+    // minIndexQueue: indices in increasing order of their values
+    const maxIndexQueue: number[] = [];
+    const minIndexQueue: number[] = [];
 
-    dp[0] = 1;
-    prefix[0] = 1;
+    // Base case: empty array has 1 way to partition (no segments)
+    partitionWays[0] = 1;
+    prefixSum[0] = 1;
 
-    for (let i = 0, j = 0; i < n; i++) {
-        // maintain the maximum value queue
-        while (maxQ.length > 0 && nums[maxQ.at(-1)!] <= nums[i]) {
-            maxQ.pop();
+    // leftBound tracks the leftmost valid starting position for current segment
+    let leftBound = 0;
+
+    for (let currentIndex = 0; currentIndex < numElements; currentIndex++) {
+        // Maintain max queue: remove elements smaller than current from back
+        while (maxIndexQueue.length > 0 && nums[maxIndexQueue.at(-1)!] <= nums[currentIndex]) {
+            maxIndexQueue.pop();
         }
-        maxQ.push(i);
+        maxIndexQueue.push(currentIndex);
 
-        // maintain the minimum value queue
-        while (minQ.length > 0 && nums[minQ.at(-1)!] >= nums[i]) {
-            minQ.pop();
+        // Maintain min queue: remove elements larger than current from back
+        while (minIndexQueue.length > 0 && nums[minIndexQueue.at(-1)!] >= nums[currentIndex]) {
+            minIndexQueue.pop();
         }
-        minQ.push(i);
+        minIndexQueue.push(currentIndex);
 
-        // adjust window
+        // Shrink window from left while max - min > k
         while (
-            maxQ.length > 0 &&
-            minQ.length > 0 &&
-            nums[maxQ[0]] - nums[minQ[0]] > k
+            maxIndexQueue.length > 0 &&
+            minIndexQueue.length > 0 &&
+            nums[maxIndexQueue[0]] - nums[minIndexQueue[0]] > k
         ) {
-            if (maxQ[0] === j) {
-                maxQ.shift();
+            // Remove indices that have moved out of the window
+            if (maxIndexQueue[0] === leftBound) {
+                maxIndexQueue.shift();
             }
-            if (minQ[0] === j) {
-                minQ.shift();
+            if (minIndexQueue[0] === leftBound) {
+                minIndexQueue.shift();
             }
-            j++;
+            leftBound++;
         }
 
-        dp[i + 1] = (prefix[i] - (j > 0 ? prefix[j - 1] : 0) + mod) % mod;
-        prefix[i + 1] = (prefix[i] + dp[i + 1]) % mod;
+        // Sum ways from all valid starting positions [leftBound, currentIndex]
+        // partitionWays[currentIndex + 1] = sum of partitionWays[leftBound...currentIndex]
+        const rangeSum = prefixSum[currentIndex] - (leftBound > 0 ? prefixSum[leftBound - 1] : 0);
+        partitionWays[currentIndex + 1] = (rangeSum + MOD) % MOD;
+        
+        // Update prefix sum for next iteration
+        prefixSum[currentIndex + 1] = (prefixSum[currentIndex] + partitionWays[currentIndex + 1]) % MOD;
     }
 
-    return dp[n];
-}
+    return partitionWays[numElements];
+};

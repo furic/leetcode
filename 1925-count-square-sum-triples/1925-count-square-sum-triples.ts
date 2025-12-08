@@ -1,19 +1,25 @@
+/**
+ * Counts Pythagorean triples (a,b,c) where a² + b² = c² and 1 ≤ a,b,c ≤ n
+ * Each valid triple is counted twice: (a,b,c) and (b,a,c)
+ */
 const countTriples = (n: number): number => {
-    let count: number = 0;
+    let tripleCount = 0;
 
-    for (let i = 1; i < n; i++) {
-        // j starting from i+1, because we don't have to check same pairs again
-        for (let j = i + 1; j <= n; j++) {
-            const sumSqrt: number = Math.sqrt(i * i + j * j);
+    for (let a = 1; a < n; a++) {
+        // Start b from a+1 to avoid checking duplicate pairs
+        for (let b = a + 1; b <= n; b++) {
+            const hypotenuse = Math.sqrt(a * a + b * b);
 
-            // if sumSqrt starts to exceed n, we can safely break.
-            if (sumSqrt > n) break;
+            // Early exit: if hypotenuse exceeds n, larger b values will too
+            if (hypotenuse > n) break;
 
-            // if square root is an integer, increment count
-            // counting two times, because if a^2 + b^2 = c^2, then b^2 + a^2 = c^2
-            if (Number.isInteger(sumSqrt)) count += 2;
+            // If hypotenuse is an integer ≤ n, we found a valid triple
+            // Count twice: (a,b,c) and (b,a,c) are both valid
+            if (Number.isInteger(hypotenuse)) {
+                tripleCount += 2;
+            }
         }
     }
 
-    return count;
+    return tripleCount;
 };

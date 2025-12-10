@@ -1,19 +1,15 @@
-const countPermutations = (complexity) => {
-    const MOD = 1e9 + 7;
+function countPermutations(complexity: number[]): number {
     const n = complexity.length;
-    if (n === 0) {
-        return 1;
-    }
-    let min = complexity[0];
     for (let i = 1; i < n; i++) {
-        if (min >= complexity[i]) {
+        if (complexity[i] <= complexity[0]) {
             return 0;
         }
-        min = Math.min(min, complexity[i]);
     }
+
     let ans = 1;
-    for (let i = 1; i < n; i++) {
-        ans = (ans * i) % MOD;
+    const mod = 1000000007;
+    for (let i = 2; i < n; i++) {
+        ans = (ans * i) % mod;
     }
     return ans;
-};
+}

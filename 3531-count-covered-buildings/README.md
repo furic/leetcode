@@ -1,4 +1,4 @@
-<h2><a href="https://leetcode.com/problems/count-covered-buildings/">3531. Count Covered Buildings</a></h2><h3>Medium</h3><hr><p>You are given a positive integer <code>n</code>, representing an <code>n x n</code> city. You are also given a 2D grid <code>buildings</code>, where <code>buildings[i] = [x, y]</code> denotes a <strong>unique</strong> building located at coordinates <code>[x, y]</code>.</p>
+<h2><a href="https://leetcode.com/problems/count-covered-buildings">3531. Count Covered Buildings</a></h2><h3>Medium</h3><hr><p>You are given a positive integer <code>n</code>, representing an <code>n x n</code> city. You are also given a 2D grid <code>buildings</code>, where <code>buildings[i] = [x, y]</code> denotes a <strong>unique</strong> building located at coordinates <code>[x, y]</code>.</p>
 
 <p>A building is <strong>covered</strong> if there is at least one building in all <strong>four</strong> directions: left, right, above, and below.</p>
 

@@ -1,4 +1,4 @@
-<h2><a href="https://leetcode.com/problems/coupon-code-validator">3606. Coupon Code Validator</a></h2><h3>Easy</h3><hr><p>You are given three arrays of length <code>n</code> that describe the properties of <code>n</code> coupons: <code>code</code>, <code>businessLine</code>, and <code>isActive</code>. The <code>i<sup>th</sup> </code>coupon has:</p>
+<h2><a href="https://leetcode.com/problems/coupon-code-validator/?envType=daily-question&envId=2025-12-13">3606. Coupon Code Validator</a></h2><h3>Easy</h3><hr><p>You are given three arrays of length <code>n</code> that describe the properties of <code>n</code> coupons: <code>code</code>, <code>businessLine</code>, and <code>isActive</code>. The <code>i<sup>th</sup> </code>coupon has:</p>
 
 <ul>
 	<li><code>code[i]</code>: a <strong>string</strong> representing the coupon identifier.</li>

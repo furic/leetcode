@@ -1,4 +1,4 @@
-# Filter and Sort Valid Coupons | 7 Lines | O(n log n) | 3ms
+# Filter and Sort Valid Coupons | 6 Lines | O(n log n) | 3ms
 
 # Intuition
 The problem requires filtering coupons based on validity criteria and then sorting them by category and code. Using array transformations (map, filter, sort) helps to process the input efficiently.

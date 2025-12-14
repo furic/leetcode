@@ -6,7 +6,7 @@
  * - If no inversion in range: all subarrays are stable (n*(n+1)/2 formula)
  * - If inversion exists: split calculation at the inversion point
  */
-export const countStableSubarrays = (nums: number[], queries: number[][]): number[] => {
+const countStableSubarrays = (nums: number[], queries: number[][]): number[] => {
     const arrayLength = nums.length;
     const numQueries = queries.length;
 

@@ -1,79 +1,39 @@
-/**
- * Counts stable subarrays (no inversions) within query ranges
- * A stable subarray has no pair i < j where nums[i] > nums[j]
- * 
- * Strategy: Precompute where inversions occur, then for each query range:
- * - If no inversion in range: all subarrays are stable (n*(n+1)/2 formula)
- * - If inversion exists: split calculation at the inversion point
- */
-const countStableSubarrays = (nums: number[], queries: number[][]): number[] => {
-    const arrayLength = nums.length;
-    const numQueries = queries.length;
+export function countStableSubarrays(nums: number[], queries: number[][]): number[] {
+    const n = nums.length;
+    const q = queries.length;
 
-    // stableCountUpTo[i] = total count of stable subarrays ending at or before index i
-    // This is a cumulative sum of "streak lengths" at each position
-    const stableCountUpTo: number[] = new Array(arrayLength);
-    stableCountUpTo[0] = 1; // Single element is always stable
+    const prefix: number[] = new Array(n);
+    prefix[0] = 1;
 
-    // Build prefix sum by tracking consecutive non-decreasing streaks
-    let currentStreakLength = 1;
-    for (let i = 1; i < arrayLength; i++) {
-        if (nums[i] >= nums[i - 1]) {
-            // Streak continues: increment length
-            currentStreakLength++;
-        } else {
-            // Streak breaks: restart from 1
-            currentStreakLength = 1;
-        }
-        
-        // Add current streak length to cumulative count
-        stableCountUpTo[i] = stableCountUpTo[i - 1] + currentStreakLength;
+    let streak = 1;
+    for (let i = 1; i < n; i++) {
+        if (nums[i] >= nums[i - 1]) streak++;
+        else streak = 1;
+        prefix[i] = prefix[i - 1] + streak;
     }
 
-    // firstInversionAfter[i] = index of first position where nums[j] < nums[j-1] for j > i
-    // If no inversion exists after i, stores arrayLength as sentinel
-    const firstInversionAfter: number[] = new Array(arrayLength);
-    firstInversionAfter[arrayLength - 1] = arrayLength; // No inversion after last element
+    const inversion: number[] = new Array(n);
+    inversion[n - 1] = n;
 
-    // Build inversion index array from right to left
-    for (let i = arrayLength - 2; i >= 0; i--) {
-        if (nums[i] > nums[i + 1]) {
-            // Inversion found immediately after current position
-            firstInversionAfter[i] = i + 1;
+    for (let i = n - 2; i >= 0; i--) {
+        if (nums[i] > nums[i + 1]) inversion[i] = i + 1;
+        else inversion[i] = inversion[i + 1];
+    }
+
+    const ans: number[] = new Array(q);
+    for (let i = 0; i < q; i++) {
+        const l = queries[i][0], r = queries[i][1];
+
+        const b = inversion[l];
+        if (b > r) {
+            const sizeLR = r - l + 1;
+            ans[i] = (sizeLR * (sizeLR + 1)) / 2;
         } else {
-            // No immediate inversion: inherit from next position
-            firstInversionAfter[i] = firstInversionAfter[i + 1];
+            const sizeLB = b - l;
+            const countBR = prefix[r] - prefix[b - 1];
+            ans[i] = (sizeLB * (sizeLB + 1)) / 2 + countBR;
         }
     }
 
-    // Process each query
-    const results: number[] = new Array(numQueries);
-    for (let i = 0; i < numQueries; i++) {
-        const [left, right] = queries[i];
-
-        // Find where the first inversion occurs in the query range
-        const breakPoint = firstInversionAfter[left];
-        
-        if (breakPoint > right) {
-            // No inversion in [left, right]: entire range is stable
-            // Count all possible subarrays: n*(n+1)/2 where n = range length
-            const rangeLength = right - left + 1;
-            results[i] = (rangeLength * (rangeLength + 1)) / 2;
-        } else {
-            // Inversion exists: split calculation at the break point
-            
-            // Part 1: Count stable subarrays in [left, breakPoint-1]
-            // All subarrays in this prefix are stable
-            const lengthBeforeBreak = breakPoint - left;
-            const countBeforeBreak = (lengthBeforeBreak * (lengthBeforeBreak + 1)) / 2;
-            
-            // Part 2: Count stable subarrays that start at or after breakPoint
-            // Use precomputed cumulative counts
-            const countAfterBreak = stableCountUpTo[right] - stableCountUpTo[breakPoint - 1];
-            
-            results[i] = countBeforeBreak + countAfterBreak;
-        }
-    }
-
-    return results;
-};
+    return ans;
+}

@@ -1,15 +1,26 @@
-function getDescentPeriods(prices: number[]): number {
-    const n = prices.length;
-    let res: number = 1; // total number of smooth descending periods, initial value is dp[0]
-    let prev: number = 1; // total number of smooth descending periods ending with the previous element, initial value is dp[0]
-    // traverse the array starting from 1, and update prev and the total res according to the recurrence relation
-    for (let i = 1; i < n; ++i) {
+/**
+ * Counts all smooth descent periods in a stock price array
+ * A smooth descent period is a contiguous sequence where each price decreases by exactly 1
+ * Strategy: Track length of current descent, add it to total (counts all subarrays ending at current position)
+ */
+const getDescentPeriods = (prices: number[]): number => {
+    let totalPeriods = 1; // Start with 1 for the first single-day period
+    let currentDescentLength = 1;
+
+    for (let i = 1; i < prices.length; i++) {
+        // Check if current price continues the descent (exactly 1 less than previous)
         if (prices[i] === prices[i - 1] - 1) {
-            ++prev;
+            currentDescentLength++;
         } else {
-            prev = 1;
+            // Descent breaks: reset to single-day period
+            currentDescentLength = 1;
         }
-        res += prev;
+        
+        // Add all descent periods ending at position i
+        // If currentDescentLength = 3, we can form 3 periods ending here:
+        // [i], [i-1,i], [i-2,i-1,i]
+        totalPeriods += currentDescentLength;
     }
-    return res;
-}
+
+    return totalPeriods;
+};

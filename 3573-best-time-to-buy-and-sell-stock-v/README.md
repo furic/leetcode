@@ -1,4 +1,4 @@
-<h2><a href="https://leetcode.com/problems/best-time-to-buy-and-sell-stock-v">3573. Best Time to Buy and Sell Stock V</a></h2><h3>Medium</h3><hr><p>You are given an integer array <code>prices</code> where <code>prices[i]</code> is the price of a stock in dollars on the <code>i<sup>th</sup></code> day, and an integer <code>k</code>.</p>
+<h2><a href="https://leetcode.com/problems/best-time-to-buy-and-sell-stock-v/?envType=daily-question&envId=2025-12-17">3573. Best Time to Buy and Sell Stock V</a></h2><h3>Medium</h3><hr><p>You are given an integer array <code>prices</code> where <code>prices[i]</code> is the price of a stock in dollars on the <code>i<sup>th</sup></code> day, and an integer <code>k</code>.</p>
 
 <p>You are allowed to make at most <code>k</code> transactions, where each transaction can be either of the following:</p>
 

@@ -1,35 +1,46 @@
-function maxProfit(prices: number[], strat: number[], k: number): number {
-    const n = prices.length;
-    const h = Math.floor(k / 2);
-    const sp: number[] = new Array(n);
-    let base = 0;
-
-    for (let i = 0; i < n; i++) {
-        sp[i] = strat[i] * prices[i];
-        base += sp[i];
+const maxProfit = (prices: number[], strategy: number[], k: number): number => {
+    const totalDays = prices.length;
+    const halfWindowSize = k / 2;
+    
+    // Calculate base profit with original strategy
+    let baseProfit = 0;
+    for (let day = 0; day < totalDays; day++) {
+        baseProfit += prices[day] * strategy[day];
     }
-
-    if (n === k) {
-        const win_orig = base;
-        let win_mod = 0;
-        for (let i = h; i < n; i++) win_mod += prices[i];
-        const change = win_mod - win_orig;
-        return base + Math.max(0, change);
+    
+    let maximumProfit = baseProfit;
+    
+    // Calculate delta for first window [0, k)
+    // Delta = profit change if we modify this window
+    let profitDelta = 0;
+    for (let day = 0; day < k; day++) {
+        // Remove original strategy profit
+        profitDelta -= prices[day] * strategy[day];
+        
+        // Add new strategy profit (first half holds, second half sells)
+        if (day >= halfWindowSize) {
+            profitDelta += prices[day]; // Second half: sell (strategy = 1)
+        }
+        // First half: hold (strategy = 0) contributes 0
     }
-
-    let win_orig = 0;
-    for (let i = 0; i < k; i++) win_orig += sp[i];
-
-    let win_mod = 0;
-    for (let i = h; i < k; i++) win_mod += prices[i];
-
-    let max_ch = win_mod - win_orig;
-
-    for (let i = 1; i <= n - k; i++) {
-        win_orig += sp[i + k - 1] - sp[i - 1];
-        win_mod += prices[i + k - 1] - prices[i - 1 + h];
-        max_ch = Math.max(max_ch, win_mod - win_orig);
+    
+    maximumProfit = Math.max(maximumProfit, baseProfit + profitDelta);
+    
+    // Slide window from position k to end
+    for (let windowEnd = k; windowEnd < totalDays; windowEnd++) {
+        const windowStart = windowEnd - k;
+        const windowMiddle = windowEnd - halfWindowSize;
+        
+        // Remove leftmost element leaving the window
+        profitDelta += prices[windowStart] * strategy[windowStart]; // Restore original
+        profitDelta -= prices[windowMiddle]; // Remove old middle (was selling)
+        
+        // Add rightmost element entering the window
+        profitDelta += prices[windowEnd]; // New element sells
+        profitDelta -= prices[windowEnd] * strategy[windowEnd]; // Remove original
+        
+        maximumProfit = Math.max(maximumProfit, baseProfit + profitDelta);
     }
-
-    return base + Math.max(0, max_ch);
-}
+    
+    return maximumProfit;
+};

@@ -1,83 +1,75 @@
-function findAllPeople(n: number, meetings: number[][], firstPerson: number): number[] {
-
-
-    const schedule = {}
-    const timestamps = []
-
-    for (let meeting of meetings) {
-        const [_, __, timestmap] = meeting
-        if (schedule[timestmap] === undefined) {
-            schedule[timestmap] = []
-            timestamps.push(timestmap)
+/**
+ * Finds all people who learn the secret through meetings (CORRECTED VERSION)
+ * Processes meetings chronologically and handles same-time propagation correctly
+ */
+const findAllPeople = (n: number, meetings: number[][], firstPerson: number): number[] => {
+    // Sort meetings by time to process chronologically
+    meetings.sort((a, b) => a[2] - b[2]);
+    
+    // Track who knows the secret
+    const knowsSecret = new Set<number>([0, firstPerson]);
+    
+    // Process meetings grouped by time
+    let meetingIndex = 0;
+    
+    while (meetingIndex < meetings.length) {
+        const currentTime = meetings[meetingIndex][2];
+        
+        // Build graph for all meetings at current time
+        const graphAtCurrentTime = new Map<number, number[]>();
+        const peopleAtCurrentTime = new Set<number>();
+        
+        // Collect all meetings happening at current time
+        while (meetingIndex < meetings.length && meetings[meetingIndex][2] === currentTime) {
+            const [personA, personB] = meetings[meetingIndex];
+            
+            if (!graphAtCurrentTime.has(personA)) {
+                graphAtCurrentTime.set(personA, []);
+            }
+            if (!graphAtCurrentTime.has(personB)) {
+                graphAtCurrentTime.set(personB, []);
+            }
+            
+            graphAtCurrentTime.get(personA)!.push(personB);
+            graphAtCurrentTime.get(personB)!.push(personA);
+            
+            peopleAtCurrentTime.add(personA);
+            peopleAtCurrentTime.add(personB);
+            
+            meetingIndex++;
         }
-
-        schedule[timestmap].push(meeting)
+        
+        // Find connected components at this time using BFS
+        const visited = new Set<number>();
+        
+        for (const startPerson of peopleAtCurrentTime) {
+            if (visited.has(startPerson)) continue;
+            
+            // Find all people in this connected component
+            const connectedPeople: number[] = [];
+            const queue: number[] = [startPerson];
+            visited.add(startPerson);
+            
+            while (queue.length > 0) {
+                const currentPerson = queue.shift()!;
+                connectedPeople.push(currentPerson);
+                
+                for (const neighbor of graphAtCurrentTime.get(currentPerson) || []) {
+                    if (!visited.has(neighbor)) {
+                        visited.add(neighbor);
+                        queue.push(neighbor);
+                    }
+                }
+            }
+            
+            // If anyone in this component knows the secret, everyone learns it
+            const someoneKnowsSecret = connectedPeople.some(person => knowsSecret.has(person));
+            
+            if (someoneKnowsSecret) {
+                connectedPeople.forEach(person => knowsSecret.add(person));
+            }
+        }
     }
-
-
-    timestamps.sort((a, b) => a - b)
-
-
-
-    const secretKnowers = new Set([firstPerson, 0])
-
-
-    for (let timestamp of timestamps) {
-
-        const graph = {}
-        const localSecretKnowers = new Set<number>()
-        for (let meeting of schedule[timestamp]) {
-            const [person_a, person_b, _] = meeting
-            if (graph[person_a] === undefined) {
-                graph[person_a] = []
-
-            }
-            graph[person_a].push(person_b)
-            if (graph[person_b] === undefined) {
-                graph[person_b] = []
-            }
-            graph[person_b].push(person_a)
-            if (secretKnowers.has(person_a)) {
-                localSecretKnowers.add(person_a)
-            }
-            if (secretKnowers.has(person_b)) {
-                localSecretKnowers.add(person_b)
-            }
-        }
-
-        const visited = new Set()
-        const stack = Array.from(localSecretKnowers)
-
-        while(stack.length) {
-            const curr = stack.pop()
-            if (visited.has(curr) || graph[curr] === undefined) {
-                continue
-            }
-
-            visited.add(curr)
-            secretKnowers.add(curr) // because we start from the secret knowers, if we were able to reach this points, it means we are the secret knower 
-
-            for (let neighbour of graph[curr]) {
-               stack.push(neighbour) 
-            }
-        }
-
-    }
-
-    return Array.from(secretKnowers)
+    
+    return Array.from(knowsSecret);
 };
-
-// sort by timestmap 
-// have a set of secret knowers 
-// emulate the time passing by 
-// if person meets with secret knower they become a secret knower from here on 
-// we can do a bfs on this graph (within a timestmap) cuz we can't inherently order the relationship wihtin the same timestmap without using topological sort (e+V). we also might have cycles so we should just call from secret knowers 
-
-
-
-// t log t to sort 
-//   + m to build the relatiosnhips of meetings 
-//   + m/2 to call out the uniqueue unvisited secret knowers within the timestamp 
-
-
-// so like t log t + tm where t is timestmap and m is people wihtin a meeting 

@@ -1,15 +1,14 @@
 function minDeletionSize(strs: string[]): number {
-    let cnt = 0;
-    let col = strs[0].length; 
-    let row = strs.length;     
+    let result = 0;
 
-    for (let i = 0; i < col; i++) {
-        for (let j = 1; j < row; j++) {
-            if (strs[j][i] < strs[j - 1][i]) {
-                cnt++;
+    for(let i = 0; i < strs[0].length; i++) {
+        for(let j = 1; j < strs.length; j++) {
+            if(strs[j][i] < strs[j - 1][i]) {
+                result++;
                 break;
             }
         }
     }
-    return cnt;
+
+    return result;
 };

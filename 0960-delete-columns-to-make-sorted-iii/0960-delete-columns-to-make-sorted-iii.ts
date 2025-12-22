@@ -1,22 +1,43 @@
-function minDeletionSize(strs: string[]): number {
-    const cols = strs[0].length;
-    const rows = strs.length;
-    const dp: number[] = Array(cols).fill(1);
+/**
+ * Finds minimum columns to delete so each row is in lexicographic order
+ * Strategy: Find longest subsequence of columns where each row is non-decreasing
+ * Uses dynamic programming (similar to Longest Increasing Subsequence)
+ */
+const minDeletionSize = (strs: string[]): number => {
+    const numColumns = strs[0].length;
+    const numRows = strs.length;
+    
+    // dp[col] = length of longest valid column subsequence ending at column col
+    // A valid subsequence means: for any two columns i < j in the subsequence,
+    // every row satisfies strs[row][i] <= strs[row][j]
+    const longestValidSequence: number[] = Array(numColumns).fill(1);
 
-    for (let c = 1; c < cols; c++) {
-        for (let j = 0; j < c; j++) {
-            let valid = true;
-            for (let r = 0; r < rows; r++) {
-                if (strs[r][j] > strs[r][c]) {
-                    valid = false;
+    // Try each column as a potential end of a sequence
+    for (let currentCol = 1; currentCol < numColumns; currentCol++) {
+        // Check all previous columns to see if we can extend from them
+        for (let previousCol = 0; previousCol < currentCol; previousCol++) {
+            // Can we include both previousCol and currentCol in the same sequence?
+            // Check if ALL rows satisfy: char at previousCol <= char at currentCol
+            let canExtendSequence = true;
+            
+            for (let row = 0; row < numRows; row++) {
+                if (strs[row][previousCol] > strs[row][currentCol]) {
+                    canExtendSequence = false;
                     break;
                 }
             }
-            if (valid) {
-                dp[c] = Math.max(dp[c], dp[j] + 1);
+            
+            if (canExtendSequence) {
+                // We can extend the sequence from previousCol to currentCol
+                longestValidSequence[currentCol] = Math.max(
+                    longestValidSequence[currentCol],
+                    longestValidSequence[previousCol] + 1
+                );
             }
         }
     }
 
-    return cols - Math.max(...dp);
+    // Maximum columns we can keep = max length of valid sequence
+    // Minimum columns to delete = total columns - max columns we can keep
+    return numColumns - Math.max(...longestValidSequence);
 };

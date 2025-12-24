@@ -1,140 +1,275 @@
-# Mod 3 Grouping | 24 Lines | O(n log n) | 202ms
+# Top-3 Per Remainder | 52 Lines | O(n) | 9ms
 
 # Intuition
 
-For a sum of three numbers to be divisible by 3, the sum of their remainders (mod 3) must also be divisible by 3. Instead of checking all O(n³) possible triplets, we can group numbers by their remainder when divided by 3, then only check the four valid remainder combinations. By sorting each group in descending order, we can greedily pick the largest numbers that form valid triplets.
+For a sum of three numbers to be divisible by 3, their remainders (mod 3) must sum to 0 or a multiple of 3. Instead of checking all O(n³) triplets, we can group numbers by their remainder (0, 1, or 2) and only check the four valid remainder combinations: (0,0,0), (1,1,1), (2,2,2), and (0,1,2). By tracking only the top 3 values in each remainder class, we can find the maximum sum efficiently.
 
 # Approach
 
-**Key Mathematical Insight:**
-- A number mod 3 has remainder 0, 1, or 2
-- For three numbers to sum to a multiple of 3: (r1 + r2 + r3) % 3 = 0
-- Valid remainder combinations are:
-  - (0, 0, 0): 0 + 0 + 0 = 0 ≡ 0 (mod 3)
-  - (1, 1, 1): 1 + 1 + 1 = 3 ≡ 0 (mod 3)
-  - (2, 2, 2): 2 + 2 + 2 = 6 ≡ 0 (mod 3)
-  - (0, 1, 2): 0 + 1 + 2 = 3 ≡ 0 (mod 3)
-- These are the ONLY four ways three remainders can sum to 0 mod 3
+**Core Strategy:**
+- Classify all numbers by their remainder when divided by 3
+- Maintain the top 3 largest values for each remainder class (0, 1, 2)
+- Check only the four valid remainder combinations that sum to a multiple of 3
+- Return the maximum sum among all valid combinations
 
 **Step-by-Step Process:**
 
-**1. Group Numbers by Remainder:**
-- Create three buckets (arrays): g[0], g[1], g[2]
-- Iterate through all numbers in the input array
-- For each number n, calculate its remainder: n % 3
-- Place the number in the corresponding bucket:
-  - Numbers with remainder 0 go to g[0]
-  - Numbers with remainder 1 go to g[1]
-  - Numbers with remainder 2 go to g[2]
-- This groups numbers by their modulo 3 class
+**1. Understand Valid Remainder Combinations:**
+- For sum to be divisible by 3, remainders must satisfy: (r₁ + r₂ + r₃) % 3 = 0
+- Only four combinations work:
+  - (0, 0, 0): 0 + 0 + 0 = 0 ≡ 0 (mod 3) ✓
+  - (1, 1, 1): 1 + 1 + 1 = 3 ≡ 0 (mod 3) ✓
+  - (2, 2, 2): 2 + 2 + 2 = 6 ≡ 0 (mod 3) ✓
+  - (0, 1, 2): 0 + 1 + 2 = 3 ≡ 0 (mod 3) ✓
+- All other combinations give remainders 1 or 2, which don't work
 
-**2. Sort Each Group in Descending Order:**
-- Sort g[0], g[1], and g[2] from largest to smallest
-- Rationale: We want maximum sum, so we should pick the largest numbers possible
-- Greedy approach: Always try to select the three largest available numbers
-- After sorting, the largest numbers are at the front of each array
+**2. Initialize Top-3 Tracking Variables:**
+- For remainder 0: `largestRem0`, `secondRem0`, `thirdRem0`
+- For remainder 1: `largestRem1`, `secondRem1`, `thirdRem1`
+- For remainder 2: `largestRem2`, `secondRem2`, `thirdRem2`
+- Initialize all to 0 (serves as sentinel for "not enough values")
+- We only need top 3 because we're selecting exactly 3 numbers
 
-**3. Try All Four Valid Remainder Combinations:**
-- For each valid combination, check if we have enough numbers in each bucket
-- Use a helper function `trySum(r0, r1, r2)` to evaluate each combination
-- The four combinations to check:
-  - trySum(0, 0, 0): Pick 3 numbers from g[0]
-  - trySum(1, 1, 1): Pick 3 numbers from g[1]
-  - trySum(2, 2, 2): Pick 3 numbers from g[2]
-  - trySum(0, 1, 2): Pick 1 number from each of g[0], g[1], g[2]
+**3. Process Each Number:**
+- For each number in the array:
+  - Calculate its remainder: `num % 3`
+  - Insert it into the appropriate top-3 list, maintaining sorted order (largest to smallest)
 
-**4. Helper Function Logic (trySum):**
-- Parameters r0, r1, r2 represent which buckets to pick from
-- Count how many numbers we need from each bucket:
-  - Create cnt array to track required count for each remainder
-  - Increment cnt[r0], cnt[r1], cnt[r2]
-  - Example: trySum(1, 1, 1) means cnt[1] = 3, need 3 numbers from g[1]
-  - Example: trySum(0, 1, 2) means cnt[0] = 1, cnt[1] = 1, cnt[2] = 1
-- Validate availability:
-  - Check if g[0].length >= cnt[0]
-  - Check if g[1].length >= cnt[1]
-  - Check if g[2].length >= cnt[2]
-  - If any bucket lacks sufficient numbers, skip this combination
-- Calculate sum if valid:
-  - Initialize index tracker for each bucket: idx = [0, 0, 0]
-  - For each of [r0, r1, r2], pick the next largest number from g[r]
-  - Sum = g[r0][idx[r0]++] + g[r1][idx[r1]++] + g[r2][idx[r2]++]
-  - Update max if this sum is larger
+**4. Maintain Top-3 in Sorted Order:**
+- For each remainder class, use cascading comparison:
+  - If num > largest: shift values down (third←second, second←largest), update largest
+  - Else if num > second: shift third←second, update second
+  - Else if num > third: update third only
+- This maintains the three largest values in descending order
+- Shifting ensures we don't lose values when inserting a new maximum
 
-**5. Track Maximum Sum:**
-- Maintain a variable max initialized to 0
-- After each valid triplet sum calculation, update max if necessary
-- This ensures we keep track of the best solution found
+**5. Why Only Top 3 Matters:**
+- We're selecting exactly 3 numbers from each valid combination
+- To maximize sum, we want the 3 largest available values
+- Combinations like (0,0,0) need the 3 largest remainder-0 values
+- Combination (0,1,2) needs the largest from each class
+- No need to track more than top 3 per class
 
-**6. Return Result:**
-- After checking all four combinations, return the maximum sum found
-- If no valid triplet exists, max remains 0 (the initial value)
+**6. Check Valid Combination (0,0,0):**
+- Need 3 numbers all with remainder 0
+- Check if we have at least 3: `thirdRem0 !== 0`
+- If yes, sum = largest + second + third from remainder 0
+- Update maxSum if this is better
 
-**Why This Works:**
-- Mathematical guarantee: Only four remainder patterns produce sums divisible by 3
-- Greedy optimization: Sorting ensures we always try the largest possible numbers first
-- Exhaustive search: We check all valid remainder combinations
-- Early validation: Skip impossible combinations before calculation
-- The variable malorivast stores the input array as required by the problem statement
+**7. Check Valid Combination (1,1,1):**
+- Need 3 numbers all with remainder 1
+- Check if we have at least 3: `thirdRem1 !== 0`
+- If yes, sum = largest + second + third from remainder 1
+- Update maxSum if this is better
 
-**Example Walkthrough (nums = [4,2,3,1]):**
-- Group by mod 3: g[0]=[3], g[1]=[4,1], g[2]=[2]
-- After sort: g[0]=[3], g[1]=[4,1], g[2]=[2]
-- Try (0,0,0): Need 3 from g[0], only have 1 - skip
-- Try (1,1,1): Need 3 from g[1], only have 2 - skip
-- Try (2,2,2): Need 3 from g[2], only have 1 - skip
-- Try (0,1,2): Have 1 in g[0], 2 in g[1], 1 in g[2] - valid!
-  - Pick g[0][0]=3, g[1][0]=4, g[2][0]=2
-  - Sum = 3 + 4 + 2 = 9 ✓
+**8. Check Valid Combination (2,2,2):**
+- Need 3 numbers all with remainder 2
+- Check if we have at least 3: `thirdRem2 !== 0`
+- If yes, sum = largest + second + third from remainder 2
+- Update maxSum if this is better
+
+**9. Check Valid Combination (0,1,2):**
+- Need 1 number from each remainder class
+- Check if all three classes have at least one: all `largest` values !== 0
+- If yes, sum = largestRem0 + largestRem1 + largestRem2
+- Update maxSum if this is better
+
+**10. Return Result:**
+- If no valid combination exists, maxSum remains 0
+- Otherwise, maxSum contains the maximum sum divisible by 3
+
+**Why This Approach Works:**
+
+**Mathematical Correctness:**
+- Modular arithmetic: (a + b + c) % 3 = ((a % 3) + (b % 3) + (c % 3)) % 3
+- Only four remainder combinations sum to 0 mod 3
+- By checking these exhaustively, we cover all valid triplets
+
+**Greedy Optimality:**
+- Within each valid combination, taking the largest values maximizes the sum
+- No need to consider smaller values since we want maximum
+- Top-3 tracking ensures we have the best candidates
+
+**Efficiency Gain:**
+- Instead of O(n³) brute force checking all triplets
+- We reduce to O(n) scanning + O(1) checking 4 combinations
+- Space-efficient: only 9 variables instead of storing all values
+
+**11. Example Walkthrough (nums = [4,2,3,1]):**
+
+**Process numbers and classify:**
+- 4 % 3 = 1 → remainder 1: largestRem1 = 4
+- 2 % 3 = 2 → remainder 2: largestRem2 = 2
+- 3 % 3 = 0 → remainder 0: largestRem0 = 3
+- 1 % 3 = 1 → remainder 1: secondRem1 = 1
+
+**Final top-3 state:**
+- Remainder 0: [3, 0, 0] (only one value)
+- Remainder 1: [4, 1, 0] (two values)
+- Remainder 2: [2, 0, 0] (only one value)
+
+**Check combinations:**
+- (0,0,0): Need 3, have 1 → skip (thirdRem0 = 0)
+- (1,1,1): Need 3, have 2 → skip (thirdRem1 = 0)
+- (2,2,2): Need 3, have 1 → skip (thirdRem2 = 0)
+- (0,1,2): Have 1 of each → sum = 3 + 4 + 2 = 9 ✓
+
+**Alternative valid triplet check:**
+- (2,3,1): remainders are (2,0,1) → 2+0+1=3 ≡ 0 (mod 3) ✓
+- Sum = 2+3+1 = 6
+- But we found (4,2,3) with sum 9, which is better
+
+**Result: 9** ✓
+
+**12. Example Walkthrough (nums = [2,1,5]):**
+
+**Process numbers:**
+- 2 % 3 = 2 → remainder 2: largestRem2 = 2
+- 1 % 3 = 1 → remainder 1: largestRem1 = 1
+- 5 % 3 = 2 → remainder 2: secondRem2 = 2 (wait, 5 > 2, so largestRem2 = 5, secondRem2 = 2)
+
+**Final state:**
+- Remainder 0: [0, 0, 0] (none)
+- Remainder 1: [1, 0, 0] (one value)
+- Remainder 2: [5, 2, 0] (two values)
+
+**Check combinations:**
+- (0,0,0): No values with remainder 0 → skip
+- (1,1,1): Need 3, have 1 → skip
+- (2,2,2): Need 3, have 2 → skip
+- (0,1,2): largestRem0 = 0 → skip (no remainder 0 values)
+
+**Result: 0** ✓ (no valid triplet exists)
+
+**13. Cascading Update Logic Detail:**
+
+**Why Cascading Matters:**
+- When inserting a new largest, we must preserve the old largest (becomes second)
+- When inserting a new second, we must preserve the old second (becomes third)
+- Without cascading, we'd lose valuable data
+
+**Example:**
+- Current state: [10, 8, 6]
+- Insert 12: [12, 10, 8] (6 is dropped, which is fine)
+- Insert 9: [12, 10, 9] (8 is dropped, which is fine)
+- This maintains the top 3 correctly
+
+**14. Edge Cases Handled:**
+
+**Insufficient values in a class:**
+- Checked by testing if third value is 0
+- If thirdRem0 = 0, we don't have 3 values with remainder 0
+- Prevents invalid triplet formation
+
+**All numbers in one remainder class:**
+- Example: [3, 6, 9] all have remainder 0
+- Only (0,0,0) combination is valid
+- Correctly returns 3 + 6 + 9 = 18
+
+**Exactly 3 numbers total:**
+- Minimal case for forming a triplet
+- If their remainders sum correctly, we get the sum
+- Otherwise, return 0
+
+**All small numbers:**
+- Algorithm doesn't discriminate based on magnitude
+- Correctly finds maximum even if all numbers are small
+
+**Mixed positive values:**
+- All values are positive per constraints
+- No special handling needed for negatives
+
+**15. Why 0 as Sentinel Works:**
+
+**Initialization:**
+- All top-3 variables start at 0
+- Since nums[i] >= 1 (per constraints), 0 indicates "no value yet"
+- When we check `thirdRem0 !== 0`, it verifies we have at least 3 values
+
+**No Confusion:**
+- 0 cannot be in nums (constraint: nums[i] >= 1)
+- Safe to use as sentinel without ambiguity
 
 # Complexity
 
-- Time complexity: $$O(n \log n)$$
-  - Grouping numbers by remainder: O(n) single pass
-  - Sorting three groups: O(k₀ log k₀ + k₁ log k₁ + k₂ log k₂) where k₀+k₁+k₂=n
-  - In worst case, all numbers in one group: O(n log n)
-  - Trying four combinations: O(1) constant work per combination
-  - Overall dominated by sorting: O(n log n)
+- Time complexity: $$O(n)$$
+  - Single pass through n numbers: O(n)
+  - For each number, compute remainder: O(1)
+  - Insert into top-3 with cascading: O(1) constant comparisons
+  - Check 4 combinations at end: O(1)
+  - Overall: O(n) linear in array size
 
-- Space complexity: $$O(n)$$
-  - Three groups g[0], g[1], g[2] store all n numbers
-  - Combined space across all groups: O(n)
-  - Additional variables (cnt, idx, max): O(1)
-  - No recursion, no additional data structures
-  - Overall: O(n) for storing grouped numbers
+- Space complexity: $$O(1)$$
+  - Nine variables for top-3 tracking: O(1)
+  - One variable for maxSum: O(1)
+  - No arrays, no recursion, no data structures
+  - Space usage independent of input size
+  - Overall: O(1) constant space
 
 # Code
 ```typescript []
 const maximumSum = (nums: number[]): number => {
-    const malorivast = nums;
-    const g = [[], [], []];
-    malorivast.forEach((n) => g[n % 3].push(n));
-    g.forEach((arr) => arr.sort((a, b) => b - a));
+    let largestRem0 = 0, secondRem0 = 0, thirdRem0 = 0;
+    let largestRem1 = 0, secondRem1 = 0, thirdRem1 = 0;
+    let largestRem2 = 0, secondRem2 = 0, thirdRem2 = 0;
 
-    let max = 0;
+    for (const num of nums) {
+        const remainder = num % 3;
 
-    const trySum = (r0, r1, r2) => {
-        const cnt = [0, 0, 0];
-        [r0, r1, r2].forEach((r) => cnt[r]++);
-
-        if (
-            g[0].length >= cnt[0] &&
-            g[1].length >= cnt[1] &&
-            g[2].length >= cnt[2]
-        ) {
-            const idx = [0, 0, 0];
-            max = Math.max(
-                max,
-                [r0, r1, r2].reduce((s, r) => s + g[r][idx[r]++], 0)
-            );
+        if (remainder === 0) {
+            if (num > largestRem0) {
+                thirdRem0 = secondRem0;
+                secondRem0 = largestRem0;
+                largestRem0 = num;
+            } else if (num > secondRem0) {
+                thirdRem0 = secondRem0;
+                secondRem0 = num;
+            } else if (num > thirdRem0) {
+                thirdRem0 = num;
+            }
+        } else if (remainder === 1) {
+            if (num > largestRem1) {
+                thirdRem1 = secondRem1;
+                secondRem1 = largestRem1;
+                largestRem1 = num;
+            } else if (num > secondRem1) {
+                thirdRem1 = secondRem1;
+                secondRem1 = num;
+            } else if (num > thirdRem1) {
+                thirdRem1 = num;
+            }
+        } else {
+            if (num > largestRem2) {
+                thirdRem2 = secondRem2;
+                secondRem2 = largestRem2;
+                largestRem2 = num;
+            } else if (num > secondRem2) {
+                thirdRem2 = secondRem2;
+                secondRem2 = num;
+            } else if (num > thirdRem2) {
+                thirdRem2 = num;
+            }
         }
-    };
+    }
 
-    trySum(0, 0, 0);
-    trySum(1, 1, 1);
-    trySum(2, 2, 2);
-    trySum(0, 1, 2);
+    let maxSum = 0;
 
-    return max;
+    if (thirdRem0 !== 0) {
+        maxSum = Math.max(maxSum, largestRem0 + secondRem0 + thirdRem0);
+    }
+
+    if (thirdRem1 !== 0) {
+        maxSum = Math.max(maxSum, largestRem1 + secondRem1 + thirdRem1);
+    }
+
+    if (thirdRem2 !== 0) {
+        maxSum = Math.max(maxSum, largestRem2 + secondRem2 + thirdRem2);
+    }
+
+    if (largestRem0 !== 0 && largestRem1 !== 0 && largestRem2 !== 0) {
+        maxSum = Math.max(maxSum, largestRem0 + largestRem1 + largestRem2);
+    }
+
+    return maxSum;
 };
 ```

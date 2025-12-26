@@ -1,23 +1,20 @@
 function bestClosingTime(customers: string): number {
-    let penalty = 0;
-    for (const c of customers) {
-        if (c === 'Y') 
-            penalty++;
-    }
+    let best_score = 0;
+    let score = 0;
+    let best_hour = -1;
 
-    let minPenalty = penalty;
-    let minHour = 0;
+    for(let i = 0; i < customers.length; i++) {
+        if(customers[i] === "Y") {
+            score++;
+        } else {
+            score--;
+        }
 
-    for (let i = 0; i < customers.length; i++) {
-        if (customers[i] === 'Y')
-            penalty--;
-        else
-            penalty++;
-
-        if (penalty < minPenalty) {
-            minPenalty = penalty;
-            minHour = i + 1;
+        if(score > best_score) {
+            best_score = score;
+            best_hour = i;
         }
     }
-    return minHour;
+
+    return best_hour + 1;
 };

@@ -1,51 +1,66 @@
-const mostBooked = (n: number, meetings: number[][]): number => {
-    // Sort meetings by start time for chronological processing
-    meetings.sort((a, b) => a[0] - b[0]);
-
-    const meetingCountsPerRoom = new Array<number>(n).fill(0);
-
-    const availableRooms = new PriorityQueue<number>((a, b) => a - b); // min-heap of room
-    const occupiedRooms = new PriorityQueue<[number, number]>((a, b) =>
-        a[0] === b[0] ? a[1] - b[1] : a[0] - b[0]
-    ); // [endTime, roomIndex], sorted by earliest end time, then room index
-
-    // Initially, all rooms are available
-    for (let roomIndex = 0; roomIndex < n; roomIndex++) {
-        availableRooms.enqueue(roomIndex);
-    }
-
-    for (const [meetingStart, meetingEnd] of meetings) {
-        // Free up rooms that have completed before the current meeting starts
-        while (!occupiedRooms.isEmpty() && occupiedRooms.front()[0] <= meetingStart) {
-            const [, freedRoom] = occupiedRooms.dequeue()!;
-            availableRooms.enqueue(freedRoom);
-        }
-
-        const meetingDuration = meetingEnd - meetingStart;
-
-        if (!availableRooms.isEmpty()) {
-            // Assign to the lowest available room
-            const assignedRoom = availableRooms.dequeue()!;
-            meetingCountsPerRoom[assignedRoom]++;
-            occupiedRooms.enqueue([meetingEnd, assignedRoom]);
+const mostBooked = (totalRooms: number, meetings: number[][]): number => {
+    // Track when each room becomes available
+    const roomEndTimes = Array.from({ length: totalRooms }, () => 0);
+    
+    // Count meetings held in each room
+    const meetingCounts = Array.from({ length: totalRooms }, () => 0);
+    
+    // Sort meetings by start time (process in chronological order)
+    const sortedMeetings = meetings.sort((meetingA, meetingB) => meetingA[0] - meetingB[0]);
+    
+    // Process each meeting in chronological order
+    for (const [originalStartTime, originalEndTime] of sortedMeetings) {
+        const meetingDuration = originalEndTime - originalStartTime;
+        
+        // Find first available room (lowest number room that's free)
+        const availableRoomIndex = findFirstAvailableRoom(roomEndTimes, originalStartTime);
+        
+        if (availableRoomIndex !== -1) {
+            // Room is available - schedule meeting at original time
+            meetingCounts[availableRoomIndex]++;
+            roomEndTimes[availableRoomIndex] = originalEndTime;
         } else {
-            // Delay the meeting to start when the earliest room is free
-            const [earliestEndTime, occupiedRoom] = occupiedRooms.dequeue()!;
-            meetingCountsPerRoom[occupiedRoom]++;
-            occupiedRooms.enqueue([earliestEndTime + meetingDuration, occupiedRoom]);
+            // No rooms available - find room that becomes free earliest
+            const earliestFreeRoomIndex = findEarliestFreeRoom(roomEndTimes);
+            
+            // Schedule delayed meeting to start when room becomes free
+            meetingCounts[earliestFreeRoomIndex]++;
+            const delayedStartTime = roomEndTimes[earliestFreeRoomIndex];
+            roomEndTimes[earliestFreeRoomIndex] = delayedStartTime + meetingDuration;
         }
     }
+    
+    // Find room with most meetings (lowest number in case of tie)
+    return findRoomWithMostMeetings(meetingCounts);
+};
 
-    // Find the room with the highest number of meetings (lowest index on tie)
-    let maxMeetings = -1;
-    let roomWithMaxMeetings = -1;
+// Find the first available room (lowest index) that's free at the given time
+const findFirstAvailableRoom = (roomEndTimes: number[], currentTime: number): number => {
+    return roomEndTimes.findIndex(endTime => endTime <= currentTime);
+};
 
-    meetingCountsPerRoom.forEach((count, roomIndex) => {
-        if (count > maxMeetings) {
-            maxMeetings = count;
-            roomWithMaxMeetings = roomIndex;
+// Find the room that becomes available earliest (lowest index in case of tie)
+const findEarliestFreeRoom = (roomEndTimes: number[]): number => {
+    let earliestRoomIndex = 0;
+    
+    for (let roomIndex = 1; roomIndex < roomEndTimes.length; roomIndex++) {
+        if (roomEndTimes[roomIndex] < roomEndTimes[earliestRoomIndex]) {
+            earliestRoomIndex = roomIndex;
         }
-    });
+    }
+    
+    return earliestRoomIndex;
+};
 
-    return roomWithMaxMeetings;
-}
+// Find room with most meetings (return lowest index in case of tie)
+const findRoomWithMostMeetings = (meetingCounts: number[]): number => {
+    let mostBookedRoomIndex = 0;
+    
+    for (let roomIndex = 1; roomIndex < meetingCounts.length; roomIndex++) {
+        if (meetingCounts[roomIndex] > meetingCounts[mostBookedRoomIndex]) {
+            mostBookedRoomIndex = roomIndex;
+        }
+    }
+    
+    return mostBookedRoomIndex;
+};

@@ -1,11 +1,8 @@
 function shuffle(nums: number[], n: number): number[] {
-    const array = [];
-    let i = 0;
-    while(i<n)
-    {
-        array.push(nums[i]);
-        array.push(nums[i+n]);
-        i++;
+    const result: number[] = [];
+    for (let i = 0; i < n; i++) {
+        result[i * 2] = nums[i];
+        result[i * 2 + 1] = nums[i + n];
     }
-    return array;
-};
+    return result;
+}

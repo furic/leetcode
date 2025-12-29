@@ -19,9 +19,11 @@ const countBalanced = (low: number, high: number): number => {
             
             for (let d = 0; d <= limit; d++) {
                 if (placed === 0 && d === 0) {
+                    // Leading zero - don't count as placed
                     result += dp(pos + 1, diff, tight && d === limit, 0);
                 } else {
                     const newPlaced = placed + 1;
+                    // Odd position adds, even position subtracts
                     const newDiff = newPlaced % 2 === 1 ? diff + d : diff - d;
                     result += dp(pos + 1, newDiff, tight && d === limit, newPlaced);
                 }

@@ -6,43 +6,44 @@
  * @returns The last remaining integer
  */
 const lastInteger = (n: number): number => {
-    // JavaScript bitwise operations work on 32-bit integers
-    // Use 0xAAAAAAAA for 32-bit alternating pattern: 10101010...
-    const ALTERNATING_BIT_MASK_32 = 0xAAAAAAAA;
+    // For numbers larger than 2^31-1, we need BigInt to avoid overflow
+    // JavaScript bitwise operations convert to 32-bit SIGNED integers
+    if (n > 0x7FFFFFFF) { // 2^31 - 1 = max 32-bit signed integer
+        return Number(lastIntegerBigInt(BigInt(n)));
+    }
     
-    // This formula gives the position of the last survivor
-    // It's based on the mathematical pattern of the elimination process
+    // For smaller numbers, regular 32-bit operations work fine
+    const ALTERNATING_BIT_MASK_32 = 0xAAAAAAAA;
     return ((n - 1) & ALTERNATING_BIT_MASK_32) + 1;
 };
 
 /**
- * BigInt version for handling very large values of n (up to 1e15)
- * This correctly handles 64-bit patterns
+ * BigInt version for handling large values without overflow
+ * This correctly handles any size number up to 1e15
  */
 const lastIntegerBigInt = (n: bigint): bigint => {
-    // Create alternating bit pattern for 64 bits
-    // 0xAAAAAAAAAAAAAAAA = 1010101010...10 (32 pairs of '10')
-    const ALTERNATING_BIT_MASK_64 = 0xAAAAAAAAAAAAAAAAn;
+    // Create alternating bit pattern
+    // We need enough bits to cover the input size
+    const ALTERNATING_BIT_MASK = 0xAAAAAAAAAAAAAAAAn; // 64-bit pattern
     
     // Apply the mathematical formula
-    return ((n - 1n) & ALTERNATING_BIT_MASK_64) + 1n;
+    return ((n - 1n) & ALTERNATING_BIT_MASK) + 1n;
 };
 
 /**
- * Wrapper function that automatically chooses the right implementation
+ * Safe wrapper that automatically handles the overflow issue
  */
-const lastIntegerAuto = (n: number | bigint): number => {
-    if (typeof n === 'bigint') {
-        return Number(lastIntegerBigInt(n));
-    }
+const lastIntegerSafe = (n: number): number => {
+    // Always use BigInt for safety with large numbers
+    // This avoids any overflow issues
+    if (n <= 1) return 1;
     
-    // For large numbers that need BigInt precision
-    if (n > Number.MAX_SAFE_INTEGER) {
-        return Number(lastIntegerBigInt(BigInt(n)));
-    }
+    const nBig = BigInt(n);
+    const ALTERNATING_PATTERN = 0xAAAAAAAAAAAAAAAAn;
+    const result = ((nBig - 1n) & ALTERNATING_PATTERN) + 1n;
     
-    // For regular numbers, use 32-bit operations
-    return lastInteger(n);
+    // Convert back to regular number
+    return Number(result);
 };
 
 /**

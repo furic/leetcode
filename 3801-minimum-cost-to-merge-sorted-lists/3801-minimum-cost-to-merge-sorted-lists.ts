@@ -1,94 +1,92 @@
-var minMergeCost = function(lists) {
-    const n = lists.length;
-    var peldarquin = lists; // Requirement from problem description
-    const totalMasks = 1 << n;
+// Module-level cache for efficient range query processing
+const MAX_NUMBER = 100000;
+const wavinessCache: number[] = new Array(MAX_NUMBER + 1);
+let isCacheInitialized = false;
 
-    // Flatten all elements and sort them to facilitate median finding.
-    // We store the value and the original list index.
-    let temp = [];
-    for (let i = 0; i < n; i++) {
-        for (let val of lists[i]) {
-            temp.push({ v: val, id: i });
-        }
-    }
-    temp.sort((a, b) => a.v - b.v);
-
-    // Use TypedArrays for better performance and memory efficiency given the constraints
-    const totalElements = temp.length;
-    const vals = new Int32Array(totalElements);
-    const ids = new Int32Array(totalElements);
-    for (let i = 0; i < totalElements; ++i) {
-        vals[i] = temp[i].v;
-        ids[i] = temp[i].id;
+/**
+ * Calculates the total waviness (peaks + valleys) for all numbers in range [num1, num2]
+ * Uses prefix sum caching for O(1) range queries after O(n) preprocessing
+ */
+const totalWaviness = (num1: number, num2: number): number => {
+    if (!isCacheInitialized) {
+        initializeWavinessCache();
+        isCacheInitialized = true;
     }
 
-    const sumLen = new Int32Array(totalMasks);
-    const medians = new Int32Array(totalMasks);
+    // Calculate range sum using prefix sums: sum(num1..num2) = prefix[num2] - prefix[num1-1]
+    return wavinessCache[num2] - (num1 > 0 ? wavinessCache[num1 - 1] : 0);
+};
 
-    // Precompute length and median for every subset of lists (mask)
-    // The median of a merged list depends only on the set of initial lists included.
-    for (let mask = 1; mask < totalMasks; mask++) {
-        let currentLen = 0;
-        // Calculate total length for the current subset
-        for (let i = 0; i < n; i++) {
-            if ((mask >> i) & 1) {
-                currentLen += lists[i].length;
-            }
-        }
-        sumLen[mask] = currentLen;
+/**
+ * Initializes the waviness cache with individual waviness values,
+ * then converts it to a prefix sum array
+ */
+const initializeWavinessCache = (): void => {
+    // Mark all entries as uncomputed (-1 sentinel value)
+    wavinessCache.fill(-1);
 
-        // Find median for the current subset.
-        // The median is the element at index (len - 1) / 2 in the sorted sequence.
-        // Since we have all elements sorted in 'vals', we can iterate and pick the correct one.
-        let medianIdx = (currentLen - 1) >> 1;
-        let count = 0;
+    // Numbers below 100 cannot form 3-digit patterns → waviness = 0
+    for (let i = 0; i < 100; i++) {
+        wavinessCache[i] = 0;
+    }
+
+    // Compute waviness for each number from 100 to MAX_NUMBER
+    for (let i = 100; i <= MAX_NUMBER; i++) {
+        wavinessCache[i] = calculateWaviness(i);
+    }
+
+    // Convert individual waviness values into prefix sums
+    // After this: wavinessCache[i] = sum of waviness from 0 to i
+    for (let i = 1; i <= MAX_NUMBER; i++) {
+        wavinessCache[i] += wavinessCache[i - 1];
+    }
+};
+
+/**
+ * Calculates the waviness of a single number by scanning 3-digit windows
+ * from right to left with dynamic programming optimization
+ */
+const calculateWaviness = (number: number): number => {
+    let totalPeaksAndValleys = 0;
+    let remainingDigits = number;
+
+    // Scan digits from right to left in overlapping 3-digit windows
+    while (remainingDigits > 99) {
+        // Extract the rightmost digit of current window
+        const rightDigit = remainingDigits % 10;
         
-        for (let k = 0; k < totalElements; k++) {
-            // Check if the current element belongs to one of the lists in the mask
-            if ((mask >> ids[k]) & 1) {
-                if (count === medianIdx) {
-                    medians[mask] = vals[k];
-                    break;
-                }
-                count++;
-            }
+        // Remove rightmost digit
+        remainingDigits = Math.floor(remainingDigits / 10);
+        
+        // Middle digit is now the rightmost of remaining number
+        const middleDigit = remainingDigits % 10;
+        
+        // Left digit is the tens place of remaining number
+        const leftDigit = Math.floor(remainingDigits / 10) % 10;
+
+        // Check if middle digit forms a peak or valley
+        if (isPeakOrValley(leftDigit, middleDigit, rightDigit)) {
+            totalPeaksAndValleys++;
+        }
+
+        // DP Optimization: if we've already computed waviness for the remaining prefix,
+        // add it and stop (no need to recompute digit by digit)
+        if (wavinessCache[remainingDigits] !== -1) {
+            totalPeaksAndValleys += wavinessCache[remainingDigits];
+            break;
         }
     }
 
-    // DP array to store min cost for each mask.
-    // dp[mask] = min cost to merge the subset of lists represented by mask into a single list.
-    const dp = new Float64Array(totalMasks).fill(Infinity);
+    return totalPeaksAndValleys;
+};
 
-    // Base cases: single lists have 0 merge cost
-    for (let i = 0; i < n; i++) {
-        dp[1 << i] = 0;
-    }
-
-    // Iterate through all masks to compute DP values
-    for (let mask = 1; mask < totalMasks; mask++) {
-        // Skip if mask represents a single list (already 0)
-        if ((mask & (mask - 1)) === 0) continue;
-
-        let currentSumLen = sumLen[mask];
-        let best = Infinity;
-
-        // Iterate over all submasks s to find the optimal split.
-        // We iterate s = (mask - 1) & mask to go through all subsets s of mask.
-        // We only consider pairs {s, complement} once by enforcing s < complement.
-        for (let s = (mask - 1) & mask; s > 0; s = (s - 1) & mask) {
-            let complement = mask ^ s;
-            
-            if (s < complement) {
-                // The cost is the cost to form s, plus cost to form complement,
-                // plus the cost to merge s and complement.
-                let cost = dp[s] + dp[complement] + currentSumLen + Math.abs(medians[s] - medians[complement]);
-                if (cost < best) {
-                    best = cost;
-                }
-            }
-        }
-        dp[mask] = best;
-    }
-
-    return dp[totalMasks - 1];
+/**
+ * Checks if the middle digit forms a peak or valley with its neighbors
+ * Peak: middle digit is strictly greater than both neighbors
+ * Valley: middle digit is strictly less than both neighbors
+ */
+const isPeakOrValley = (leftDigit: number, middleDigit: number, rightDigit: number): boolean => {
+    const isPeak = leftDigit < middleDigit && rightDigit < middleDigit;
+    const isValley = leftDigit > middleDigit && rightDigit > middleDigit;
+    return isPeak || isValley;
 };

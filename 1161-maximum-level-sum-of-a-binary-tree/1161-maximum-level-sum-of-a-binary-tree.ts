@@ -12,30 +12,48 @@
  * }
  */
 
-function maxLevelSum(root: TreeNode | null): number {
-    let max: number = Number.MIN_SAFE_INTEGER;
-    let maxLevel: number = 1;
-    let queue: TreeNode[] = [root];
-    let index: number = 0;
-    let level: number = 0;
-    while ( index < queue.length ) {
-        const size: number = queue.length - index;
-        let levelsum: number = 0;
-        level++;
-        for ( let i = 0; i < size; i++ ) {
-            const curr = queue[index++];
-            levelsum += curr.val;
-            if ( curr.left ) {
-                queue.push(curr.left);
+/**
+ * Finds the level with maximum sum in a binary tree (1-indexed)
+ * Uses BFS level-order traversal to compute sum at each level
+ * Returns the smallest level number if there are ties
+ */
+const maxLevelSum = (root: TreeNode | null): number => {
+    let maxSum = Number.MIN_SAFE_INTEGER;
+    let levelWithMaxSum = 1;
+    
+    // BFS queue - using array with index pointer to avoid expensive shift() operations
+    const queue: TreeNode[] = [root!];
+    let queueReadIndex = 0;
+    let currentLevel = 0;
+    
+    // Process nodes level by level
+    while (queueReadIndex < queue.length) {
+        // Calculate how many nodes are at current level
+        const nodesInCurrentLevel = queue.length - queueReadIndex;
+        let currentLevelSum = 0;
+        currentLevel++;
+        
+        // Process all nodes at current level
+        for (let i = 0; i < nodesInCurrentLevel; i++) {
+            const currentNode = queue[queueReadIndex++];
+            currentLevelSum += currentNode.val;
+            
+            // Add children to queue for next level
+            if (currentNode.left) {
+                queue.push(currentNode.left);
             }
-            if ( curr.right ) {
-                queue.push(curr.right);
+            if (currentNode.right) {
+                queue.push(currentNode.right);
             }
         }
-        if ( levelsum > max ) {
-            max = levelsum;
-            maxLevel = level;
+        
+        // Update max if current level has higher sum
+        // Using > (not >=) ensures we return the smallest level on ties
+        if (currentLevelSum > maxSum) {
+            maxSum = currentLevelSum;
+            levelWithMaxSum = currentLevel;
         }
     }
-    return maxLevel;
+    
+    return levelWithMaxSum;
 };

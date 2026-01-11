@@ -5,28 +5,42 @@ function minimumCost(
   swapCost: number,
   crossCost: number
 ): number {
-  let cnt0 = 0;
-  let cnt1 = 0;
+  const n = s.length;
 
-  for (let i = 0; i < s.length; ++i) {
-    if (s[i] === t[i]) continue;
-    if (s[i] === "0") {
-      ++cnt0;
-    } else {
-      ++cnt1;
+  let m = 0;
+  let b = 0;
+
+  if (n >= 2048) {
+    const sb = Buffer.from(s);
+    const tb = Buffer.from(t);
+
+    for (let i = 0; i < n; i++) {
+      const x = (sb[i] ^ tb[i]) & 1;
+      m += x;
+      b += x & (sb[i] & 1);
+    }
+  } else {
+    for (let i = 0; i < n; i++) {
+      const cs = s.charCodeAt(i);
+      const ct = t.charCodeAt(i);
+      const x = (cs ^ ct) & 1;
+      m += x;
+      b += x & (cs & 1);
     }
   }
 
-  const cnt = cnt0 + cnt1;
-  const pairs = Math.min(cnt0, cnt1);
-  const crosses = (cnt >> 1) - pairs; // to minimize |cnt0 - cnt1| (i.e. maximize pairs).
+  if (m === 0) return 0;
 
-  return Math.min(
-    // 1. Just flip
-    cnt * flipCost,
-    // 2. Swap + flip
-    pairs * swapCost + (cnt - pairs * 2) * flipCost,
-    // 3. Cross + swap + flip
-    crosses * crossCost + (cnt >> 1) * swapCost + (cnt & 1) * flipCost
-  );
+  const a = m - b;
+
+  const k = a < b ? a : b;
+  const r = a < b ? (b - a) : (a - b);
+
+  const twoF = flipCost + flipCost;
+  const opp = swapCost < twoF ? swapCost : twoF;
+
+  let same = crossCost + swapCost;
+  if (twoF < same) same = twoF;
+
+  return k * opp + ((r >> 1) * same) + ((r & 1) * flipCost);
 }

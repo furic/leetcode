@@ -1,35 +1,71 @@
-function largestRectangleArea(heights: number[]): number {
-    let maxArea = 0;
-    const stack: number[] = [];
+/**
+ * Finds the largest rectangle in a histogram using monotonic stack
+ * Stack maintains indices of bars in increasing height order
+ * When a shorter bar is found, calculate rectangles for taller bars
+ */
+const largestRectangleInHistogram = (heights: number[]): number => {
+    let maxRectangleArea = 0;
+    const indicesStack: number[] = []; // Stack of bar indices in increasing height order
 
-    for (let i = 0; i <= heights.length; ++i) {
-        while (stack.length && (i === heights.length || heights[i] < heights[stack[stack.length - 1]])) {
-            const height = heights[stack.pop()!];
-            const width = stack.length ? i - stack[stack.length - 1] - 1 : i;
-            maxArea = Math.max(maxArea, height * width);
+    // Process each bar plus one virtual bar at end (height 0) to flush stack
+    for (let currentIndex = 0; currentIndex <= heights.length; currentIndex++) {
+        // Current height (0 at end to trigger all remaining calculations)
+        const currentHeight = currentIndex === heights.length ? 0 : heights[currentIndex];
+        
+        // Pop bars that are taller than current (their rectangle ends here)
+        while (indicesStack.length && currentHeight < heights[indicesStack[indicesStack.length - 1]]) {
+            const poppedIndex = indicesStack.pop()!;
+            const rectangleHeight = heights[poppedIndex];
+            
+            // Calculate width of rectangle with this height
+            // If stack empty: rectangle extends from start (width = currentIndex)
+            // If stack not empty: rectangle is between previous bar and current (width = currentIndex - prevIndex - 1)
+            const rectangleWidth = indicesStack.length 
+                ? currentIndex - indicesStack[indicesStack.length - 1] - 1 
+                : currentIndex;
+            
+            const rectangleArea = rectangleHeight * rectangleWidth;
+            maxRectangleArea = Math.max(maxRectangleArea, rectangleArea);
         }
-        stack.push(i);
+        
+        indicesStack.push(currentIndex);
     }
-    return maxArea;
-}
+    
+    return maxRectangleArea;
+};
 
-function maximalRectangle(matrix: string[][]): number {
+/**
+ * Finds the largest rectangle of 1's in a binary matrix
+ * Strategy: Treat each row as the base of a histogram where heights represent consecutive 1's
+ * For each row, compute histogram heights and find largest rectangle in that histogram
+ */
+const maximalRectangle = (matrix: string[][]): number => {
     if (!matrix || !matrix[0]) return 0;
 
-    const rows = matrix.length, cols = matrix[0].length;
-    let maxArea = 0;
-    const heights = new Array(cols).fill(0);
+    const numRows = matrix.length;
+    const numCols = matrix[0].length;
+    let maxRectangleArea = 0;
+    
+    // Heights array: heights[col] = number of consecutive 1's above (and including) current row
+    const histogramHeights = new Array(numCols).fill(0);
 
-    for (let row = 0; row < rows; ++row) {
-        for (let col = 0; col < cols; ++col) {
+    // Process each row, treating it as the base of a histogram
+    for (let row = 0; row < numRows; row++) {
+        // Update histogram heights based on current row
+        for (let col = 0; col < numCols; col++) {
             if (matrix[row][col] === '1') {
-                heights[col] += 1;
+                // Extend height (consecutive 1's continue)
+                histogramHeights[col]++;
             } else {
-                heights[col] = 0;
+                // Reset height (consecutive 1's broken by 0)
+                histogramHeights[col] = 0;
             }
         }
-        maxArea = Math.max(maxArea, largestRectangleArea(heights));
+        
+        // Find largest rectangle in current histogram
+        const currentRowMaxArea = largestRectangleInHistogram(histogramHeights);
+        maxRectangleArea = Math.max(maxRectangleArea, currentRowMaxArea);
     }
 
-    return maxArea;
-}
+    return maxRectangleArea;
+};

@@ -1,28 +1,32 @@
-const minimumCost = (
-    s: string,
-    t: string,
-    flipCost: number,
-    swapCost: number,
-    crossCost: number
-): number => {
-    let countA = 0; // s[i]='0', t[i] = '1'
-    let countB = 0; // s[i]='1', t[i] = '0'
+function minimumCost(
+  s: string,
+  t: string,
+  flipCost: number,
+  swapCost: number,
+  crossCost: number
+): number {
+  let cnt0 = 0;
+  let cnt1 = 0;
 
-    for (let i = 0; i < s.length; i++) {
-        if (s[i] === "0" && t[i] === "1") countA++;
-        else if (s[i] === "1" && t[i] === "0") countB++;
+  for (let i = 0; i < s.length; ++i) {
+    if (s[i] === t[i]) continue;
+    if (s[i] === "0") {
+      ++cnt0;
+    } else {
+      ++cnt1;
     }
+  }
 
-    const pairedAB = Math.min(countA, countB);
-    const remaining = Math.abs(countA - countB);
+  const cnt = cnt0 + cnt1;
+  const pairs = Math.min(cnt0, cnt1);
+  const crosses = (cnt >> 1) - pairs; // to minimize |cnt0 - cnt1| (i.e. maximize pairs).
 
-    const costAB = pairedAB * Math.min(2 * flipCost, swapCost);
-
-    const costRemaining =
-        Math.floor(remaining / 2) *
-        Math.min(2 * flipCost, crossCost + swapCost);
-
-    const costLeftover = (remaining % 2) * flipCost;
-
-    return costAB + costRemaining + costLeftover;
-};
+  return Math.min(
+    // 1. Just flip
+    cnt * flipCost,
+    // 2. Swap + flip
+    pairs * swapCost + (cnt - pairs * 2) * flipCost,
+    // 3. Cross + swap + flip
+    crosses * crossCost + (cnt >> 1) * swapCost + (cnt & 1) * flipCost
+  );
+}

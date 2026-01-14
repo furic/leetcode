@@ -1,66 +1,113 @@
-function separateSquares(squares: number[][]): number {
-    const events: [number, number, number, number][] = [];
-    for (const sq of squares) {
-        const x = sq[0], y = sq[1], length = sq[2];
-        events.push([y, 1, x, x + length]);
-        events.push([y + length, -1, x, x + length]);
+/**
+ * Finds the minimum y-coordinate of a horizontal line that splits total covered area in half
+ * Uses sweep line algorithm to handle overlapping squares correctly (count overlaps only once)
+ * Strategy: Process squares bottom-to-top, merge overlapping x-intervals, accumulate areas
+ */
+const separateSquares = (squares: number[][]): number => {
+    // Create events for sweep line algorithm
+    // Event: [yCoordinate, eventType, xLeft, xRight]
+    // eventType: 1 = square bottom (add interval), -1 = square top (remove interval)
+    const sweepLineEvents: [number, number, number, number][] = [];
+    
+    for (const [x, y, sideLength] of squares) {
+        // Bottom edge: start tracking this x-interval
+        sweepLineEvents.push([y, 1, x, x + sideLength]);
+        // Top edge: stop tracking this x-interval
+        sweepLineEvents.push([y + sideLength, -1, x, x + sideLength]);
     }
 
-    events.sort((a, b) => a[0] - b[0] || a[1] - b[1] || a[2] - b[2] || a[3] - b[3]);
+    // Sort events by y-coordinate (bottom events before top events at same y)
+    sweepLineEvents.sort((a, b) => 
+        a[0] - b[0] || // Primary: y-coordinate
+        a[1] - b[1] || // Secondary: event type (bottom before top)
+        a[2] - b[2] || // Tertiary: x-left
+        a[3] - b[3]    // Quaternary: x-right
+    );
 
-    let active_intervals: [number, number][] = [];
-    let prev_y = events[0][0];
-    let total_area = 0;
-    const horizontal_slices: [number, number, number][] = [];
-
-    const union_width = (intervals: [number, number][]): number => {
+    /**
+     * Calculates the total width covered by potentially overlapping intervals
+     * Merges overlapping intervals to avoid double-counting
+     */
+    const calculateUnionWidth = (intervals: [number, number][]): number => {
+        if (intervals.length === 0) return 0;
+        
+        // Sort intervals by left endpoint
         intervals.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
-        let total_width = 0;
-        let rightmost = -1e30;
+        
+        let totalCoveredWidth = 0;
+        let currentRightmost = -Infinity;
+        
         for (const [left, right] of intervals) {
-            if (left > rightmost) {
-                total_width += right - left;
-                rightmost = right;
-            } else if (right > rightmost) {
-                total_width += right - rightmost;
-                rightmost = right;
+            if (left > currentRightmost) {
+                // No overlap: add entire interval
+                totalCoveredWidth += right - left;
+                currentRightmost = right;
+            } else if (right > currentRightmost) {
+                // Partial overlap: add only the non-overlapping part
+                totalCoveredWidth += right - currentRightmost;
+                currentRightmost = right;
             }
+            // Else: completely covered, add nothing
         }
-        return total_width;
+        
+        return totalCoveredWidth;
     };
 
-    for (const [y, event_type, x_left, x_right] of events) {
-        if (y > prev_y && active_intervals.length) {
-            const height = y - prev_y;
-            const width = union_width(active_intervals.slice());
-            horizontal_slices.push([prev_y, height, width]);
-            total_area += height * width;
+    // Track active x-intervals (squares that span current y-level)
+    let activeXIntervals: [number, number][] = [];
+    let previousY = sweepLineEvents[0][0];
+    let totalCoveredArea = 0;
+    
+    // Store horizontal slices: [startY, height, width]
+    const horizontalSlices: [number, number, number][] = [];
+
+    // Process events with sweep line
+    for (const [currentY, eventType, xLeft, xRight] of sweepLineEvents) {
+        // Process the horizontal slice from previousY to currentY
+        if (currentY > previousY && activeXIntervals.length > 0) {
+            const sliceHeight = currentY - previousY;
+            // Calculate actual width considering overlaps
+            const sliceWidth = calculateUnionWidth([...activeXIntervals]);
+            
+            horizontalSlices.push([previousY, sliceHeight, sliceWidth]);
+            totalCoveredArea += sliceHeight * sliceWidth;
         }
 
-        if (event_type === 1) {
-            active_intervals.push([x_left, x_right]);
+        // Update active intervals based on event type
+        if (eventType === 1) {
+            // Square bottom: add x-interval to active set
+            activeXIntervals.push([xLeft, xRight]);
         } else {
-            for (let i = 0; i < active_intervals.length; i++) {
-                if (active_intervals[i][0] === x_left && active_intervals[i][1] === x_right) {
-                    active_intervals.splice(i, 1);
-                    break;
-                }
+            // Square top: remove x-interval from active set
+            const indexToRemove = activeXIntervals.findIndex(
+                ([left, right]) => left === xLeft && right === xRight
+            );
+            if (indexToRemove !== -1) {
+                activeXIntervals.splice(indexToRemove, 1);
             }
         }
 
-        prev_y = y;
+        previousY = currentY;
     }
 
-    const half = total_area / 2;
-    let accumulated = 0;
+    // Find the y-coordinate where accumulated area reaches half of total
+    const halfTotalArea = totalCoveredArea / 2;
+    let accumulatedArea = 0;
 
-    for (const [start_y, height, width] of horizontal_slices) {
-        const slice_area = height * width;
-        if (accumulated + slice_area >= half) {
-            return start_y + (half - accumulated) / width;
+    for (const [sliceStartY, sliceHeight, sliceWidth] of horizontalSlices) {
+        const sliceArea = sliceHeight * sliceWidth;
+        
+        if (accumulatedArea + sliceArea >= halfTotalArea) {
+            // The split line is somewhere within this slice
+            // Calculate exact y-coordinate: startY + (remaining area / width)
+            const remainingAreaNeeded = halfTotalArea - accumulatedArea;
+            const additionalHeight = remainingAreaNeeded / sliceWidth;
+            return sliceStartY + additionalHeight;
         }
-        accumulated += slice_area;
+        
+        accumulatedArea += sliceArea;
     }
 
-    return prev_y;
+    // Edge case: should not reach here with valid input
+    return previousY;
 };

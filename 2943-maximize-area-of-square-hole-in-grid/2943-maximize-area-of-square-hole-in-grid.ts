@@ -29,12 +29,11 @@ const maximizeSquareHoleArea = (
             if (removableBars[i] === removableBars[i - 1] + 1) {
                 // Bars are consecutive, extend current sequence
                 currentConsecutiveCount++;
+                maxConsecutiveCount = Math.max(maxConsecutiveCount, currentConsecutiveCount);
             } else {
                 // Gap in sequence, restart counting
                 currentConsecutiveCount = 1;
             }
-            
-            maxConsecutiveCount = Math.max(maxConsecutiveCount, currentConsecutiveCount);
         }
         
         // Gap size = number of removed bars + 1

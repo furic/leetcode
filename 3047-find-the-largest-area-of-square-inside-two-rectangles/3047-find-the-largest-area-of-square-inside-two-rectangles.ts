@@ -1,21 +1,53 @@
-function largestSquareArea(bottomLeft: number[][], topRight: number[][]): number {
-    const n = bottomLeft.length;
-    let maxSquare = 0;
+/**
+ * Finds the maximum area of a square that can fit in the intersection of at least two rectangles
+ * Strategy: Check all pairs of rectangles, find their intersection, calculate largest square that fits
+ * Square side = min(intersection width, intersection height)
+ */
+const largestSquareArea = (bottomLeft: number[][], topRight: number[][]): number => {
+    const numRectangles = bottomLeft.length;
+    let maxSquareArea = 0;
 
-    for (let i = 0; i < n - 1; i++) {
-        for(let j = i + 1; j < n; j++){
-            const min_x = Math.max(bottomLeft[i][0], bottomLeft[j][0]); 
-            const max_x = Math.min(topRight[i][0], topRight[j][0]);     
-            const min_y = Math.max(bottomLeft[i][1], bottomLeft[j][1]); 
-            const max_y = Math.min(topRight[i][1], topRight[j][1]);
+    // Check all pairs of rectangles to find their intersections
+    for (let firstRectIndex = 0; firstRectIndex < numRectangles - 1; firstRectIndex++) {
+        for (let secondRectIndex = firstRectIndex + 1; secondRectIndex < numRectangles; secondRectIndex++) {
+            // Calculate intersection rectangle bounds
+            // Intersection left edge = rightmost of the two left edges
+            const intersectionLeft = Math.max(
+                bottomLeft[firstRectIndex][0], 
+                bottomLeft[secondRectIndex][0]
+            );
             
-            if (min_x < max_x && min_y < max_y) {
-                const square = Math.min(max_x - min_x, max_y - min_y);
-                maxSquare = Math.max(maxSquare, square ** 2);
+            // Intersection right edge = leftmost of the two right edges
+            const intersectionRight = Math.min(
+                topRight[firstRectIndex][0], 
+                topRight[secondRectIndex][0]
+            );
+            
+            // Intersection bottom edge = topmost of the two bottom edges
+            const intersectionBottom = Math.max(
+                bottomLeft[firstRectIndex][1], 
+                bottomLeft[secondRectIndex][1]
+            );
+            
+            // Intersection top edge = bottommost of the two top edges
+            const intersectionTop = Math.min(
+                topRight[firstRectIndex][1], 
+                topRight[secondRectIndex][1]
+            );
+            
+            // Check if intersection exists (positive width and height)
+            if (intersectionLeft < intersectionRight && intersectionBottom < intersectionTop) {
+                const intersectionWidth = intersectionRight - intersectionLeft;
+                const intersectionHeight = intersectionTop - intersectionBottom;
+                
+                // Largest square that fits has side length = min dimension
+                const squareSide = Math.min(intersectionWidth, intersectionHeight);
+                const squareArea = squareSide ** 2;
+                
+                maxSquareArea = Math.max(maxSquareArea, squareArea);
             }
         }
-
     }
 
-    return maxSquare;
+    return maxSquareArea;
 };

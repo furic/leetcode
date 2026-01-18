@@ -1,4 +1,4 @@
-function alternatingXOR(nums: number[], target1: number, target2: number): number {
+const alternatingXOR = (nums: number[], target1: number, target2: number): number => {
     const MOD = 1e9 + 7;
     const n = nums.length;
     

@@ -1,116 +1,126 @@
-function minimumPairRemoval(nums: number[]): number {
+class MinHeap<T> {
+    private heap: T[] = [];
+    constructor(private compare: (a: T, b: T) => number) { }
+
+    push(value: T) {
+        this.heap.push(value);
+        this.bubbleUp(this.heap.length - 1);
+    }
+
+    pop(): T | undefined {
+        if (this.size() === 0) return undefined;
+        const top = this.heap[0];
+        const last = this.heap.pop()!;
+        if (this.size() > 0) {
+            this.heap[0] = last;
+            this.bubbleDown(0);
+        }
+        return top;
+    }
+
+    size(): number {
+        return this.heap.length;
+    }
+
+    private bubbleUp(index: number) {
+        while (index > 0) {
+            const parentIndex = Math.floor((index - 1) / 2);
+            if (this.compare(this.heap[index], this.heap[parentIndex]) < 0) {
+                [this.heap[index], this.heap[parentIndex]] = [this.heap[parentIndex], this.heap[index]];
+                index = parentIndex;
+            } else break;
+        }
+    }
+
+    private bubbleDown(index: number) {
+        const length = this.heap.length;
+        while (true) {
+            let left = 2 * index + 1;
+            let right = 2 * index + 2;
+            let smallest = index;
+
+            if (left < length && this.compare(this.heap[left], this.heap[smallest]) < 0)
+                smallest = left;
+            if (right < length && this.compare(this.heap[right], this.heap[smallest]) < 0)
+                smallest = right;
+            if (smallest !== index) {
+                [this.heap[index], this.heap[smallest]] = [this.heap[smallest], this.heap[index]];
+                index = smallest;
+            } else break;
+        }
+    }
+}
+
+const minimumPairRemoval = (nums: number[]): number => {
     const n = nums.length;
-    if (n <= 1) 
-        return 0;
 
-    const a = nums.slice();
+    // Doubly linked list pointers (by index)
+    const prevIndex = Array.from({ length: n }, (_, i) => i - 1);  // previous element index
+    const nextIndex = Array.from({ length: n }, (_, i) => i + 1);  // next element index
+    prevIndex.push(n - 1); // padding for ease
+    nextIndex[n - 1] = -1;
+    nextIndex.push(-1);
 
-    const left = new Array<number>(n).fill(-1);
-    const right = new Array<number>(n).fill(-1);
+    console.log(prevIndex, nextIndex);
 
-    for (let i = 0; i < n; i++) {
-        left[i] = i - 1;
-        right[i] = (i + 1 < n) ? i + 1 : -1;
+    let badPairs = 0;
+
+    // Min-heap storing [sum, rightIndex] for adjacent pairs
+    const minHeap = new MinHeap<[number, number]>((a, b) => {
+        if (a[0] !== b[0]) return a[0] - b[0];
+        return a[1] - b[1]; // Tie-break using index
+    });
+
+    // Initialize heap and count decreasing adjacent pairs
+    for (let i = 1; i < n; i++) {
+        if (nums[i - 1] > nums[i]) badPairs++;
+        minHeap.push([nums[i - 1] + nums[i], i]);
     }
 
-    class MinHeap {
-        h: [number, number][];
+    let removalCount = 0;
 
-        constructor() { 
-            this.h = [];
+    // Process while there are still decreasing pairs
+    while (badPairs > 0 && minHeap.size() > 0) {
+        const [pairSum, right] = minHeap.pop()!;
+        const left = prevIndex[right];
+
+        // Skip outdated entries
+        if (left === -1 || nums[left] + nums[right] !== pairSum) continue;
+
+        const leftLeft = prevIndex[left];
+        const rightRight = nextIndex[right];
+
+        // Connect left and rightRight directly (remove right)
+        nextIndex[left] = rightRight;
+        if (rightRight !== -1) prevIndex[rightRight] = left;
+
+        // Update bad pair count (left, right was a decreasing pair)
+        if (nums[left] > nums[right]) badPairs--;
+
+        // Update left neighbor if it exists
+        if (leftLeft !== -1) {
+            const wasBad = nums[leftLeft] > nums[left] ? 1 : 0;
+            const nowBad = nums[leftLeft] > pairSum ? 1 : 0;
+            badPairs += nowBad - wasBad;
+
+            minHeap.push([nums[leftLeft] + pairSum, left]);
         }
-        push(x: [number, number]) {
-            const h = this.h;
-            h.push(x);
-            let i = h.length - 1;
-            while (i > 0) {
-                const p = (i - 1) >> 1;
-                if (h[p][0] < h[i][0] || (h[p][0] === h[i][0] && h[p][1] <= h[i][1])) 
-                    break;
-                [h[p], h[i]] = [h[i], h[p]];
-                i = p;
-            }
+
+        // Update right neighbor if it exists
+        if (rightRight !== -1) {
+            const wasBad = nums[right] > nums[rightRight] ? 1 : 0;
+            const nowBad = pairSum > nums[rightRight] ? 1 : 0;
+            badPairs += nowBad - wasBad;
+
+            minHeap.push([nums[rightRight] + pairSum, rightRight]);
         }
-        pop(): [number, number] {
-            const h = this.h;
-            const res = h[0];
-            const last = h.pop() as [number, number];
-            if (h.length) {
-                h[0] = last;
-                let i = 0;
-                while (true) {
-                    let l = i * 2 + 1, r = l + 1, s = i;
 
-                    if (l < h.length && (h[l][0] < h[s][0] || (h[l][0] === h[s][0] && h[l][1] < h[s][1]))) 
-                        s = l;
-                    if (r < h.length && (h[r][0] < h[s][0] || (h[r][0] === h[s][0] && h[r][1] < h[s][1]))) 
-                        s = r;
+        // Replace left value with merged value, mark right as removed
+        nums[left] = pairSum;
+        nums[right] = Infinity;
 
-                    if (s === i) 
-                        break;
-                    [h[s], h[i]] = [h[i], h[s]];
-                    i = s;
-                }
-            }
-            return res;
-        }
-        size(): number {
-            return this.h.length;
-        }
+        removalCount++;
     }
 
-    const heap = new MinHeap();
-    for (let i = 0; i < n - 1; i++) {
-        heap.push([a[i] + a[i + 1], i]);
-    }
-
-    let rest = 0;
-    for (let i = 0; i < n - 1; i++) {
-        if (a[i] > a[i + 1]) 
-            rest++;
-    }
-
-    let ans = 0;
-
-    while (rest > 0) {
-        const [v, i] = heap.pop();
-        const r = right[i];
-
-        if (r === -1) 
-            continue;
-        if (left[r] !== i) 
-            continue;
-        if (a[i] + a[r] !== v) 
-            continue;
-
-        const li = left[i];
-        const rr = right[r];
-
-        if (li !== -1 && a[li] > a[i]) 
-            rest--;
-        if (a[i] > a[r]) 
-            rest--;
-        if (rr !== -1 && a[r] > a[rr]) 
-            rest--;
-
-        a[i] = v;
-
-        right[i] = rr;
-        if (rr !== -1) 
-            left[rr] = i;
-        left[r] = right[r] = -1;
-
-        if (li !== -1 && a[li] > a[i]) 
-            rest++;
-        if (rr !== -1 && a[i] > a[rr]) 
-            rest++;
-
-        if (li !== -1) 
-            heap.push([a[li] + a[i], li]);
-        if (rr !== -1) 
-            heap.push([a[i] + a[rr], i]);
-        ans++;
-    }
-
-    return ans;
+    return removalCount;
 }

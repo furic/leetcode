@@ -1,126 +1,177 @@
-class MinHeap<T> {
-    private heap: T[] = [];
-    constructor(private compare: (a: T, b: T) => number) { }
-
-    push(value: T) {
-        this.heap.push(value);
-        this.bubbleUp(this.heap.length - 1);
-    }
-
-    pop(): T | undefined {
-        if (this.size() === 0) return undefined;
-        const top = this.heap[0];
-        const last = this.heap.pop()!;
-        if (this.size() > 0) {
-            this.heap[0] = last;
-            this.bubbleDown(0);
-        }
-        return top;
-    }
-
-    size(): number {
-        return this.heap.length;
-    }
-
-    private bubbleUp(index: number) {
-        while (index > 0) {
-            const parentIndex = Math.floor((index - 1) / 2);
-            if (this.compare(this.heap[index], this.heap[parentIndex]) < 0) {
-                [this.heap[index], this.heap[parentIndex]] = [this.heap[parentIndex], this.heap[index]];
-                index = parentIndex;
-            } else break;
-        }
-    }
-
-    private bubbleDown(index: number) {
-        const length = this.heap.length;
-        while (true) {
-            let left = 2 * index + 1;
-            let right = 2 * index + 2;
-            let smallest = index;
-
-            if (left < length && this.compare(this.heap[left], this.heap[smallest]) < 0)
-                smallest = left;
-            if (right < length && this.compare(this.heap[right], this.heap[smallest]) < 0)
-                smallest = right;
-            if (smallest !== index) {
-                [this.heap[index], this.heap[smallest]] = [this.heap[smallest], this.heap[index]];
-                index = smallest;
-            } else break;
-        }
-    }
-}
-
+/**
+ * Finds minimum operations to make array non-decreasing by merging adjacent pairs
+ * Strategy: Use min-heap to always merge smallest sum pairs, track inversions until array is sorted
+ * Maintains linked list structure as elements are merged
+ */
 const minimumPairRemoval = (nums: number[]): number => {
-    const n = nums.length;
+    const arrayLength = nums.length;
+    if (arrayLength <= 1) return 0;
 
-    // Doubly linked list pointers (by index)
-    const prevIndex = Array.from({ length: n }, (_, i) => i - 1);  // previous element index
-    const nextIndex = Array.from({ length: n }, (_, i) => i + 1);  // next element index
-    prevIndex.push(n - 1); // padding for ease
-    nextIndex[n - 1] = -1;
-    nextIndex.push(-1);
+    // Working copy of array that gets modified during merges
+    const workingArray = nums.slice();
 
-    console.log(prevIndex, nextIndex);
+    // Doubly-linked list to track which elements are adjacent after merges
+    // leftNeighbor[i] = index of element to the left of i (-1 if none)
+    // rightNeighbor[i] = index of element to the right of i (-1 if none)
+    const leftNeighbor = new Array<number>(arrayLength).fill(-1);
+    const rightNeighbor = new Array<number>(arrayLength).fill(-1);
 
-    let badPairs = 0;
-
-    // Min-heap storing [sum, rightIndex] for adjacent pairs
-    const minHeap = new MinHeap<[number, number]>((a, b) => {
-        if (a[0] !== b[0]) return a[0] - b[0];
-        return a[1] - b[1]; // Tie-break using index
-    });
-
-    // Initialize heap and count decreasing adjacent pairs
-    for (let i = 1; i < n; i++) {
-        if (nums[i - 1] > nums[i]) badPairs++;
-        minHeap.push([nums[i - 1] + nums[i], i]);
+    // Initialize linked list: each element has left and right neighbors
+    for (let i = 0; i < arrayLength; i++) {
+        leftNeighbor[i] = i - 1;
+        rightNeighbor[i] = (i + 1 < arrayLength) ? i + 1 : -1;
     }
 
-    let removalCount = 0;
+    /**
+     * Min-heap that stores pairs as [sum, leftIndex]
+     * Orders by sum (ascending), with leftmost pair as tiebreaker
+     */
+    class MinPairHeap {
+        private heap: [number, number][];
 
-    // Process while there are still decreasing pairs
-    while (badPairs > 0 && minHeap.size() > 0) {
-        const [pairSum, right] = minHeap.pop()!;
-        const left = prevIndex[right];
-
-        // Skip outdated entries
-        if (left === -1 || nums[left] + nums[right] !== pairSum) continue;
-
-        const leftLeft = prevIndex[left];
-        const rightRight = nextIndex[right];
-
-        // Connect left and rightRight directly (remove right)
-        nextIndex[left] = rightRight;
-        if (rightRight !== -1) prevIndex[rightRight] = left;
-
-        // Update bad pair count (left, right was a decreasing pair)
-        if (nums[left] > nums[right]) badPairs--;
-
-        // Update left neighbor if it exists
-        if (leftLeft !== -1) {
-            const wasBad = nums[leftLeft] > nums[left] ? 1 : 0;
-            const nowBad = nums[leftLeft] > pairSum ? 1 : 0;
-            badPairs += nowBad - wasBad;
-
-            minHeap.push([nums[leftLeft] + pairSum, left]);
+        constructor() { 
+            this.heap = [];
         }
 
-        // Update right neighbor if it exists
-        if (rightRight !== -1) {
-            const wasBad = nums[right] > nums[rightRight] ? 1 : 0;
-            const nowBad = pairSum > nums[rightRight] ? 1 : 0;
-            badPairs += nowBad - wasBad;
-
-            minHeap.push([nums[rightRight] + pairSum, rightRight]);
+        push(pair: [number, number]): void {
+            const h = this.heap;
+            h.push(pair);
+            
+            // Bubble up
+            let currentIndex = h.length - 1;
+            while (currentIndex > 0) {
+                const parentIndex = (currentIndex - 1) >> 1;
+                
+                // Check if parent is smaller or equal (heap property satisfied)
+                if (h[parentIndex][0] < h[currentIndex][0] || 
+                    (h[parentIndex][0] === h[currentIndex][0] && h[parentIndex][1] <= h[currentIndex][1])) {
+                    break;
+                }
+                
+                // Swap with parent
+                [h[parentIndex], h[currentIndex]] = [h[currentIndex], h[parentIndex]];
+                currentIndex = parentIndex;
+            }
         }
 
-        // Replace left value with merged value, mark right as removed
-        nums[left] = pairSum;
-        nums[right] = Infinity;
+        pop(): [number, number] {
+            const h = this.heap;
+            const minPair = h[0];
+            const lastPair = h.pop() as [number, number];
+            
+            if (h.length > 0) {
+                h[0] = lastPair;
+                
+                // Bubble down
+                let currentIndex = 0;
+                while (true) {
+                    const leftChild = currentIndex * 2 + 1;
+                    const rightChild = leftChild + 1;
+                    let smallest = currentIndex;
 
-        removalCount++;
+                    // Check left child
+                    if (leftChild < h.length && 
+                        (h[leftChild][0] < h[smallest][0] || 
+                         (h[leftChild][0] === h[smallest][0] && h[leftChild][1] < h[smallest][1]))) {
+                        smallest = leftChild;
+                    }
+                    
+                    // Check right child
+                    if (rightChild < h.length && 
+                        (h[rightChild][0] < h[smallest][0] || 
+                         (h[rightChild][0] === h[smallest][0] && h[rightChild][1] < h[smallest][1]))) {
+                        smallest = rightChild;
+                    }
+
+                    // Heap property satisfied
+                    if (smallest === currentIndex) break;
+                    
+                    // Swap with smallest child
+                    [h[smallest], h[currentIndex]] = [h[currentIndex], h[smallest]];
+                    currentIndex = smallest;
+                }
+            }
+            
+            return minPair;
+        }
+
+        size(): number {
+            return this.heap.length;
+        }
     }
 
-    return removalCount;
-}
+    // Build initial heap with all adjacent pairs
+    const minPairHeap = new MinPairHeap();
+    for (let i = 0; i < arrayLength - 1; i++) {
+        minPairHeap.push([workingArray[i] + workingArray[i + 1], i]);
+    }
+
+    // Count initial inversions (positions where array[i] > array[i+1])
+    // Goal: reduce this to 0 to make array non-decreasing
+    let remainingInversions = 0;
+    for (let i = 0; i < arrayLength - 1; i++) {
+        if (workingArray[i] > workingArray[i + 1]) {
+            remainingInversions++;
+        }
+    }
+
+    let operationCount = 0;
+
+    // Keep merging pairs until array is non-decreasing
+    while (remainingInversions > 0) {
+        const [pairSum, leftIndex] = minPairHeap.pop();
+        const rightIndex = rightNeighbor[leftIndex];
+
+        // Validation checks (pair might be stale from earlier merges)
+        if (rightIndex === -1) continue; // Right element was already merged
+        if (leftNeighbor[rightIndex] !== leftIndex) continue; // Not adjacent anymore
+        if (workingArray[leftIndex] + workingArray[rightIndex] !== pairSum) continue; // Values changed
+
+        // Get neighbors of the pair being merged
+        const leftOfPair = leftNeighbor[leftIndex];
+        const rightOfRight = rightNeighbor[rightIndex];
+
+        // Subtract inversions that will be removed by this merge
+        if (leftOfPair !== -1 && workingArray[leftOfPair] > workingArray[leftIndex]) {
+            remainingInversions--;
+        }
+        if (workingArray[leftIndex] > workingArray[rightIndex]) {
+            remainingInversions--;
+        }
+        if (rightOfRight !== -1 && workingArray[rightIndex] > workingArray[rightOfRight]) {
+            remainingInversions--;
+        }
+
+        // Perform the merge: replace leftIndex with merged sum
+        workingArray[leftIndex] = pairSum;
+
+        // Update linked list: remove rightIndex, connect leftIndex to rightOfRight
+        rightNeighbor[leftIndex] = rightOfRight;
+        if (rightOfRight !== -1) {
+            leftNeighbor[rightOfRight] = leftIndex;
+        }
+        
+        // Mark rightIndex as removed
+        leftNeighbor[rightIndex] = rightNeighbor[rightIndex] = -1;
+
+        // Add inversions created by the merge
+        if (leftOfPair !== -1 && workingArray[leftOfPair] > workingArray[leftIndex]) {
+            remainingInversions++;
+        }
+        if (rightOfRight !== -1 && workingArray[leftIndex] > workingArray[rightOfRight]) {
+            remainingInversions++;
+        }
+
+        // Add new pairs involving the merged element to heap
+        if (leftOfPair !== -1) {
+            minPairHeap.push([workingArray[leftOfPair] + workingArray[leftIndex], leftOfPair]);
+        }
+        if (rightOfRight !== -1) {
+            minPairHeap.push([workingArray[leftIndex] + workingArray[rightOfRight], leftIndex]);
+        }
+        
+        operationCount++;
+    }
+
+    return operationCount;
+};

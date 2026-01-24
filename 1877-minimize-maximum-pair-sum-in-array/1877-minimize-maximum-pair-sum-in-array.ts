@@ -8,7 +8,7 @@ const minPairSum = (nums: number[]): number => {
     nums.sort((a, b) => a - b);
     
     const arrayLength = nums.length;
-    let minMaxPairSum = 0;
+    let minMaxPairSum = Number.MIN_SAFE_INTEGER;
     
     // Pair smallest with largest, second smallest with second largest, etc.
     // This balances the pair sums and minimizes the maximum

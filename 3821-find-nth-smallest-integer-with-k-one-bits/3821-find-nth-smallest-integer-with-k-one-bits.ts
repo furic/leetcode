@@ -15,7 +15,7 @@ const nthSmallest = (n: number, k: number): number => {
         let count = 0n;
         let onesUsed = 0;
         
-        for (let bit = 50; bit >= 0; bit--) {  // Fixed: was 49
+        for (let bit = 50; bit >= 0; bit--) {
             if (x & (1n << BigInt(bit))) {
                 const onesNeeded = k - onesUsed;
                 if (onesNeeded >= 0 && onesNeeded <= bit) {
@@ -33,7 +33,7 @@ const nthSmallest = (n: number, k: number): number => {
     
     const target = BigInt(n);
     let lo = 1n;
-    let hi = 1n << 50n;  // Fixed: answer < 2^50
+    let hi = 1n << 50n;
     
     while (lo < hi) {
         const mid = (lo + hi) / 2n;

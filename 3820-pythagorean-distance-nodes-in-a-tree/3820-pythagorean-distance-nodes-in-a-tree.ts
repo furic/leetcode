@@ -1,75 +1,102 @@
-function specialNodes(n: number, edges: number[][], x: number, y: number, z: number): number {
-    const adj:number[][] = Array.from({ length: n }, () => []);
-    for(const [u, v] of edges) {
-        adj[u].push(v);
-        adj[v].push(u);
+/**
+ * Counts special nodes in a tree where distances to three targets form Pythagorean triplets
+ * A node is special if its distances (dx, dy, dz) to targets (x, y, z) satisfy: a² + b² = c²
+ * Strategy: BFS from each target to compute all distances, then check Pythagorean condition
+ */
+const specialNodes = (
+    numNodes: number, 
+    edges: number[][], 
+    targetX: number, 
+    targetY: number, 
+    targetZ: number
+): number => {
+    // Build adjacency list representation of the tree
+    const adjacencyList: number[][] = Array.from({ length: numNodes }, () => []);
+    
+    for (const [nodeU, nodeV] of edges) {
+        adjacencyList[nodeU].push(nodeV);
+        adjacencyList[nodeV].push(nodeU);
     }
 
-    const getDistances = (startNode: number): number[] => {
-        const dists = new Int32Array(n).fill(-1);
-        dists[startNode] = 0;
+    /**
+     * Computes shortest distances from a start node to all other nodes using BFS
+     * @param startNode - source node for distance calculations
+     * @returns array where distances[i] = distance from startNode to node i
+     */
+    const computeDistancesFromNode = (startNode: number): number[] => {
+        const distances = new Int32Array(numNodes).fill(-1);
+        distances[startNode] = 0;
+        
+        // BFS queue with index-based reading (avoids O(n) shift operations)
         const queue: number[] = [startNode];
-        let head = 0;
+        let queueReadIndex = 0;
 
-        while(head < queue.length) {
-            const u = queue[head++];
-            const d = dists[u];
+        while (queueReadIndex < queue.length) {
+            const currentNode = queue[queueReadIndex++];
+            const currentDistance = distances[currentNode];
 
-            for(const v of adj[u]) {
-                if(dists[v] === -1) {
-                    dists[v] = d + 1;
-                    queue.push(v);
+            for (const neighbor of adjacencyList[currentNode]) {
+                if (distances[neighbor] === -1) {
+                    distances[neighbor] = currentDistance + 1;
+                    queue.push(neighbor);
                 }
             }
         }
-        return dists as unknown as number[];
+        
+        return distances as unknown as number[];
     };
 
-    const distX = getDistances(x);
-    const distY = getDistances(y);
-    const distZ = getDistances(z);
+    // Compute distances from each of the three target nodes to all nodes
+    const distancesFromX = computeDistancesFromNode(targetX);
+    const distancesFromY = computeDistancesFromNode(targetY);
+    const distancesFromZ = computeDistancesFromNode(targetZ);
 
-    let count = 0;
+    let specialNodeCount = 0;
 
-    for(let i = 0; i < n; i++) {
-        const d1 = distX[i];
-        const d2 = distY[i];
-        const d3 = distZ[i];
+    // Check each node to see if its distances form a Pythagorean triplet
+    for (let node = 0; node < numNodes; node++) {
+        const distToX = distancesFromX[node];
+        const distToY = distancesFromY[node];
+        const distToZ = distancesFromZ[node];
 
-        let a, b, c;
-        if(d1 <= d2 && d1 <= d3) {
-            a = d1;
-            if(d2 <= d3) {
-                b = d2;
-                c = d3;
+        // Manually sort three distances (faster than array.sort for 3 elements)
+        // After sorting: smallest ≤ middle ≤ largest
+        let smallest, middle, largest;
+        
+        if (distToX <= distToY && distToX <= distToZ) {
+            smallest = distToX;
+            if (distToY <= distToZ) {
+                middle = distToY;
+                largest = distToZ;
             } else {
-                b = d3;
-                c = d2;
+                middle = distToZ;
+                largest = distToY;
             }
-        } else if(d2 <= d1 && d2 <= d3) {
-            a = d2;
-            if(d1 <= d3) {
-                b = d1;
-                c = d3;
+        } else if (distToY <= distToX && distToY <= distToZ) {
+            smallest = distToY;
+            if (distToX <= distToZ) {
+                middle = distToX;
+                largest = distToZ;
             } else {
-                b = d3;
-                c = d1;
+                middle = distToZ;
+                largest = distToX;
             }
-        }else {
-            a = d3;
-            if(d1 <= d2) {
-                b = d1;
-                c = d2;
+        } else {
+            smallest = distToZ;
+            if (distToX <= distToY) {
+                middle = distToX;
+                largest = distToY;
             } else {
-                b = d2;
-                c = d1;
+                middle = distToY;
+                largest = distToX;
             }
         }
 
-        if(a * a + b * b === c * c) {
-            count++;
+        // Check Pythagorean theorem: a² + b² = c²
+        if (smallest * smallest + middle * middle === largest * largest) {
+            specialNodeCount++;
         }
     }
 
-    return count;
+    return specialNodeCount;
 };

@@ -1,48 +1,74 @@
-const specialNodes = (n: number, edges: number[][], x: number, y: number, z: number): number => {
-    // Build adjacency list
-    const adj: number[][] = Array.from({ length: n }, () => []);
-    for (const [u, v] of edges) {
-        adj[u].push(v);
-        adj[v].push(u);
-    }
+/**
+ * Counts special nodes in a tree where distances to three targets form Pythagorean triplets
+ * A node is special if its distances (dx, dy, dz) to targets (x, y, z) satisfy: a² + b² = c²
+ * Strategy: BFS from each target to compute all distances, then check Pythagorean condition
+ */
+const specialNodes = (
+    numNodes: number, 
+    edges: number[][], 
+    targetX: number, 
+    targetY: number, 
+    targetZ: number
+): number => {
+    // Build adjacency list representation of the tree
+    const adjacencyList: number[][] = Array.from({ length: numNodes }, () => []);
     
-    // BFS to find distances from source to all nodes
-    const bfs = (start: number): number[] => {
-        const dist = new Array(n).fill(-1);
-        const queue: number[] = [start];
-        dist[start] = 0;
-        let head = 0;
+    for (const [nodeU, nodeV] of edges) {
+        adjacencyList[nodeU].push(nodeV);
+        adjacencyList[nodeV].push(nodeU);
+    }
+
+    /**
+     * Computes shortest distances from a start node to all other nodes using BFS
+     * @param startNode - source node for distance calculations
+     * @returns array where distances[i] = distance from startNode to node i
+     */
+    const computeDistancesFromNode = (startNode: number): number[] => {
+        const distances = new Int32Array(numNodes).fill(-1);
+        distances[startNode] = 0;
         
-        while (head < queue.length) {
-            const u = queue[head++];
-            for (const v of adj[u]) {
-                if (dist[v] === -1) {
-                    dist[v] = dist[u] + 1;
-                    queue.push(v);
+        // BFS queue with index-based reading (avoids O(n) shift operations)
+        const queue: number[] = [startNode];
+        let queueReadIndex = 0;
+
+        while (queueReadIndex < queue.length) {
+            const currentNode = queue[queueReadIndex++];
+            const currentDistance = distances[currentNode];
+
+            // Visit all unvisited neighbors
+            for (const neighbor of adjacencyList[currentNode]) {
+                if (distances[neighbor] === -1) {
+                    distances[neighbor] = currentDistance + 1;
+                    queue.push(neighbor);
                 }
             }
         }
-        return dist;
+        
+        return distances as unknown as number[];
     };
-    
-    // Get distances from x, y, z to all nodes
-    const distX = bfs(x);
-    const distY = bfs(y);
-    const distZ = bfs(z);
-    
-    // Check if three distances form a Pythagorean triplet
-    const isPythagorean = (a: number, b: number, c: number): boolean => {
-        const [d1, d2, d3] = [a, b, c].sort((x, y) => x - y);
-        return d1 * d1 + d2 * d2 === d3 * d3;
-    };
-    
-    // Count special nodes
-    let count = 0;
-    for (let i = 0; i < n; i++) {
-        if (isPythagorean(distX[i], distY[i], distZ[i])) {
-            count++;
+
+    // Compute distances from each of the three target nodes to all nodes
+    const distancesFromX = computeDistancesFromNode(targetX);
+    const distancesFromY = computeDistancesFromNode(targetY);
+    const distancesFromZ = computeDistancesFromNode(targetZ);
+
+    let specialNodeCount = 0;
+
+    // Check each node to see if its distances form a Pythagorean triplet
+    for (let node = 0; node < numNodes; node++) {
+        const distToX = distancesFromX[node];
+        const distToY = distancesFromY[node];
+        const distToZ = distancesFromZ[node];
+
+        // Sort the three distances in ascending order: a ≤ b ≤ c
+        const sortedDistances = [distToX, distToY, distToZ].sort((a, b) => a - b);
+        const [smallest, middle, largest] = sortedDistances;
+
+        // Check Pythagorean theorem: a² + b² = c²
+        if (smallest * smallest + middle * middle === largest * largest) {
+            specialNodeCount++;
         }
     }
-    
-    return count;
+
+    return specialNodeCount;
 };

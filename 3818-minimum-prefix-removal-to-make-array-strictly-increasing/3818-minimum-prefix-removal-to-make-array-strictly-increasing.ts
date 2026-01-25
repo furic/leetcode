@@ -1,7 +1,21 @@
+/**
+ * Finds minimum prefix length to remove so remaining array is strictly increasing
+ * Strategy: Find longest strictly increasing suffix from the end, remove everything before it
+ */
 const minimumPrefixLength = (nums: number[]): number => {
-    let answer = 0;
-    for (let i = 1; i < nums.length; i++) {
-        if (nums[i] <= nums[i - 1]) answer = i;
+    // Find length of longest strictly increasing suffix
+    let strictlyIncreasingSuffixLength = 1;
+    
+    // Scan backwards from second-to-last element
+    // Stop when we find a violation (nums[i] >= nums[i+1])
+    for (let i = nums.length - 2; i >= 0; i--) {
+        if (nums[i] >= nums[i + 1]) {
+            // Found violation: nums[i] is not strictly less than next element
+            break;
+        }
+        strictlyIncreasingSuffixLength++;
     }
-    return answer;
+    
+    // Prefix to remove = total length - valid suffix length
+    return nums.length - strictlyIncreasingSuffixLength;
 };

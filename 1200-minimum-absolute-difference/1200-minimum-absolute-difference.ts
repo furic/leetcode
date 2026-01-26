@@ -1,11 +1,16 @@
-function minimumAbsDifference(arr: number[]) {
+function minimumAbsDifference(arr: number[]): number[][] {
     arr.sort((a, b) => a - b);
-    let i = 1, diff = Infinity;
-    while (i < arr.length) diff = Math.min(diff, arr[i] - arr[i++ - 1]);
-
-    const res: [number, number][] = [];
-    for (i = 1; i < arr.length; i++) {
-        if (arr[i] - arr[i - 1] === diff) res.push([arr[i - 1], arr[i]]);
+    let result: number[][] = []
+    let minimumAbs = Number.MAX_SAFE_INTEGER;
+    for (let i = 1; i < arr.length; i++) {
+        const abs = Math.abs(arr[i - 1] - arr[i])
+        if (minimumAbs > abs) {
+            result = []
+            minimumAbs = abs;
+        } 
+        if (minimumAbs === abs) {
+            result.push([arr[i - 1], arr[i]])
+        }
     }
-    return res;
-}
+    return result;
+};

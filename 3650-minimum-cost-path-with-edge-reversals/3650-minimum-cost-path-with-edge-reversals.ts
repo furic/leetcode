@@ -1,67 +1,55 @@
-function minCost(n: number, edges: number[][]): number {
-    const graph: Array<Array<[number, number]>> = Array.from({ length: n }, () => []);
-    for (const [u, v, w] of edges) {
-        graph[u].push([v, w]);
-        graph[v].push([u, 2 * w]);
+/**
+ * Finds minimum cost path from node 0 to node n-1 with edge reversal option
+ * Strategy: Model reversed edges as separate edges with 2× cost, then use Dijkstra's algorithm
+ * Each edge u→v generates two graph edges:
+ *   - Forward: u→v (cost = original weight)
+ *   - Reverse: v→u (cost = 2× original weight, representing switch usage)
+ */
+const minCost = (n: number, edges: number[][]): number => {
+    // Build adjacency list with both forward and reverse edges
+    const adjacencyList: [number, number][][] = Array.from({ length: n }, () => []);
+    const minCostToNode: number[] = Array.from({ length: n }, () => Infinity);
+
+    // For each directed edge u→v with cost w:
+    // - Add forward edge u→v with cost w
+    // - Add reverse edge v→u with cost 2w (using the switch)
+    for (const [fromNode, toNode, cost] of edges) {
+        adjacencyList[fromNode].push([toNode, cost]);           // Normal direction
+        adjacencyList[toNode].push([fromNode, 2 * cost]);       // Reversed (2× cost)
     }
 
-    class MinHeap {
-        h: Array<[number, number]> = [];
-        less(a: [number, number], b: [number, number]): boolean {
-            return a[0] < b[0] || (a[0] === b[0] && a[1] < b[1]);
+    // Min-heap priority queue: [node, totalCost]
+    // Ordered by totalCost (ascending)
+    const priorityQueue = new PriorityQueue<[number, number]>((a, b) => {
+        const [nodeA, costA] = a;
+        const [nodeB, costB] = b;
+        return costA - costB;
+    });
+
+    // Start Dijkstra's algorithm from node 0
+    priorityQueue.enqueue([0, 0]);
+    minCostToNode[0] = 0;
+
+    while (priorityQueue.size()) {
+        const [currentNode, currentCost] = priorityQueue.dequeue();
+
+        // Early exit: reached destination
+        if (currentNode === n - 1) {
+            return currentCost;
         }
-        push(x: [number, number]) {
-            const h = this.h;
-            h.push(x);
-            let i = h.length - 1;
-            while (i > 0) {
-                const p = (i - 1) >> 1;
-                if (this.less(h[p], h[i])) 
-                    break;
-                [h[p], h[i]] = [h[i], h[p]];
-                i = p;
-            }
-        }
-        pop(): [number, number] {
-            const h = this.h;
-            const res = h[0];
-            const last = h.pop() as [number, number];
-            if (h.length) {
-                h[0] = last;
-                let i = 0;
-                while (true) {
-                    let l = i * 2 + 1, r = l + 1, s = i;
-                    if (l < h.length && this.less(h[l], h[s])) s = l;
-                    if (r < h.length && this.less(h[r], h[s])) s = r;
-                    if (s === i) 
-                        break;
-                    [h[s], h[i]] = [h[i], h[s]];
-                    i = s;
-                }
-            }
-            return res;
-        }
-        size(): number { return this.h.length; }
-    }
 
-    const ans: number[] = new Array(n).fill(Number.POSITIVE_INFINITY);
-    ans[0] = 0;
-
-    const pq = new MinHeap();
-    pq.push([0, 0]);
-
-    while (pq.size()) {
-        const [weight, node] = pq.pop();
-        if (weight > ans[node]) 
-            continue;
-
-        for (const [nd, wt] of graph[node]) {
-            if (wt + weight < ans[nd]) {
-                ans[nd] = wt + weight;
-                pq.push([ans[nd], nd]);
+        // Explore all neighbors
+        for (const [neighbor, edgeCost] of adjacencyList[currentNode]) {
+            const newCost = currentCost + edgeCost;
+            
+            // Relaxation: found a better path to neighbor
+            if (newCost < minCostToNode[neighbor]) {
+                minCostToNode[neighbor] = newCost;
+                priorityQueue.enqueue([neighbor, newCost]);
             }
         }
     }
 
-    return ans[n - 1] === Number.POSITIVE_INFINITY ? -1 : ans[n - 1];
+    // No path exists from 0 to n-1
+    return -1;
 };

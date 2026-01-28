@@ -23,7 +23,7 @@ const minCost = (grid: number[][], maxTeleports: number): number => {
 
     // DP table: minCostTo[i][j] = minimum cost to reach cell (i,j)
     const minCostTo: number[][] = Array.from({ length: numRows }, 
-        () => Array(numCols).fill(Number.MAX_SAFE_INTEGER)
+        () => Array(numCols).fill(Infinity)
     );
     minCostTo[0][0] = 0; // Start position has 0 cost
 

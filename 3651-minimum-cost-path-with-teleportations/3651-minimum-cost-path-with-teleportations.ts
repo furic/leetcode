@@ -64,7 +64,7 @@ const minCost = (grid: number[][], maxTeleports: number): number => {
 
         // Forward pass: within each value group, propagate minimum cost
         let currentValue = -1;
-        let groupMinimumCost = Number.MAX_SAFE_INTEGER;
+        let groupMinimumCost = Infinity;
         
         for (let idx = 0; idx < numCells; idx++) {
             const [cellValue, row, col] = sortedCells[idx];

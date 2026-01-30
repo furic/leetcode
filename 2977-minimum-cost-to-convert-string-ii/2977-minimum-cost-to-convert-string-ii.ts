@@ -1,86 +1,125 @@
-function minimumCost(
-  source: string,
-  target: string,
-  original: string[],
-  changed: string[],
-  cost: number[]
-): number {
-  const n = source.length;
+/**
+ * Finds minimum cost to transform source to target using substring substitutions
+ * Strategy: 
+ * 1. Use Floyd-Warshall to find shortest transformation paths between all pattern pairs
+ * 2. Use DP where dp[i] = min cost to transform source[0..i-1] to target[0..i-1]
+ * 3. At each position, try all pattern lengths and find matching transformations
+ */
+const minimumCost = (
+    source: string,
+    target: string,
+    original: string[],
+    changed: string[],
+    cost: number[]
+): number => {
+    const stringLength = source.length;
 
-  // 1. Collect all unique patterns
-  const set = new Set<string>();
-  for (let s of original) set.add(s);
-  for (let s of changed) set.add(s);
+    // Step 1: Collect all unique patterns (substrings that can be transformed)
+    const uniquePatterns = new Set<string>();
+    for (const pattern of original) uniquePatterns.add(pattern);
+    for (const pattern of changed) uniquePatterns.add(pattern);
 
-  const patterns = Array.from(set);
-  const m = patterns.length;
+    const allPatterns = Array.from(uniquePatterns);
+    const numPatterns = allPatterns.length;
 
-  // map pattern -> index
-  const id = new Map<string, number>();
-  patterns.forEach((p, i) => id.set(p, i));
+    // Create pattern → index mapping for graph representation
+    const patternToIndex = new Map<string, number>();
+    allPatterns.forEach((pattern, index) => patternToIndex.set(pattern, index));
 
-  // 2. cost between patterns (Floyd–Warshall)
-  const dist: number[][] = Array.from({ length: m }, () =>
-    Array(m).fill(Infinity)
-  );
-  for (let i = 0; i < m; i++) dist[i][i] = 0;
-
-  // direct edges
-  for (let i = 0; i < original.length; i++) {
-    const u = id.get(original[i])!;
-    const v = id.get(changed[i])!;
-    dist[u][v] = Math.min(dist[u][v], cost[i]);
-  }
-
-  // all-pairs shortest path on pattern graph
-  for (let k = 0; k < m; k++) {
-    for (let i = 0; i < m; i++) {
-      if (dist[i][k] === Infinity) continue;
-      for (let j = 0; j < m; j++) {
-        if (dist[k][j] === Infinity) continue;
-        const nd = dist[i][k] + dist[k][j];
-        if (nd < dist[i][j]) dist[i][j] = nd;
-      }
-    }
-  }
-
-  // 3. group patterns by length for fast matching
-  const byLen = new Map<number, string[]>();
-  for (let p of patterns) {
-    const L = p.length;
-    if (!byLen.has(L)) byLen.set(L, []);
-    byLen.get(L)!.push(p);
-  }
-
-  // 4. DP on main string
-  const dp = Array(n + 1).fill(Infinity);
-  dp[0] = 0;
-
-  for (let i = 0; i < n; i++) {
-    if (dp[i] === Infinity) continue;
-
-    // case 1: no-op if chars already equal
-    if (source[i] === target[i]) {
-      dp[i + 1] = Math.min(dp[i + 1], dp[i]);
+    // Step 2: Build transformation cost graph and run Floyd-Warshall
+    // minTransformCost[i][j] = minimum cost to transform pattern i to pattern j
+    const minTransformCost: number[][] = Array.from({ length: numPatterns }, 
+        () => Array(numPatterns).fill(Infinity)
+    );
+    
+    // Base case: transforming pattern to itself costs 0
+    for (let i = 0; i < numPatterns; i++) {
+        minTransformCost[i][i] = 0;
     }
 
-    // case 2: try every possible pattern length
-    for (const [len, list] of byLen) {
-      if (i + len > n) continue;
-
-      const sSub = source.slice(i, i + len);
-      const tSub = target.slice(i, i + len);
-
-      const u = id.get(sSub);
-      const v = id.get(tSub);
-      if (u === undefined || v === undefined) continue;
-
-      const c = dist[u][v];
-      if (c !== Infinity) {
-        dp[i + len] = Math.min(dp[i + len], dp[i] + c);
-      }
+    // Add direct transformation costs (keep minimum if multiple exist)
+    for (let i = 0; i < original.length; i++) {
+        const fromPatternIndex = patternToIndex.get(original[i])!;
+        const toPatternIndex = patternToIndex.get(changed[i])!;
+        minTransformCost[fromPatternIndex][toPatternIndex] = Math.min(
+            minTransformCost[fromPatternIndex][toPatternIndex],
+            cost[i]
+        );
     }
-  }
 
-  return dp[n] === Infinity ? -1 : dp[n];
-}
+    // Floyd-Warshall: find shortest paths between all pattern pairs
+    for (let intermediate = 0; intermediate < numPatterns; intermediate++) {
+        for (let from = 0; from < numPatterns; from++) {
+            // Skip if no path to intermediate node
+            if (minTransformCost[from][intermediate] === Infinity) continue;
+            
+            for (let to = 0; to < numPatterns; to++) {
+                // Skip if no path from intermediate node
+                if (minTransformCost[intermediate][to] === Infinity) continue;
+                
+                // Check if going through intermediate is cheaper
+                const newDistance = minTransformCost[from][intermediate] + 
+                                   minTransformCost[intermediate][to];
+                if (newDistance < minTransformCost[from][to]) {
+                    minTransformCost[from][to] = newDistance;
+                }
+            }
+        }
+    }
+
+    // Step 3: Group patterns by length for efficient lookup during DP
+    const patternsByLength = new Map<number, string[]>();
+    for (const pattern of allPatterns) {
+        const patternLength = pattern.length;
+        if (!patternsByLength.has(patternLength)) {
+            patternsByLength.set(patternLength, []);
+        }
+        patternsByLength.get(patternLength)!.push(pattern);
+    }
+
+    // Step 4: DP on main string
+    // minCostUpTo[i] = minimum cost to transform source[0..i-1] to target[0..i-1]
+    const minCostUpTo = Array(stringLength + 1).fill(Infinity);
+    minCostUpTo[0] = 0; // Base case: empty prefix costs 0
+
+    for (let position = 0; position < stringLength; position++) {
+        // Skip if this position is unreachable
+        if (minCostUpTo[position] === Infinity) continue;
+
+        // Option 1: If characters already match, no transformation needed
+        if (source[position] === target[position]) {
+            minCostUpTo[position + 1] = Math.min(
+                minCostUpTo[position + 1],
+                minCostUpTo[position]
+            );
+        }
+
+        // Option 2: Try transforming a substring starting at current position
+        for (const [patternLength, patterns] of patternsByLength) {
+            // Check if pattern would exceed string bounds
+            if (position + patternLength > stringLength) continue;
+
+            // Extract substrings from source and target
+            const sourceSubstring = source.slice(position, position + patternLength);
+            const targetSubstring = target.slice(position, position + patternLength);
+
+            // Check if both substrings are valid patterns
+            const sourcePatternIndex = patternToIndex.get(sourceSubstring);
+            const targetPatternIndex = patternToIndex.get(targetSubstring);
+            if (sourcePatternIndex === undefined || targetPatternIndex === undefined) {
+                continue;
+            }
+
+            // Get transformation cost between these patterns
+            const transformCost = minTransformCost[sourcePatternIndex][targetPatternIndex];
+            if (transformCost !== Infinity) {
+                minCostUpTo[position + patternLength] = Math.min(
+                    minCostUpTo[position + patternLength],
+                    minCostUpTo[position] + transformCost
+                );
+            }
+        }
+    }
+
+    return minCostUpTo[stringLength] === Infinity ? -1 : minCostUpTo[stringLength];
+};

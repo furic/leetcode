@@ -1,15 +1,21 @@
-function isTrionic(nums: number[]): boolean {
-    let i = 0, n = nums.length;
+/**
+ * Checks if array is trionic (has three segments: increasing, decreasing, increasing)
+ * All segments must be strictly monotonic and non-empty
+ * Strategy: Greedily consume each segment, validate constraints at each step
+ */
+const isTrionic = (nums: number[]): boolean => {
+    let currentIndex = 0;
+    const arrayLength = nums.length;
 
-    // increasing sequence
-    while (i + 1 < n && nums[i] < nums[i + 1]) { i++; }
-    if (i === 0 || i === n - 1) return false;
+    // Phase 1: Consume strictly increasing segment
+    while (currentIndex + 1 < arrayLength && nums[currentIndex] < nums[currentIndex + 1]) { currentIndex++; }
+    if (currentIndex === 0 || currentIndex === arrayLength - 1) return false;
 
-    // decreasing sequence
-    while (i + 1 < n && nums[i] > nums[i + 1]) { i++; }
-    if (i === n - 1) return false;
+    // Phase 2: Consume strictly decreasing segment
+    while (currentIndex + 1 < arrayLength && nums[currentIndex] > nums[currentIndex + 1]) { currentIndex++; }
+    if (currentIndex === arrayLength - 1) return false;
 
-    // increasing sequence again
-    while (i + 1 < n && nums[i] < nums[i + 1]) { i++; }
-    return i === n - 1;
-}
+    // Phase 3: Consume strictly increasing segment
+    while (currentIndex + 1 < arrayLength && nums[currentIndex] < nums[currentIndex + 1]) { currentIndex++; }
+    return currentIndex === arrayLength - 1;
+};

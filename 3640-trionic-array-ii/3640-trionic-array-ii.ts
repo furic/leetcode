@@ -1,37 +1,56 @@
-function maxSumTrionic(nums: number[]): number {
-    const n = nums.length;
+/**
+ * Finds maximum sum of a trionic subarray (increasing → decreasing → increasing)
+ * Strategy: DP with three phases tracking best sum ending at each position
+ * - Phase 1: Strictly increasing segment
+ * - Phase 2: Phase 1 → strictly decreasing segment  
+ * - Phase 3: Phase 2 → strictly increasing segment (complete trionic)
+ */
+const maxSumTrionic = (nums: number[]): number => {
+    const arrayLength = nums.length;
 
-    const inc = Array(n).fill(-Infinity);
-    const incDec = Array(n).fill(-Infinity);
-    const incDecInc = Array(n).fill(-Infinity);
+    // DP arrays: max sum of each phase ending at index i
+    const phaseOneSum = Array(arrayLength).fill(-Infinity);    // Increasing only
+    const phaseTwoSum = Array(arrayLength).fill(-Infinity);    // Increasing → Decreasing
+    const phaseThreeSum = Array(arrayLength).fill(-Infinity);  // Increasing → Decreasing → Increasing
 
-    let ans = -Infinity;
+    let maxTrionicSum = -Infinity;
 
-    for (let i = 1; i < n; i++) {
-        // 1. Strictly increasing (l...p)
+    for (let i = 1; i < arrayLength; i++) {
+        // Phase 1: Strictly increasing segment (l...p)
         if (nums[i] > nums[i - 1]) {
-            // Start a new sequence or continue an existing increasing one
-            inc[i] = Math.max(nums[i - 1] + nums[i], inc[i - 1] + nums[i]);
+            // Either start new sequence with last 2 elements, or extend existing
+            phaseOneSum[i] = Math.max(
+                nums[i - 1] + nums[i],           // Start fresh
+                phaseOneSum[i - 1] + nums[i]     // Extend
+            );
         }
 
-        // 2. Strictly decreasing (p...q)
+        // Phase 2: Strictly decreasing segment (p...q)
         if (nums[i] < nums[i - 1]) {
-            // Must transition from Phase 1 OR continue Phase 2
-            const fromInc = inc[i - 1] !== -Infinity ? inc[i - 1] + nums[i] : -Infinity;
-            const cont = incDec[i - 1] !== -Infinity ? incDec[i - 1] + nums[i] : -Infinity;
-            incDec[i] = Math.max(fromInc, cont);
+            // Transition from Phase 1 or continue Phase 2
+            const transitionFromPhaseOne = phaseOneSum[i - 1] !== -Infinity
+                ? phaseOneSum[i - 1] + nums[i]
+                : -Infinity;
+            const continuePhaseTwo = phaseTwoSum[i - 1] !== -Infinity
+                ? phaseTwoSum[i - 1] + nums[i]
+                : -Infinity;
+            phaseTwoSum[i] = Math.max(transitionFromPhaseOne, continuePhaseTwo);
         }
 
-        // 3. Strictly increasing (q...r)
+        // Phase 3: Strictly increasing segment (q...r)
         if (nums[i] > nums[i - 1]) {
-            // Must transition from Phase 2 OR continue Phase 3
-            const fromDec = incDec[i - 1] !== -Infinity ? incDec[i - 1] + nums[i] : -Infinity;
-            const cont = incDecInc[i - 1] !== -Infinity ? incDecInc[i - 1] + nums[i] : -Infinity;
-            incDecInc[i] = Math.max(fromDec, cont);
+            // Transition from Phase 2 or continue Phase 3
+            const transitionFromPhaseTwo = phaseTwoSum[i - 1] !== -Infinity
+                ? phaseTwoSum[i - 1] + nums[i]
+                : -Infinity;
+            const continuePhaseThree = phaseThreeSum[i - 1] !== -Infinity
+                ? phaseThreeSum[i - 1] + nums[i]
+                : -Infinity;
+            phaseThreeSum[i] = Math.max(transitionFromPhaseTwo, continuePhaseThree);
         }
 
-        ans = Math.max(ans, incDecInc[i]);
+        maxTrionicSum = Math.max(maxTrionicSum, phaseThreeSum[i]);
     }
 
-    return ans;
-}
+    return maxTrionicSum;
+};

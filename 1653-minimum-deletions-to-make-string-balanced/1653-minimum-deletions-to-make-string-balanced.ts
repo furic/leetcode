@@ -1,16 +1,14 @@
 function minimumDeletions(s: string): number {
-    let res: number = 0;
-    let count: number = 0;
+    let aDels = 0;
+    let bDels = 0;
 
-    for (let c of s) {
-        if (c === 'b') {
-            count++;
+    for (let i = 0; i < s.length; i++) {
+        if (s[i] === 'a') {
+            bDels = Math.min(aDels, 1 + bDels);
         } else {
-            if (count > 0) {
-                res++;
-                count--;
-            }
+            aDels++;
         }
     }
-    return res;
+
+    return bDels;
 };

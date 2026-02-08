@@ -1,45 +1,42 @@
+/**
+ * Finds maximum score by selecting k pairs with strictly increasing indices
+ * Strategy: DP with memoization trying three choices at each state
+ * 1. Skip current nums1 element
+ * 2. Skip current nums2 element  
+ * 3. Take the pair and advance both indices
+ */
 const maxScore = (nums1: number[], nums2: number[], k: number): number => {
-    const n = nums1.length;
-    const m = nums2.length;
+    const nums1Length = nums1.length;
+    const nums2Length = nums2.length;
+    const memoization: (number | null)[] = Array(nums1Length * nums2Length * k).fill(null);
     
-    // dp[i][j] = max score with last pair at (i, j)
-    let dp: number[][] = Array.from({length: n}, () => Array(m).fill(-Infinity));
+    const IMPOSSIBLE = -1e15; // Large negative value for unreachable states
     
-    // Base case: first pair
-    for (let i = 0; i < n; i++) {
-        for (let j = 0; j < m; j++) {
-            dp[i][j] = nums1[i] * nums2[j];
-        }
-    }
-    
-    // For t = 2 to k pairs
-    for (let t = 2; t <= k; t++) {
-        // Build 2D prefix max of previous layer
-        const prefixMax: number[][] = Array.from({length: n}, () => Array(m).fill(-Infinity));
-        for (let i = 0; i < n; i++) {
-            for (let j = 0; j < m; j++) {
-                prefixMax[i][j] = dp[i][j];
-                if (i > 0) prefixMax[i][j] = Math.max(prefixMax[i][j], prefixMax[i - 1][j]);
-                if (j > 0) prefixMax[i][j] = Math.max(prefixMax[i][j], prefixMax[i][j - 1]);
-            }
-        }
+    const computeMaxScore = (index1: number, index2: number, pairsSelected: number): number => {
+        // Base case: selected exactly k pairs
+        if (pairsSelected === k) return 0;
         
-        const newDp: number[][] = Array.from({length: n}, () => Array(m).fill(-Infinity));
-        for (let i = t - 1; i < n; i++) {
-            for (let j = t - 1; j < m; j++) {
-                newDp[i][j] = prefixMax[i - 1][j - 1] + nums1[i] * nums2[j];
-            }
-        }
+        // Base case: reached end of either array
+        if (index1 === nums1Length || index2 === nums2Length) return IMPOSSIBLE;
         
-        dp = newDp;
-    }
+        // Pruning: check if enough elements remain
+        const remainingInNums1 = nums1Length - index1;
+        const remainingInNums2 = nums2Length - index2;
+        const remainingPossiblePairs = Math.min(remainingInNums1, remainingInNums2);
+        const pairsStillNeeded = k - pairsSelected;
+        if (remainingPossiblePairs < pairsStillNeeded) return IMPOSSIBLE;
+        
+        // Check memoization cache
+        const memoKey = index1 * nums2Length * k + index2 * k + pairsSelected;
+        if (memoization[memoKey] !== null) return memoization[memoKey];
+        
+        // Try all three choices and take maximum
+        return memoization[memoKey] = Math.max(
+            computeMaxScore(index1 + 1, index2, pairsSelected),                                              // Skip nums1[index1]
+            computeMaxScore(index1, index2 + 1, pairsSelected),                                              // Skip nums2[index2]
+            nums1[index1] * nums2[index2] + computeMaxScore(index1 + 1, index2 + 1, pairsSelected + 1)     // Take pair
+        );
+    };
     
-    let ans = -Infinity;
-    for (let i = 0; i < n; i++) {
-        for (let j = 0; j < m; j++) {
-            ans = Math.max(ans, dp[i][j]);
-        }
-    }
-    
-    return ans;
+    return computeMaxScore(0, 0, 0);
 };

@@ -12,17 +12,26 @@
  * }
  */
 
-function isBalanced(root: TreeNode | null): boolean {
-    let balanced = true;
-    const dfs = (node : TreeNode | null): number => {
-        if (node == null)
-            return 0;
-        const l = dfs(node.left);
-        const r = dfs(node.right);
-        if (Math.abs(l - r) > 1)
-            balanced = false;
-        return Math.max(l, r) + 1;
+/**
+ * Checks if binary tree is height-balanced
+ * A tree is balanced if left and right subtree heights differ by at most 1 (for all nodes)
+ * Strategy: DFS to compute heights while checking balance condition
+ */
+const isBalanced = (root: TreeNode | null): boolean => {
+    let isTreeBalanced = true;
+
+    const computeHeight = (node: TreeNode | null): number => {
+        if (node === null) return 0;
+
+        const leftHeight = computeHeight(node.left);
+        const rightHeight = computeHeight(node.right);
+
+        // Check balance condition: height difference ≤ 1
+        if (Math.abs(leftHeight - rightHeight) > 1) isTreeBalanced = false;
+
+        return Math.max(leftHeight, rightHeight) + 1;
     };
-    dfs(root);
-    return balanced;
+
+    computeHeight(root);
+    return isTreeBalanced;
 };

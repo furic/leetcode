@@ -13,25 +13,37 @@
  */
 
 /**
- * Checks if binary tree is height-balanced
- * A tree is balanced if left and right subtree heights differ by at most 1 (for all nodes)
- * Strategy: DFS to compute heights while checking balance condition
+ * Balances an unbalanced BST by reconstructing it
+ * Strategy: In-order traversal to get sorted values, then build balanced BST from sorted array
  */
-const isBalanced = (root: TreeNode | null): boolean => {
-    let isTreeBalanced = true;
-    
-    const computeHeight = (node: TreeNode | null): number => {
-        if (node === null) return 0;
+const balanceBST = (root: TreeNode | null): TreeNode | null => {
+    const sortedValues: number[] = [];
+
+    // Collect all values in sorted order via in-order traversal
+    const inOrderTraversal = (node: TreeNode | null): void => {
+        if (!node) return;
         
-        const leftHeight = computeHeight(node.left);
-        const rightHeight = computeHeight(node.right);
-        
-        // Check balance condition: height difference ≤ 1
-        if (Math.abs(leftHeight - rightHeight) > 1) isTreeBalanced = false;
-        
-        return Math.max(leftHeight, rightHeight) + 1;
+        inOrderTraversal(node.left);
+        sortedValues.push(node.val);
+        inOrderTraversal(node.right);
     };
-    
-    computeHeight(root);
-    return isTreeBalanced;
+
+    // Build balanced BST from sorted array using binary search approach
+    // Always pick middle element as root to ensure balance
+    const buildBalancedTree = (leftIndex: number, rightIndex: number): TreeNode | null => {
+        if (leftIndex > rightIndex) return null;
+        
+        // Pick middle element to maintain balance
+        const middleIndex = Math.floor(leftIndex + (rightIndex - leftIndex) / 2);
+        const node = new TreeNode(sortedValues[middleIndex]);
+        
+        // Recursively build left and right subtrees
+        node.left = buildBalancedTree(leftIndex, middleIndex - 1);
+        node.right = buildBalancedTree(middleIndex + 1, rightIndex);
+        
+        return node;
+    };
+
+    inOrderTraversal(root);
+    return buildBalancedTree(0, sortedValues.length - 1);
 };

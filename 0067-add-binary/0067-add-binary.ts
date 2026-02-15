@@ -1,15 +1,23 @@
-function addBinary(a: string, b: string): string {
-    let i = a.length - 1, j = b.length - 1, carry = 0, result = '';
+/**
+ * Adds two binary strings and returns the sum as a binary string
+ * Strategy: Add digit by digit from right to left with carry propagation
+ */
+const addBinary = (a: string, b: string): string => {
+    let indexA = a.length - 1;
+    let indexB = b.length - 1;
+    let carry = 0;
+    let result = '';
 
-    while (i >= 0 || j >= 0 || carry) {
-        let sum = carry;
+    // Process until all digits and carry are consumed
+    while (indexA >= 0 || indexB >= 0 || carry) {
+        let digitSum = carry;
 
-        if (i >= 0) sum += +a[i--];
-        if (j >= 0) sum += +b[j--];
+        if (indexA >= 0) digitSum += +a[indexA--];  // Convert char to number
+        if (indexB >= 0) digitSum += +b[indexB--];
 
-        result = (sum % 2) + result;
-        carry = Math.floor(sum / 2);
+        result = (digitSum % 2) + result;           // Append current bit
+        carry = Math.floor(digitSum / 2);           // Carry to next position
     }
 
     return result;
-}
+};

@@ -1,26 +1,30 @@
+/**
+ * Finds first element whose frequency is unique (no other element has same frequency)
+ * Strategy: Count frequencies → group by frequency → find unique → scan for first
+ */
 const firstUniqueFreq = (nums: number[]): number => {
-    // Step 1: Count frequency of each element
-    const freqMap = new Map<number, number>();
-    for (const num of nums) {
-        freqMap.set(num, (freqMap.get(num) || 0) + 1);
+    // Count frequency of each number
+    const numberFrequency = new Map<number, number>();
+    for (let i = 0; i < nums.length; i++) {
+        numberFrequency.set(nums[i], (numberFrequency.get(nums[i]) || 0) + 1);
     }
     
-    // Step 2: Count how many elements have each frequency
-    const freqCount = new Map<number, number>();
-    for (const freq of freqMap.values()) {
-        freqCount.set(freq, (freqCount.get(freq) || 0) + 1);
+    // Group numbers by their frequency: frequency → [numbers with that frequency]
+    const frequencyToNumbers = new Map<number, number[]>();
+    for (const [number, frequency] of numberFrequency.entries()) {
+        if (!frequencyToNumbers.has(frequency)) frequencyToNumbers.set(frequency, []);
+        frequencyToNumbers.get(frequency).push(number);
     }
     
-    // Step 3: Find first element (left to right) with unique frequency
-    const seen = new Set<number>();
-    for (const num of nums) {
-        if (seen.has(num)) continue; // Skip duplicates in scan
-        seen.add(num);
-        
-        const freq = freqMap.get(num)!;
-        if (freqCount.get(freq) === 1) {
-            return num;
-        }
+    // Collect numbers that have unique frequency (only one number has that count)
+    const numbersWithUniqueFreq = new Set<number>();
+    for (const [frequency, numbersWithFreq] of frequencyToNumbers.entries()) {
+        if (numbersWithFreq.length === 1) numbersWithUniqueFreq.add(numbersWithFreq[0]);
+    }
+    
+    // Find first element in original array with unique frequency
+    for (let i = 0; i < nums.length; i++) {
+        if (numbersWithUniqueFreq.has(nums[i])) return nums[i];
     }
     
     return -1;

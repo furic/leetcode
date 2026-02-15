@@ -1,22 +1,15 @@
 function addBinary(a: string, b: string): string {
-    let result = "";
-    let carry = 0;
-    let i = a.length - 1;
-    let j = b.length - 1;
+    let i = a.length - 1, j = b.length - 1, carry = 0, result = '';
 
     while (i >= 0 || j >= 0 || carry) {
-        const bitA = i >= 0 ? parseInt(a[i]) : 0;
-        const bitB = j >= 0 ? parseInt(b[j]) : 0;
+        let sum = carry;
 
-        const currentSum = bitA + bitB + carry;
+        if (i >= 0) sum += +a[i--];
+        if (j >= 0) sum += +b[j--];
 
-        result = (currentSum % 2).toString() + result;
-
-        carry = Math.floor(currentSum / 2);
-
-        i--;
-        j--;
+        result = (sum % 2) + result;
+        carry = Math.floor(sum / 2);
     }
 
     return result;
-};
+}

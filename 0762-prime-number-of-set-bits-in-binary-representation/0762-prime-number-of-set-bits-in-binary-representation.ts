@@ -1,18 +1,21 @@
 function countPrimeSetBits(left: number, right: number): number {
-    const primeNumbersInProvidedRange = [2, 3, 5, 7, 11, 13, 17, 19];
-    let countOfNumbersWithPrimeNumberOfSetBits = 0;
-
+    let count = 0;
     for (let i = left; i <= right; i++) {
-        let num = i;
-        let countOfSetBits = 0;
-        while (num > 0) {
-            num = num & (num - 1);
-            countOfSetBits++;
+        let x = i;
+        let bit = 0;
+        while (x > 0) {
+            x &= x - 1;
+            bit++;
         }
-        if (primeNumbersInProvidedRange.includes(countOfSetBits)) {
-            countOfNumbersWithPrimeNumberOfSetBits++;
+        if (bit < 2) continue;
+        let isPrime = true;
+        for (let j = 2; j <= Math.sqrt(bit); j++) {
+            if (bit % j === 0) {
+                isPrime = false;
+                break;
+            }
         }
+        if (isPrime) count++;
     }
-
-    return countOfNumbersWithPrimeNumberOfSetBits;
+    return count;
 };

@@ -1,21 +1,32 @@
-function countPrimeSetBits(left: number, right: number): number {
-    let count = 0;
-    for (let i = left; i <= right; i++) {
-        let x = i;
-        let bit = 0;
-        while (x > 0) {
-            x &= x - 1;
-            bit++;
+/**
+ * Counts numbers in range with prime number of set bits
+ * Strategy: For each number, count set bits using bit manipulation, then check primality
+ */
+const countPrimeSetBits = (left: number, right: number): number => {
+    let numbersWithPrimeBitCount = 0;
+    
+    for (let number = left; number <= right; number++) {
+        // Count set bits using Brian Kernighan's algorithm
+        let tempValue = number;
+        let setBitsCount = 0;
+        while (tempValue > 0) {
+            tempValue &= tempValue - 1;  // Remove rightmost set bit
+            setBitsCount++;
         }
-        if (bit < 2) continue;
+        
+        // Check if setBitsCount is prime (skip if less than 2)
+        if (setBitsCount < 2) continue;
+        
         let isPrime = true;
-        for (let j = 2; j <= Math.sqrt(bit); j++) {
-            if (bit % j === 0) {
+        for (let divisor = 2; divisor <= Math.sqrt(setBitsCount); divisor++) {
+            if (setBitsCount % divisor === 0) {
                 isPrime = false;
                 break;
             }
         }
-        if (isPrime) count++;
+        
+        if (isPrime) numbersWithPrimeBitCount++;
     }
-    return count;
+    
+    return numbersWithPrimeBitCount;
 };

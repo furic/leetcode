@@ -1,23 +1,18 @@
 const maximumXor = (s: string, t: string): string => {
-    const tBitCounts = [0, 0];
-    for (const bit of t) {
-        tBitCounts[Number(bit)]++;
-    }
+    // Count available bits in t to assign optimally
+    let availableOnes = t.split('').filter(bit => bit === '1').length;
+    let availableZeros = t.length - availableOnes;
 
-    // To maximise XOR, greedily pair each s-bit with its opposite from t.
-    // Falling back to the same bit only when the preferred one is exhausted.
-    const xorResult = s.split('').map((sBit) => {
-        const preferredTBit = sBit === '1' ? 0 : 1; // opposite bit gives XOR = 1
-        const fallbackTBit  = sBit === '1' ? 1 : 0; // same bit gives XOR = 0
+    return s.split('').map(sBit => {
+        // XOR produces 1 when bits differ, so pair each s-bit with its opposite
+        const wantOne = sBit === '0' ? availableOnes > 0 : availableZeros > 0;
 
-        if (tBitCounts[preferredTBit] > 0) {
-            tBitCounts[preferredTBit]--;
+        if (wantOne) {
+            sBit === '0' ? availableOnes-- : availableZeros--;
             return '1';
         } else {
-            tBitCounts[fallbackTBit]--;
+            sBit === '0' ? availableZeros-- : availableOnes--;
             return '0';
         }
-    });
-
-    return xorResult.join('');
+    }).join('');
 };

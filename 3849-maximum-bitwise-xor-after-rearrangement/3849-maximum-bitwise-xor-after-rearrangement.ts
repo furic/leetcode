@@ -1,23 +1,33 @@
-const maximumXor = (s: string, t: string): string => {
-    const tBitCounts = [0, 0];
-    for (const bit of t) {
-        tBitCounts[Number(bit)]++;
+function maximumXor(s: string, t: string): string {
+    let ones = 0;
+    let zeros = 0;
+    
+    for (let i = 0; i < t.length; i++) {
+        if (t[i] === '1') ones++;
+        else zeros++;
     }
-
-    // To maximise XOR, greedily pair each s-bit with its opposite from t.
-    // Falling back to the same bit only when the preferred one is exhausted.
-    const xorResult = s.split('').map((sBit) => {
-        const preferredTBit = sBit === '1' ? 0 : 1; // opposite bit gives XOR = 1
-        const fallbackTBit  = sBit === '1' ? 1 : 0; // same bit gives XOR = 0
-
-        if (tBitCounts[preferredTBit] > 0) {
-            tBitCounts[preferredTBit]--;
-            return '1';
+    
+    let result = new Array(s.length);
+    
+    for (let i = 0; i < s.length; i++) {
+        if (s[i] === '0') {
+            if (ones > 0) {
+                result[i] = '1';
+                ones--;
+            } else {
+                result[i] = '0';
+                zeros--;
+            }
         } else {
-            tBitCounts[fallbackTBit]--;
-            return '0';
+            if (zeros > 0) {
+                result[i] = '1';
+                zeros--;
+            } else {
+                result[i] = '0';
+                ones--;
+            }
         }
-    });
-
-    return xorResult.join('');
-};
+    }
+    
+    return result.join('');
+}

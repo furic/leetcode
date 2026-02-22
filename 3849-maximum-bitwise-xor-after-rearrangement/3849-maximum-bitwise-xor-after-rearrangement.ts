@@ -1,18 +1,27 @@
 const maximumXor = (s: string, t: string): string => {
-    // Count available bits in t to assign optimally
-    let availableOnes = t.split('').filter(bit => bit === '1').length;
-    let availableZeros = t.length - availableOnes;
+    let availableOnes = 0;
+    let availableZeros = 0;
 
-    return s.split('').map(sBit => {
-        // XOR produces 1 when bits differ, so pair each s-bit with its opposite
-        const wantOne = sBit === '0' ? availableOnes > 0 : availableZeros > 0;
+    for (let i = 0; i < t.length; i++) {
+        if (t[i] === '1') availableOnes++;
+        else availableZeros++;
+    }
 
-        if (wantOne) {
+    const result = new Array(s.length);
+
+    for (let i = 0; i < s.length; i++) {
+        const sBit = s[i];
+        // XOR produces 1 when bits differ, so try to pair s-bit with its opposite
+        const canProduceOne = sBit === '0' ? availableOnes > 0 : availableZeros > 0;
+
+        if (canProduceOne) {
             sBit === '0' ? availableOnes-- : availableZeros--;
-            return '1';
+            result[i] = '1';
         } else {
             sBit === '0' ? availableZeros-- : availableOnes--;
-            return '0';
+            result[i] = '0';
         }
-    }).join('');
+    }
+
+    return result.join('');
 };

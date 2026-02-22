@@ -1,39 +1,45 @@
 const countSequences = (nums: number[], k: number): number => {
-    const factorize = (n: number): [number, number, number] | null => {
-        let e2 = 0, e3 = 0, e5 = 0;
-        while (n % 2 === 0) { e2++; n /= 2; }
-        while (n % 3 === 0) { e3++; n /= 3; }
-        while (n % 5 === 0) { e5++; n /= 5; }
-        return n === 1 ? [e2, e3, e5] : null;
+    // Factorize x into prime exponents [e2, e3, e5] and remaining factor
+    const factorize = (x: number): [number, number, number, number] => {
+        let exp2 = 0, exp3 = 0, exp5 = 0;
+        while (x % 2 === 0) { exp2++; x /= 2; }
+        while (x % 3 === 0) { exp3++; x /= 3; }
+        while (x % 5 === 0) { exp5++; x /= 5; }
+        return [exp2, exp3, exp5, x];
     };
 
-    const targetExponents = factorize(k);
-    if (!targetExponents) return 0;
-    const [targetE2, targetE3, targetE5] = targetExponents;
+    // k must be expressible purely in terms of primes 2, 3, 5
+    const [targetExp2, targetExp3, targetExp5, kRemainder] = factorize(k);
+    if (kRemainder !== 1) return 0;
 
-    const encode = (e2: number, e3: number, e5: number): string => `${e2},${e3},${e5}`;
+    // Pre-factorize all nums to avoid repeated work in DFS
+    const numFactors = nums.map(x => {
+        const [a, b, c] = factorize(x);
+        return [a, b, c] as [number, number, number];
+    });
 
-    let dp = new Map<string, number>();
-    dp.set(encode(0, 0, 0), 1);
+    const memo = new Map<string, number>();
 
-    for (const num of nums) {
-        const [d2, d3, d5] = factorize(num)!;
-        const nextDp = new Map<string, number>();
-
-        for (const [state, count] of dp) {
-            const [e2, e3, e5] = state.split(',').map(Number);
-
-            const skipKey = state;
-            const multiplyKey = encode(e2 + d2, e3 + d3, e5 + d5);
-            const divideKey = encode(e2 - d2, e3 - d3, e5 - d5);
-
-            nextDp.set(skipKey, (nextDp.get(skipKey) ?? 0) + count);
-            nextDp.set(multiplyKey, (nextDp.get(multiplyKey) ?? 0) + count);
-            nextDp.set(divideKey, (nextDp.get(divideKey) ?? 0) + count);
+    // Track net prime exponent accumulators — multiply adds, divide subtracts, skip leaves unchanged
+    // Goal: reach (targetExp2, targetExp3, targetExp5) after processing all nums
+    const dfs = (i: number, acc2: number, acc3: number, acc5: number): number => {
+        if (i === nums.length) {
+            return acc2 === targetExp2 && acc3 === targetExp3 && acc5 === targetExp5 ? 1 : 0;
         }
 
-        dp = nextDp;
-    }
+        const key = `${i},${acc2},${acc3},${acc5}`;
+        if (memo.has(key)) return memo.get(key)!;
 
-    return dp.get(encode(targetE2, targetE3, targetE5)) ?? 0;
+        const [f2, f3, f5] = numFactors[i];
+
+        const ways =
+            dfs(i + 1, acc2 + f2, acc3 + f3, acc5 + f5) +  // multiply
+            dfs(i + 1, acc2 - f2, acc3 - f3, acc5 - f5) +  // divide
+            dfs(i + 1, acc2,       acc3,       acc5);        // skip
+
+        memo.set(key, ways);
+        return ways;
+    };
+
+    return dfs(0, 0, 0, 0);
 };

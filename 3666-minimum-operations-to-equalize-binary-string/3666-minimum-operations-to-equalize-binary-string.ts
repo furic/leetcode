@@ -13,8 +13,7 @@ const minOperations = (s: string, k: number): number => {
     // Ceiling division: minimum operations needed to cover x items with groups of y
     const ceilDiv = (x: number, y: number): number => Math.floor((x + y - 1) / y);
 
-    const IMPOSSIBLE = Infinity;
-    let minOps = IMPOSSIBLE;
+    let minOps = Infinity;
 
     // Strategy A: each operation flips (k zeros + some ones) and ((n-k) zeros + some ones)
     // Requires even number of zeros so they cancel out in pairs across operations
@@ -32,5 +31,5 @@ const minOperations = (s: string, k: number): number => {
         minOps = Math.min(minOps, opsNeeded);
     }
 
-    return minOps < IMPOSSIBLE ? minOps : -1;
+    return minOps < Infinity ? minOps : -1;
 };

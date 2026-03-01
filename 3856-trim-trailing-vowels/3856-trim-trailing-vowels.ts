@@ -4,5 +4,5 @@ const trimTrailingVowels = (s: string): string => {
     while (i >= 0 && VOWELS.includes(s[i])) {
         i--;
     }
-    return s.substring(0, i + 1);
+    return s.slice(0, i + 1);
 };

@@ -1,26 +1,17 @@
-function numSpecial(mat: number[][]): number {
-    const m = mat.length;
-    const n = mat[0].length;
-    const row: number[] = new Array(m).fill(0);
-    const col: number[] = new Array(n).fill(0);
+const numSpecial = (mat: number[][]): number => {
+    const rowCount = mat.length;
+    const colCount = mat[0].length;
+    const rowOnes = new Array(rowCount).fill(0);
+    const colOnes = new Array(colCount).fill(0);
 
-    for (let i = 0; i < m; i++) {
-        for (let j = 0; j < n; j++) {
-            if (mat[i][j] === 1) {
-                row[i]++;
-                col[j]++;
-            }
-        }
-    }
+    for (let i = 0; i < rowCount; i++)
+        for (let j = 0; j < colCount; j++)
+            if (mat[i][j] === 1) { rowOnes[i]++; colOnes[j]++; }
 
-    let ans = 0;
-    for (let i = 0; i < m; i++) {
-        for (let j = 0; j < n; j++) {
-            if (mat[i][j] === 1 && row[i] === 1 && col[j] === 1) {
-                ans++;
-            }
-        }
-    }
+    let specialCount = 0;
+    for (let i = 0; i < rowCount; i++)
+        for (let j = 0; j < colCount; j++)
+            if (mat[i][j] === 1 && rowOnes[i] === 1 && colOnes[j] === 1) specialCount++;
 
-    return ans;
-}
+    return specialCount;
+};

@@ -1,0 +1,1 @@
+const checkOnesSegment = (s: string) => !s.includes('01');

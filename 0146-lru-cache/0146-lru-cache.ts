@@ -1,34 +1,32 @@
 class LRUCache {
-  capacity: number;
-  map: Map<number, number>;
+    private readonly capacity: number;
+    private readonly cache: Map<number, number>;
 
-  constructor(capacity: number) {
-      this.capacity = capacity;
-      this.map = new Map();
-  }
-
-  get(key: number): number {
-    const value = this.map.get(key);
-
-    if (value === undefined) return -1;
-          
-    // Small hack to re-order keys: we remove the requested key and place it at the end
-    this.map.delete(key);
-    this.map.set(key, value);
-    
-    return value;
-  }
-
-  put(key: number, value: number): void {
-    // remove last element to avoid overflow, only if it does not have 
-    // the inserted key is a new key
-    if (this.map.size >= this.capacity && !this.map.has(key)) {
-        const firstKey = this.map.keys().next().value;
-        this.map.delete(firstKey);
+    constructor(capacity: number) {
+        this.capacity = capacity;
+        this.cache = new Map();
     }
-    
-    // Small hack to re-order keys: we remove the requested key and place it at the end
-    this.map.delete(key);
-    this.map.set(key, value);
-  }
+
+    get(key: number): number {
+        const value = this.cache.get(key);
+        if (value === undefined) return -1;
+
+        // Refresh recency: delete and re-insert to move key to Map's insertion-order tail
+        this.cache.delete(key);
+        this.cache.set(key, value);
+
+        return value;
+    }
+
+    put(key: number, value: number): void {
+        // Evict least recently used (Map's insertion-order head) only when adding a new key
+        if (!this.cache.has(key) && this.cache.size >= this.capacity) {
+            const lruKey = this.cache.keys().next().value!;
+            this.cache.delete(lruKey);
+        }
+
+        // Refresh recency same as get: delete then re-insert places key at tail
+        this.cache.delete(key);
+        this.cache.set(key, value);
+    }
 }

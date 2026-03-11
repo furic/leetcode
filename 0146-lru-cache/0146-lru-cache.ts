@@ -1,132 +1,97 @@
 class Node {
-    value: number;
     key: number;
-    next: Node | null;
-    prev: Node | null;
+    value: number;
+    prev: Node | null = null;
+    next: Node | null = null;
 
-    constructor(k: number, v: number){
-        this.value = v;
-        this.key = k;
-        this.next = null;
-        this.prev = null;
+    constructor(key: number, value: number) {
+        this.key = key;
+        this.value = value;
     }
 }
 
-class DLL {
-    capacity: number;
-    head: Node | null;
-    tail: Node | null;
-    length: number;
-    map: Map<number, Node>;
+class LRUList {
+    private readonly capacity: number;
+    private length: number = 0;
+    private head: Node | null = null;
+    private tail: Node | null = null;
+    private readonly nodeMap: Map<number, Node> = new Map();
 
-    constructor(c: number){
-        this.capacity = c
-        this.length = 0
-        this.map = new Map()
+    constructor(capacity: number) {
+        this.capacity = capacity;
     }
 
-    add(k: number, v: number){
-        if(this.map.has(k)){
-            const r = this.get(k);
-            this.tail.value = v;
-            return r
-        }
+    get(key: number): number {
+        if (!this.nodeMap.has(key)) return -1;
+        if (this.length === 1) return this.tail!.value;
 
-        const node = new Node(k, v);
+        const node = this.nodeMap.get(key)!;
 
-        if(this.length === this.capacity) {
-            this.setMostRecent(node)
-            this.removeLestRecentNode()
+        if (node === this.head) {
+            this.head = this.head.next!;
+            this.head.prev = null;
+        } else if (node === this.tail) {
+            return this.tail.value;
         } else {
-            if(this.length === 0){
-                this.tail = node;
-                this.head = node;
-            } else {
-                this.setMostRecent(node)
-            }
-        }
-        this.map.set(k, node)
-        this.length = this.length + 1;
-    }
-
-    setMostRecent(n: Node){
-        n.prev = this.tail;
-        this.tail.next = n;
-        this.tail = n;
-    }
-
-    removeLestRecentNode(){
-        const n = this.head;
-
-        if(this.map.has(n.key)){
-            this.map.delete(n.key);
+            node.prev!.next = node.next;
+            node.next!.prev = node.prev;
         }
 
-        this.head = this.head.next;
-        if(this.head){
-            this.head.prev = null;
-        }
-        
-        // Delete
-        n.prev = null;
-        n.next = null;
-
-        this.length = this.length - 1;
+        this.promoteToTail(node);
+        return node.value;
     }
 
-    get(k: number): number {
-        if(!this.map.has(k)) return -1
-        if(this.length === 1) return this.tail.value;
+    add(key: number, value: number): void {
+        if (this.nodeMap.has(key)) {
+            this.get(key);
+            this.tail!.value = value;
+            return;
+        }
 
-        const node = this.map.get(k)
-        // The first one goes to last
-        if(node.key === this.head.key) {
-            this.head = this.head.next;
-            this.head.prev = null;
+        const node = new Node(key, value);
 
-            node.prev = this.tail;
-            this.tail.next = node;
-            node.next = null;
-            
+        if (this.length === 0) {
+            this.head = node;
             this.tail = node;
-        } else if(node.key === this.tail.key) {
-            return this.tail.value
         } else {
-            const prev = node.prev
-            const next = node.next
-            // Connect cables in the middle
-            prev.next = next
-            next.prev = prev
-
-            //Update tail
-            node.prev = this.tail
-            this.tail.next = node
-            node.next = null
-            this.tail = node
+            this.promoteToTail(node);
+            if (this.length === this.capacity) this.evictLRU();
         }
-        
-        return node.value
+
+        this.nodeMap.set(key, node);
+        this.length++;
+    }
+
+    private promoteToTail(node: Node): void {
+        node.prev = this.tail;
+        node.next = null;
+        this.tail!.next = node;
+        this.tail = node;
+    }
+
+    private evictLRU(): void {
+        const lruNode = this.head!;
+        this.nodeMap.delete(lruNode.key);
+        this.head = lruNode.next;
+        if (this.head) this.head.prev = null;
+        lruNode.prev = null;
+        lruNode.next = null;
+        this.length--;
     }
 }
 
 class LRUCache {
-    DLL: DLL
+    private readonly list: LRUList;
+
     constructor(capacity: number) {
-        this.DLL = new DLL(capacity)
+        this.list = new LRUList(capacity);
     }
 
     get(key: number): number {
-        return this.DLL.get(key)
+        return this.list.get(key);
     }
 
     put(key: number, value: number): void {
-        this.DLL.add(key, value)
+        this.list.add(key, value);
     }
 }
-
-/**
- * Your LRUCache object will be instantiated and called as such:
- * var obj = new LRUCache(capacity)
- * var param_1 = obj.get(key)
- * obj.put(key,value)
- */

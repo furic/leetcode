@@ -1,3 +1,7 @@
+console.log(typeof DoublyLinkedList);
+console.log(DoublyLinkedList.toString());
+
+
 class Node {
     key: number;
     value: number;

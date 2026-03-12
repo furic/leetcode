@@ -1,4 +1,4 @@
-<h2><a href="https://leetcode.com/problems/maximize-spanning-tree-stability-with-upgrades/">3600. Maximize Spanning Tree Stability with Upgrades</a></h2><h3>Hard</h3><hr><p>You are given an integer <code>n</code>, representing <code>n</code> nodes numbered from 0 to <code>n - 1</code> and a list of <code>edges</code>, where <code>edges[i] = [u<sub>i</sub>, v<sub>i</sub>, s<sub>i</sub>, must<sub>i</sub>]</code>:</p>
+<h2><a href="https://leetcode.com/problems/maximize-spanning-tree-stability-with-upgrades/?envType=daily-question&envId=2026-03-12">3600. Maximize Spanning Tree Stability with Upgrades</a></h2><h3>Hard</h3><hr><p>You are given an integer <code>n</code>, representing <code>n</code> nodes numbered from 0 to <code>n - 1</code> and a list of <code>edges</code>, where <code>edges[i] = [u<sub>i</sub>, v<sub>i</sub>, s<sub>i</sub>, must<sub>i</sub>]</code>:</p>
 
 <ul>
 	<li><code>u<sub>i</sub></code> and <code>v<sub>i</sub></code> indicates an undirected edge between nodes <code>u<sub>i</sub></code> and <code>v<sub>i</sub></code>.</li>

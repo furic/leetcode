@@ -1,20 +1,16 @@
-function merge(intervals: number[][]): number[][] {
-    if(intervals.length < 2) {
-        return intervals
-    }
+const merge = (intervals: number[][]): number[][] => {
+    intervals.sort((a, b) => a[0] - b[0]);
 
-    const sortedIntervals = intervals.sort((a, b) => a[0] - b[0])
+    const merged: number[][] = [intervals[0]];
 
-    let result = [sortedIntervals[0]]
-
-    for(let interval of sortedIntervals) {
-        let resent = result[result.length - 1]
-        if(resent[1] >= interval[0]) {
-            resent[1] = Math.max(resent[1], interval[1])
+    for (const interval of intervals) {
+        const lastMerged = merged[merged.length - 1];
+        if (interval[0] <= lastMerged[1]) {
+            lastMerged[1] = Math.max(lastMerged[1], interval[1]);
         } else {
-            result.push(interval)
+            merged.push(interval);
         }
     }
 
-    return result
+    return merged;
 };

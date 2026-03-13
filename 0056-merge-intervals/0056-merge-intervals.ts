@@ -1,14 +1,20 @@
 function merge(intervals: number[][]): number[][] {
-    if (!intervals.length) return []
-    const mergedIntervals: number[][] = []
-    intervals.sort((a, b) => a[0] - b[0])
-
+    intervals.sort((a, b) => a[0] - b[0]);
+    let merged: number[][] = [];
     for (let interval of intervals) {
-        if (!mergedIntervals.length || interval[0] > mergedIntervals[mergedIntervals.length - 1][1]) {
-            mergedIntervals.push(interval)
-        } else {
-            mergedIntervals[mergedIntervals.length - 1][1] = Math.max(mergedIntervals[mergedIntervals.length - 1][1], interval[1])
+        // if the list of merged intervals is empty or if the current
+        // interval does not overlap with the previous, append it
+        if (merged.length === 0 || merged[merged.length - 1][1] < interval[0]) {
+            merged.push(interval);
+        }
+        // otherwise, there is overlap, so we merge the current and previous
+        // intervals
+        else {
+            merged[merged.length - 1][1] = Math.max(
+                merged[merged.length - 1][1],
+                interval[1],
+            );
         }
     }
-    return mergedIntervals
-};
+    return merged;
+}

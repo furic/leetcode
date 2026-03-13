@@ -1,29 +1,31 @@
-function minNumberOfSeconds(mountainHeight: number, workerTimes: number[]): number {
-    const maxT: number = Math.max(...workerTimes);
-    const n: number = workerTimes.length;
-    const v: number = Math.ceil(mountainHeight / n);
-    
-    let start: number = 0;
-    let end: number = maxT * v * (v + 1) / 2;
-    let res: number = end;
+const minNumberOfSeconds = (mountainHeight: number, workerTimes: number[]): number => {
+    const workerCount = workerTimes.length;
+    const maxWorkerTime = Math.max(...workerTimes);
 
-    while (start <= end) {
-        let mid: number = Math.floor(start + (end - start) / 2);
-        let totalHeight: number = 0;
+    // Upper bound: slowest worker alone handles ceil(mountainHeight / workerCount) units
+    const maxHeightPerWorker = Math.ceil(mountainHeight / workerCount);
+    let lo = 0;
+    let hi = maxWorkerTime * maxHeightPerWorker * (maxHeightPerWorker + 1) / 2;
+    let minSeconds = hi;
 
-        for (const t of workerTimes) {
-            const x: number = Math.floor((-1 + Math.sqrt(1 + 8 * mid / t)) / 2);
-            totalHeight += x;
-            if (totalHeight >= mountainHeight) 
-                break;
+    while (lo <= hi) {
+        const mid = Math.floor(lo + (hi - lo) / 2);
+        let totalReduction = 0;
+
+        for (const workerTime of workerTimes) {
+            // Invert t*x*(x+1)/2 <= mid to find max height units this worker can reduce
+            const unitsReduced = Math.floor((-1 + Math.sqrt(1 + 8 * mid / workerTime)) / 2);
+            totalReduction += unitsReduced;
+            if (totalReduction >= mountainHeight) break;
         }
 
-        if (totalHeight >= mountainHeight) {
-            res = mid;
-            end = mid - 1;
+        if (totalReduction >= mountainHeight) {
+            minSeconds = mid;
+            hi = mid - 1;
         } else {
-            start = mid + 1;
+            lo = mid + 1;
         }
     }
-    return res;
+
+    return minSeconds;
 };

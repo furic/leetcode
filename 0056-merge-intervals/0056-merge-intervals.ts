@@ -1,23 +1,20 @@
 function merge(intervals: number[][]): number[][] {
-    // [1     3]
-    //    [2       6]
-    // If cur end is > next_start, combine
-    intervals.sort((a, b) => a[0] - b[0])
-    if (intervals.length === 0 || intervals.length === 1) return intervals
-    const new_intervals = []
-    let curr_interval = intervals[0]
-    
-    for (let i = 1; i < intervals.length; i++) {
-        const next_interval = intervals[i]
-        const current_end = curr_interval[1]
-        const next_start = next_interval[0]
-        if (current_end >= next_start) {
-            curr_interval[1] = Math.max(next_interval[1], curr_interval[1])
-        } else  {
-            new_intervals.push(curr_interval)
-            curr_interval = next_interval
-        } 
+    if(intervals.length < 2) {
+        return intervals
     }
-    new_intervals.push(curr_interval)
-    return new_intervals
+
+    const sortedIntervals = intervals.sort((a, b) => a[0] - b[0])
+
+    let result = [sortedIntervals[0]]
+
+    for(let interval of sortedIntervals) {
+        let resent = result[result.length - 1]
+        if(resent[1] >= interval[0]) {
+            resent[1] = Math.max(resent[1], interval[1])
+        } else {
+            result.push(interval)
+        }
+    }
+
+    return result
 };

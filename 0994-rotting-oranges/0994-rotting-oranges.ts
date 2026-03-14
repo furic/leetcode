@@ -1,59 +1,46 @@
-function orangesRotting(grid: number[][]): number {
-    const m = grid.length;
-    const n = grid[0].length;
+const orangesRotting = (grid: number[][]): number => {
+    const rows = grid.length;
+    const cols = grid[0].length;
+    const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
 
-    const timeQueue: number[] = [];
     const rowQueue: number[] = [];
     const colQueue: number[] = [];
+    const timeQueue: number[] = [];
 
-    let freshOranges = 0;
-    for (let row = 0; row < m; row++) {
-        for (let col = 0; col < n; col++) {
-            if (grid[row][col] === 1) freshOranges++;
-            else if (grid[row][col] === 2) {
-                rowQueue.push(row);
-                colQueue.push(col);
+    let freshCount = 0;
+
+    for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+            if (grid[r][c] === 1) freshCount++;
+            else if (grid[r][c] === 2) {
+                rowQueue.push(r);
+                colQueue.push(c);
                 timeQueue.push(0);
             }
         }
     }
-    
-    let head = 0, minTime = 0;
+
+    let head = 0;
+    let elapsedTime = 0;
+
     while (head < timeQueue.length) {
-        const row = rowQueue[head];
-        const col = colQueue[head];
-        minTime = timeQueue[head];
+        const r = rowQueue[head];
+        const c = colQueue[head];
+        elapsedTime = timeQueue[head];
         head++;
 
-        if (row > 0 && grid[row - 1][col] === 1) {
-            grid[row - 1][col] = 2;
-            rowQueue.push(row - 1);
-            colQueue.push(col);
-            timeQueue.push(minTime + 1);
-            freshOranges--;
-        }
-        if (row < m - 1 && grid[row + 1][col] === 1) {
-            grid[row + 1][col] = 2;
-            rowQueue.push(row + 1);
-            colQueue.push(col);
-            timeQueue.push(minTime + 1);
-            freshOranges--;
-        }
-        if (col > 0 && grid[row][col - 1] === 1) {
-            grid[row][col - 1] = 2;
-            rowQueue.push(row);
-            colQueue.push(col - 1);
-            timeQueue.push(minTime + 1);
-            freshOranges--;
-        }
-        if (col < n - 1 && grid[row][col + 1] === 1) {
-            grid[row][col + 1] = 2;
-            rowQueue.push(row);
-            colQueue.push(col + 1);
-            timeQueue.push(minTime + 1);
-            freshOranges--;
+        for (const [dr, dc] of directions) {
+            const nr = r + dr;
+            const nc = c + dc;
+            if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && grid[nr][nc] === 1) {
+                grid[nr][nc] = 2;
+                rowQueue.push(nr);
+                colQueue.push(nc);
+                timeQueue.push(elapsedTime + 1);
+                freshCount--;
+            }
         }
     }
 
-    return freshOranges === 0 ? minTime : -1;
+    return freshCount === 0 ? elapsedTime : -1;
 };

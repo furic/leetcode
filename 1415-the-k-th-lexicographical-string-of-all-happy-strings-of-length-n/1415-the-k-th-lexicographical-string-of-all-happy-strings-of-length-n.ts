@@ -1,26 +1,21 @@
-function getHappyString(n:number, k:number):string{
+const getHappyString = (n: number, k: number): string => {
+    const totalHappyStrings = 3 * (1 << (n - 1)); // 3 choices for first char, 2 for each subsequent
+    if (k > totalHappyStrings) return '';
 
-const total=3*(1<<(n-1))
-if(k>total) return ""
+    k--; // Convert to 0-indexed
 
-k--
+    let result = '';
+    let prevChar = '';
 
-let res=""
-let last=""
+    for (let pos = 0; pos < n; pos++) {
+        const subtreeSize = 1 << (n - pos - 1); // Each choice branches into 2^(remaining) strings
+        const choices = ['a', 'b', 'c'].filter(ch => ch !== prevChar);
+        const choiceIndex = Math.floor(k / subtreeSize);
 
-for(let pos=0;pos<n;pos++){
+        prevChar = choices[choiceIndex];
+        result += prevChar;
+        k %= subtreeSize;
+    }
 
-const branch=1<<(n-pos-1)
-
-const choices=['a','b','c'].filter(c=>c!==last)
-
-const idx=Math.floor(k/branch)
-
-res+=choices[idx]
-last=choices[idx]
-
-k%=branch
-}
-
-return res
-}
+    return result;
+};

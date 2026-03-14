@@ -1,18 +1,14 @@
-function maxProfit(prices: number[]): number {
-    let left = 0;
-    let right = 0;
-    let maxProf = 0;
+const maxProfit = (prices: number[]): number => {
+    let buyDay = 0;
+    let maxProfit = 0;
 
-    while (right < prices.length) {
-        const profit = prices[right] - prices[left];
-        maxProf = Math.max(maxProf, profit)
-
-        if (profit < 0) {
-            left++;
+    for (let sellDay = 1; sellDay < prices.length; sellDay++) {
+        if (prices[sellDay] < prices[buyDay]) {
+            buyDay = sellDay; // Found a cheaper buy price
         } else {
-            right++;
+            maxProfit = Math.max(maxProfit, prices[sellDay] - prices[buyDay]);
         }
     }
 
-    return maxProf;
+    return maxProfit;
 };

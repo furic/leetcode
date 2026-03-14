@@ -1,31 +1,59 @@
-const directions = [[1, 0], [-1, 0], [0, 1], [0, -1]];
 function orangesRotting(grid: number[][]): number {
-  const queue: number[][] = [];
-  let totalFresh = 0;
+    const m = grid.length;
+    const n = grid[0].length;
 
-  for (let y = 0; y < grid.length; y++) {
-    for (let x = 0; x < grid[0].length; x++) {
-      if (grid[y][x] == 2) {
-        queue.push([y, x, 0]);
-      } else if (grid[y][x] == 1) {
-        totalFresh++;
-      }
+    const timeQueue: number[] = [];
+    const rowQueue: number[] = [];
+    const colQueue: number[] = [];
+
+    let freshOranges = 0;
+    for (let row = 0; row < m; row++) {
+        for (let col = 0; col < n; col++) {
+            if (grid[row][col] === 1) freshOranges++;
+            else if (grid[row][col] === 2) {
+                rowQueue.push(row);
+                colQueue.push(col);
+                timeQueue.push(0);
+            }
+        }
     }
-  }
-  if (!totalFresh) return 0;
-  let maxStep = -1;
+    
+    let head = 0, minTime = 0;
+    while (head < timeQueue.length) {
+        const row = rowQueue[head];
+        const col = colQueue[head];
+        minTime = timeQueue[head];
+        head++;
 
-  while (queue.length) {
-    const [y, x, step] = queue.shift();
-    maxStep = step;
-    for (const [dy, dx] of directions) {
-      const [ny, nx] = [y + dy, x + dx];
-      if (grid[ny]?.[nx] != 1) continue;
-      grid[ny][nx] = 2;
-      totalFresh--;
-      queue.push([ny, nx, step + 1]);
+        if (row > 0 && grid[row - 1][col] === 1) {
+            grid[row - 1][col] = 2;
+            rowQueue.push(row - 1);
+            colQueue.push(col);
+            timeQueue.push(minTime + 1);
+            freshOranges--;
+        }
+        if (row < m - 1 && grid[row + 1][col] === 1) {
+            grid[row + 1][col] = 2;
+            rowQueue.push(row + 1);
+            colQueue.push(col);
+            timeQueue.push(minTime + 1);
+            freshOranges--;
+        }
+        if (col > 0 && grid[row][col - 1] === 1) {
+            grid[row][col - 1] = 2;
+            rowQueue.push(row);
+            colQueue.push(col - 1);
+            timeQueue.push(minTime + 1);
+            freshOranges--;
+        }
+        if (col < n - 1 && grid[row][col + 1] === 1) {
+            grid[row][col + 1] = 2;
+            rowQueue.push(row);
+            colQueue.push(col + 1);
+            timeQueue.push(minTime + 1);
+            freshOranges--;
+        }
     }
-  }
 
-  return totalFresh <= 0 ? maxStep : -1;
-}
+    return freshOranges === 0 ? minTime : -1;
+};

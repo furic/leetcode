@@ -1,23 +1,19 @@
 {
-  "name": "leetcode-solutions",
+  "name": "leetcode",
   "version": "1.0.0",
-  "description": "Automated LeetCode solution categorization and management",
-  "main": "categorize-solution.js",
-  "scripts": {
-    "categorize": "node categorize-solution.js",
-    "categorize:manual": "node categorize-manual.js",
-    "categorize:patterns": "node categorize-patterns.js",
-    "setup": "echo 'Please set your Claude API key: export CLAUDE_API_KEY=\"your-api-key\"'",
-    "verify": "node -e \"console.log('✅ Setup verification passed')\" && node categorize-solution.js --dry-run"
-  },
+  "description": "Collection of LeetCode solutions in TypeScript.",
+  "scripts": {},
   "keywords": [
     "leetcode",
     "algorithms",
     "typescript",
-    "automation",
-    "claude-ai"
+    "web-development",
+    "leetcode-solutions",
+    "coding-interviews",
+    "coding-challenges",
+    "leetcode-typescript"
   ],
-  "author": "Your Name",
+  "author": "Richard Fu",
   "license": "MIT",
   "engines": {
     "node": ">=14.0.0"

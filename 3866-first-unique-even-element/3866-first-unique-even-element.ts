@@ -1,5 +1,5 @@
-function firstUniqueEven(nums: number[]): number {
-  const cnt = new Map<number, number>();
-  for (const x of nums) cnt.set(x, (cnt.get(x) ?? 0) + 1);
-  return nums.find(x => x % 2 === 0 && cnt.get(x) === 1) ?? -1;
-}
+const firstUniqueEven = (nums: number[]): number => {
+    const frequency = new Map<number, number>();
+    for (const num of nums) frequency.set(num, (frequency.get(num) ?? 0) + 1);
+    return nums.find(num => num % 2 === 0 && frequency.get(num) === 1) ?? -1;
+};

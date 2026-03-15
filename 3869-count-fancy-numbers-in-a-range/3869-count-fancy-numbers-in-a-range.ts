@@ -1,99 +1,77 @@
-const countFancy = (l: number, r: number): number => {
-    const isGood = (n: number): boolean => {
-        if (n < 10) return true;
-        const d: number[] = [];
-        while (n > 0) {
-            d.push(n % 10);
-            n = Math.floor(n / 10);
-        }
-        d.reverse();
-        let inc = true,
-            dec = true;
-        for (let i = 1; i < d.length; i++) {
-            if (d[i] <= d[i - 1]) inc = false;
-            if (d[i] >= d[i - 1]) dec = false;
-        }
-        return inc || dec;
-    };
-
-    const goodSums = new Set<number>();
-    for (let s = 0; s <= 135; s++) if (isGood(s)) goodSums.add(s); // max digitSum = 9*15
-
-    const countUpTo = (num: number): number => {
-        if (num <= 0) return 0;
-        const digits = String(num).split("").map(Number);
-        const len = digits.length;
-        const memo = new Map<number, number>();
-
-        // Encode state as single integer for fast lookup
-        const encode = (
-            pos: number,
-            tight: number,
-            started: number,
-            last: number,
-            canInc: number,
-            canDec: number,
-            digitSum: number
-        ): number =>
-            (((((pos * 2 + tight) * 2 + started) * 10 + last) * 2 + canInc) *
-                2 +
-                canDec) *
-                136 +
-            digitSum;
-
-        const dp = (
-            pos: number,
-            tight: boolean,
-            started: boolean,
-            lastDigit: number,
-            canInc: boolean,
-            canDec: boolean,
-            digitSum: number
-        ): number => {
-            if (pos === len) {
-                if (!started) return 0;
-                return canInc || canDec || goodSums.has(digitSum) ? 1 : 0;
-            }
-
-            const key = encode(
-                pos,
-                +tight,
-                +started,
-                lastDigit,
-                +canInc,
-                +canDec,
-                digitSum
-            );
-            if (memo.has(key)) return memo.get(key)!;
-
-            const limit = tight ? digits[pos] : 9;
-            let count = 0;
-
-            for (let d = 0; d <= limit; d++) {
-                const nextTight = tight && d === limit;
-                if (!started && d === 0) {
-                    count += dp(pos + 1, nextTight, false, 0, true, true, 0);
-                } else {
-                    const nextInc = canInc && (!started || d > lastDigit);
-                    const nextDec = canDec && (!started || d < lastDigit);
-                    count += dp(
-                        pos + 1,
-                        nextTight,
-                        true,
-                        d,
-                        nextInc,
-                        nextDec,
-                        digitSum + d
-                    );
-                }
-            }
-
-            memo.set(key, count);
-            return count;
-        };
-
-        return dp(0, true, false, 0, true, true, 0);
-    };
-
-    return countUpTo(r) - countUpTo(l - 1);
+const isGood = (n: number): boolean => {
+    if (n < 10) return true;
+    const digits = n.toString();
+    let isIncreasing = true, isDecreasing = true;
+    for (let i = 1; i < digits.length; i++) {
+        if (digits[i] <= digits[i - 1]) isIncreasing = false;
+        if (digits[i] >= digits[i - 1]) isDecreasing = false;
+    }
+    return isIncreasing || isDecreasing;
 };
+
+// Precompute all good numbers by enumerating strictly increasing and decreasing digit subsets
+const goodNumbers: number[] = [];
+for (let mask = 1; mask < (1 << 9); mask++) {
+    let digitString = '';
+    for (let digit = 1; digit <= 9; digit++) {
+        if (mask & (1 << (digit - 1))) digitString += digit;
+    }
+    goodNumbers.push(parseInt(digitString, 10));
+}
+for (let mask = 1; mask < (1 << 10); mask++) {
+    let digitString = '';
+    for (let digit = 9; digit >= 0; digit--) {
+        if (mask & (1 << digit)) digitString += digit;
+    }
+    goodNumbers.push(parseInt(digitString, 10));
+}
+
+const uniqueSortedGoodNumbers = Array.from(new Set(goodNumbers)).sort((a, b) => a - b);
+
+// Good numbers whose digit sum is NOT good — these are fancy (via being good) but missed
+// by the digit-sum DP, so they must be counted separately in solveRange
+const goodNumbersWithBadDigitSum = uniqueSortedGoodNumbers.filter(num => {
+    let digitSum = 0;
+    let temp = num;
+    while (temp > 0) {
+        digitSum += temp % 10;
+        temp = Math.floor(temp / 10);
+    }
+    return !isGood(digitSum);
+});
+
+// Digit DP: count integers in [0, N] whose digit sum is good
+const countSumGood = (N: number): number => {
+    if (N < 0) return 0;
+    const nStr = N.toString();
+    const memo: number[][] = Array.from({ length: 20 }, () => Array(150).fill(-1));
+
+    const dp = (pos: number, digitSum: number, isUnbounded: boolean): number => {
+        if (pos === nStr.length) return isGood(digitSum) ? 1 : 0;
+        if (isUnbounded && memo[pos][digitSum] !== -1) return memo[pos][digitSum];
+
+        const digitLimit = isUnbounded ? 9 : parseInt(nStr[pos]);
+        let count = 0;
+        for (let digit = 0; digit <= digitLimit; digit++) {
+            count += dp(pos + 1, digitSum + digit, isUnbounded || digit < digitLimit);
+        }
+
+        if (isUnbounded) memo[pos][digitSum] = count;
+        return count;
+    };
+
+    return dp(0, 0, false);
+};
+
+// Count fancy numbers in [0, N]: numbers with good digit sum, plus good numbers with bad digit sum
+const solveRange = (N: number): number => {
+    if (N < 0) return 0;
+    let count = countSumGood(N);
+    for (const num of goodNumbersWithBadDigitSum) {
+        if (num >= 1 && num <= N) count++;
+    }
+    return count;
+};
+
+const countFancy = (l: number, r: number): number =>
+    solveRange(r) - solveRange(l - 1);

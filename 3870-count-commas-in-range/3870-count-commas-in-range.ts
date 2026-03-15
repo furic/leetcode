@@ -1,0 +1,1 @@
+const countCommas = (n: number): number => Math.max(0, n - 999);

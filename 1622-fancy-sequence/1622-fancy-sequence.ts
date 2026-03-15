@@ -1,86 +1,58 @@
+const MOD = 1000000007n;
+
 class Fancy {
-    private mod: bigint;
-    private values: bigint[];
+    private v: number[];
     private a: bigint;
     private b: bigint;
 
     constructor() {
-        this.mod = BigInt(10 ** 9 + 7);  
-        this.values = [];                
-        this.a = 1n;                    
-        this.b = 0n;                    
+        this.v = [];
+        this.a = 1n;
+        this.b = 0n;
     }
 
-    /** 
-     * Helper: Modular Exponentiation (Fast Power)
-     * Computes (base^exp) % mod
-     */
-    private power(base: bigint, exp: bigint): bigint {
-        let res = 1n;
-        base %= this.mod;
-        while (exp > 0n) {
-            if (exp % 2n === 1n) res = (res * base) % this.mod;
-            base = (base * base) % this.mod;
-            exp /= 2n;
+    // fast exponentiation
+    private quickMul(x: number, y: bigint): number {
+        let ret = 1n;
+        let cur = BigInt(x);
+        let power = y;
+        while (power !== 0n) {
+            if ((power & 1n) !== 0n) {
+                ret = (ret * cur) % MOD;
+            }
+            cur = (cur * cur) % MOD;
+            power >>= 1n;
         }
-        return res;
+        return Number(ret);
     }
 
-    /** 
-     * Helper: Modular Inverse using Fermat's Little Theorem
-     * Since mod is prime, a^(mod-2) % mod is the inverse.
-     */
-    private modInverse(n: bigint): bigint {
-        return this.power(n, this.mod - 2n);
+    // multiplicative inverse
+    private inv(x: number): number {
+        return this.quickMul(x, MOD - 2n);
     }
 
-    /** 
-     * Appends a value to the Fancy object, adjusting it with global multiplier (a) and increment (b)
-     * @param {number} val
-     */
-    public append(val: number): void {
-        let valBI = BigInt(val);
-        let invA = this.modInverse(this.a);
-        let x = ((valBI - this.b + this.mod) % this.mod * invA) % this.mod;
-        this.values.push(x);
+    append(val: number): void {
+        const adjustedVal =
+            (((BigInt(val) - this.b + MOD) % MOD) *
+                BigInt(this.inv(Number(this.a)))) %
+            MOD;
+        this.v.push(Number(adjustedVal));
     }
 
-    /** 
-     * Adds an increment to all values in the Fancy object
-     * @param {number} inc
-     */
-    public addAll(inc: number): void {
-        this.b = (this.b + BigInt(inc)) % this.mod;
+    addAll(inc: number): void {
+        this.b = (this.b + BigInt(inc)) % MOD;
     }
 
-    /** 
-     * Multiplies all values by a given number in the Fancy object
-     * @param {number} m
-     */
-    public multAll(m: number): void {
-        let mBI = BigInt(m);
-        this.a = (this.a * mBI) % this.mod;
-        this.b = (this.b * mBI) % this.mod;
+    multAll(m: number): void {
+        this.a = (this.a * BigInt(m)) % MOD;
+        this.b = (this.b * BigInt(m)) % MOD;
     }
 
-    /** 
-     * Returns the value at the specified index, adjusting it with global multiplier and increment
-     * @param {number} idx
-     * @returns {number}
-     */
-    public getIndex(idx: number): number {
-        if (idx >= this.values.length) 
+    getIndex(idx: number): number {
+        if (idx >= this.v.length) {
             return -1;
-        let result = (this.a * this.values[idx] + this.b) % this.mod;
-        return Number(result);
+        }
+        const ans = (((this.a * BigInt(this.v[idx])) % MOD) + this.b) % MOD;
+        return Number(ans);
     }
 }
-
-/**
- * Your Fancy object will be instantiated and called as such:
- * var obj = new Fancy()
- * obj.append(val)
- * obj.addAll(inc)
- * obj.multAll(m)
- * var param_4 = obj.getIndex(idx)
- */

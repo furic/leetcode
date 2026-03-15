@@ -1,51 +1,40 @@
 const maxActivated = (points: number[][]): number => {
-    const parent = new Map<string, string>();
-    const rnk = new Map<string, number>();
+    const n = points.length;
+    const parent = new Int32Array(n).map((_, i) => i);
 
-    const find = (a: string): string => {
-        let root = a;
-        while (parent.get(root) !== root) root = parent.get(root)!;
-        while (parent.get(a) !== root) {
-            const next = parent.get(a)!;
-            parent.set(a, root);
-            a = next;
+    const find = (i: number): number => {
+        while (parent[i] !== i) {
+            parent[i] = parent[parent[i]]; // Path compression (halving)
+            i = parent[i];
         }
-        return root;
+        return i;
     };
 
-    const makeSet = (a: string): void => {
-        if (!parent.has(a)) {
-            parent.set(a, a);
-            rnk.set(a, 0);
-        }
+    const union = (i: number, j: number): void => {
+        const rootI = find(i);
+        const rootJ = find(j);
+        if (rootI !== rootJ) parent[rootI] = rootJ;
     };
 
-    const union = (a: string, b: string): void => {
-        let rootA = find(a), rootB = find(b);
-        if (rootA === rootB) return;
-        if (rnk.get(rootA)! < rnk.get(rootB)!) [rootA, rootB] = [rootB, rootA];
-        parent.set(rootB, rootA);
-        if (rnk.get(rootA) === rnk.get(rootB)) rnk.set(rootA, rnk.get(rootA)! + 1);
-    };
+    // Union points that share an x or y coordinate into the same component
+    const xGroup = new Map<number, number>();
+    const yGroup = new Map<number, number>();
 
-    // Build bipartite graph: each point (x, y) is an edge between node "x:{x}" and node "y:{y}"
-    for (const [x, y] of points) {
-        const xNode = `x:${x}`, yNode = `y:${y}`;
-        makeSet(xNode);
-        makeSet(yNode);
-        union(xNode, yNode);
+    for (let i = 0; i < n; i++) {
+        const [x, y] = points[i];
+        if (xGroup.has(x)) union(i, xGroup.get(x)!); else xGroup.set(x, i);
+        if (yGroup.has(y)) union(i, yGroup.get(y)!); else yGroup.set(y, i);
     }
 
-    // Count original points per component
-    const componentSize = new Map<string, number>();
-    for (const [x] of points) {
-        const root = find(`x:${x}`);
+    // Count component sizes
+    const componentSize = new Map<number, number>();
+    for (let i = 0; i < n; i++) {
+        const root = find(i);
         componentSize.set(root, (componentSize.get(root) ?? 0) + 1);
     }
 
-    const sizes = [...componentSize.values()].sort((a, b) => b - a);
-
-    // Adding one point merges at most 2 components (its x-row and y-row)
-    // For any two distinct components, a valid bridging point always exists
-    return sizes[0] + (sizes[1] ?? 0) + 1;
+    // Adding one point can bridge at most two components (via its x and y coordinates).
+    // Best case: pick the two largest components + 1 for the added point itself.
+    const sizes = Array.from(componentSize.values()).sort((a, b) => b - a);
+    return sizes.length === 1 ? sizes[0] + 1 : sizes[0] + sizes[1] + 1;
 };

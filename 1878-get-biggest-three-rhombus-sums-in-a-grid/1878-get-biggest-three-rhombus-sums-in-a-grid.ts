@@ -1,45 +1,53 @@
-function getBiggestThree(grid: number[][]): number[] {
-    const m = grid.length;
-    const n = grid[0].length;
+const getBiggestThree = (grid: number[][]): number[] => {
+    const rows = grid.length;
+    const cols = grid[0].length;
 
-    const set: Set<number> = new Set();
+    // Track top-3 distinct values
+    const top3 = [0, 0, 0];
+    const insertTop3 = (x: number): void => {
+        if (x > top3[0]) {
+            [top3[2], top3[1], top3[0]] = [top3[1], top3[0], x];
+        } else if (x !== top3[0] && x > top3[1]) {
+            [top3[2], top3[1]] = [top3[1], x];
+        } else if (x !== top3[0] && x !== top3[1] && x > top3[2]) {
+            top3[2] = x;
+        }
+    };
 
-    for (let i = 0; i < m; i++) {
-        for (let j = 0; j < n; j++) {
+    // Prefix sums along both diagonals for O(1) rhombus border queries
+    const diagDown = Array.from({ length: rows + 1 }, () => new Array(cols + 2).fill(0)); // top-left → bottom-right
+    const diagUp   = Array.from({ length: rows + 1 }, () => new Array(cols + 2).fill(0)); // top-right → bottom-left
 
-            set.add(grid[i][j]);
+    for (let i = 1; i <= rows; i++) {
+        for (let j = 1; j <= cols; j++) {
+            diagDown[i][j] = diagDown[i - 1][j - 1] + grid[i - 1][j - 1];
+            diagUp[i][j]   = diagUp[i - 1][j + 1]   + grid[i - 1][j - 1];
+        }
+    }
 
-            let k = 1;
-            while (true) {
+    for (let i = 0; i < rows; i++) {
+        for (let j = 0; j < cols; j++) {
+            insertTop3(grid[i][j]); // Single cell = rhombus of size 0
 
-                if (i - k < 0 || i + k >= m || j - k < 0 || j + k >= n)
-                    break;
+            for (let k = i + 2; k < rows; k += 2) {
+                const topR    = i,                          topC    = j;
+                const botR    = k,                          botC    = j;
+                const leftR   = Math.floor((i + k) / 2),   leftC   = j - Math.floor((k - i) / 2);
+                const rightR  = Math.floor((i + k) / 2),   rightC  = j + Math.floor((k - i) / 2);
 
-                let total = 0;
+                if (leftC < 0 || rightC >= cols) break;
 
-                let r = i - k, c = j;
-                for (let t = 0; t < k; t++)
-                    total += grid[r + t][c + t];
+                const rhombusSum =
+                    (diagUp[leftR + 1][leftC + 1]  - diagUp[topR][topC + 2])    +  // top → left
+                    (diagDown[rightR + 1][rightC + 1] - diagDown[topR][topC])    +  // top → right
+                    (diagDown[botR + 1][botC + 1]   - diagDown[leftR][leftC])    +  // left → bottom
+                    (diagUp[botR + 1][botC + 1]     - diagUp[rightR][rightC + 2])-  // right → bottom
+                    (grid[topR][topC] + grid[botR][botC] + grid[leftR][leftC] + grid[rightR][rightC]); // corners counted twice
 
-                r = i; c = j + k;
-                for (let t = 0; t < k; t++)
-                    total += grid[r + t][c - t];
-
-                r = i + k; c = j;
-                for (let t = 0; t < k; t++)
-                    total += grid[r - t][c - t];
-
-                r = i; c = j - k;
-                for (let t = 0; t < k; t++)
-                    total += grid[r - t][c + t];
-
-                set.add(total);
-                k++;
+                insertTop3(rhombusSum);
             }
         }
     }
 
-    return Array.from(set)
-        .sort((a, b) => b - a)
-        .slice(0, 3);
+    return top3.filter(x => x !== 0);
 };

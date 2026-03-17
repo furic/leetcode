@@ -1,24 +1,23 @@
-function largestSubmatrix(matrix: number[][]): number {
-  const m = matrix.length;
-  const n = matrix[0].length;
+const largestSubmatrix = (matrix: number[][]): number => {
+    const rows = matrix.length;
+    const cols = matrix[0].length;
 
-  for (let i = 1; i < m; i++) {
-    for (let j = 0; j < n; j++) {
-      if (matrix[i][j] === 1) {
-        matrix[i][j] += matrix[i - 1][j];
-      }
+    // Transform each cell into the count of consecutive 1s ending at that row in its column
+    for (let r = 1; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+            if (matrix[r][c] === 1) matrix[r][c] += matrix[r - 1][c];
+        }
     }
-  }
 
-  let maxArea = 0;
+    let maxArea = 0;
 
-  for (let i = 0; i < m; i++) {
-    const row = [...matrix[i]].sort((a, b) => b - a);
-
-    for (let j = 0; j < n; j++) {
-      maxArea = Math.max(maxArea, row[j] * (j + 1));
+    for (let r = 0; r < rows; r++) {
+        // Sorting descending lets us treat the j-th tallest column as width j+1
+        const colHeights = [...matrix[r]].sort((a, b) => b - a);
+        for (let j = 0; j < cols; j++) {
+            maxArea = Math.max(maxArea, colHeights[j] * (j + 1));
+        }
     }
-  }
 
-  return maxArea;
-}
+    return maxArea;
+};

@@ -1,15 +1,24 @@
-// TypeScript
 function largestSubmatrix(matrix: number[][]): number {
-    const m = matrix.length;
-    if (m === 0) return 0;
-    const n = matrix[0].length;
-    const height: number[] = new Array(n).fill(0);
-    let best = 0;
+  const m = matrix.length;
+  const n = matrix[0].length;
 
-    for (let i = 0; i < m; ++i) {
-        for (let j = 0; j < n; ++j) height[j] = matrix[i][j] === 1 ? height[j] + 1 : 0;
-        const sorted = [...height].sort((a, b) => b - a);
-        for (let k = 1; k <= n; ++k) best = Math.max(best, sorted[k - 1] * k);
+  for (let i = 1; i < m; i++) {
+    for (let j = 0; j < n; j++) {
+      if (matrix[i][j] === 1) {
+        matrix[i][j] += matrix[i - 1][j];
+      }
     }
-    return best;
+  }
+
+  let maxArea = 0;
+
+  for (let i = 0; i < m; i++) {
+    const row = [...matrix[i]].sort((a, b) => b - a);
+
+    for (let j = 0; j < n; j++) {
+      maxArea = Math.max(maxArea, row[j] * (j + 1));
+    }
+  }
+
+  return maxArea;
 }

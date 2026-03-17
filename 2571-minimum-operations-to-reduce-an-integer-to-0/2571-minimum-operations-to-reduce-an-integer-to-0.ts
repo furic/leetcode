@@ -1,11 +1,15 @@
 function minOperations(n: number): number {
-    let ans: number = 0;
-    while ((n & n - 1) !== 0) {
-        while ((n & 1) === 0) {
+    let ops = 0;
+    while (n > 0) {
+        if ((n & 3) === 3) {
+            n += 1;
+            ops++;
+        } else if ((n & 1) === 1) {
+            n -= 1;
+            ops++;
+        } else {
             n >>= 1;
         }
-        (n >> 1) % 2 ? n++ : n--;
-        ans++;
     }
-    return ans + 1;
-};
+    return ops;
+}

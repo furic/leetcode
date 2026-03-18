@@ -1,20 +1,21 @@
-function removeDuplicates(s: string, k: number): string {
-    const stack = []
-    const count = []
-    
-    for(let char of s){
-        if(stack[stack.length - 1] === char) count.push(count[count.length - 1] + 1)
-        else count.push(1)
-        stack.push(char)
+const removeDuplicates = (str: string, k: number): string => {
+    if (str.length < 2) return str;
 
-        if(count[count.length - 1] === k){
+    // In-place compaction: write pointer i lags behind read pointer j,
+    // collapsing k-run removals as they're detected
+    const chars = str.split('');
+    const runLengths: number[] = [];
+    let write = 0;
 
-            for(let i = 0;i < k;i++){
-                stack.pop()
-                count.pop()
-            }
+    for (let read = 0; read < str.length; read++) {
+        chars[write] = chars[read];
+        runLengths[write] = write > 0 && chars[write - 1] === chars[write]
+            ? runLengths[write - 1] + 1
+            : 1;
 
-        }
+        if (runLengths[write] === k) write -= k;
+        write++;
     }
-    return stack.join('')
+
+    return chars.slice(0, write).join('');
 };

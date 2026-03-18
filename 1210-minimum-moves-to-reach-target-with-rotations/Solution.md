@@ -1,42 +1,63 @@
 # BFS Snake State Space | 26 Lines | O(n²) | 100ms
 
 # Intuition
-Rather than repeatedly scanning for k-runs (O(n²) worst case), we simulate a stack in-place: as we write each character, we track its current run length. When the run length hits `k`, we immediately erase those `k` characters by rewinding the write pointer — this naturally triggers cascading collapses on the characters that become newly adjacent.
+The snake's state is fully described by its tail position `(r, c)` and orientation. There are at most `2n²` states, and all moves cost 1 — making BFS optimal for finding the minimum number of moves.
 
 # Approach
-- Split `str` into a `chars` array for in-place mutation; maintain a `runLengths` array parallel to it.
-- Use a `write` pointer (the stack top) and a `read` pointer scanning left to right:
-  - Copy `chars[read]` to `chars[write]`.
-  - Compute `runLengths[write]`: if the character matches the one just behind (`chars[write - 1]`), extend the run (`runLengths[write - 1] + 1`); otherwise start a new run at `1`.
-  - If `runLengths[write] === k`, collapse the run: rewind `write` by `k` positions, effectively erasing those characters from the "stack".
-  - Advance `write`.
-- After processing all characters, `chars[0..write)` is the final string.
-- **Cascading collapses:** Because the write pointer tracks run lengths from the preceding written characters (not the original string), when a run of `k` is erased and two formerly separated equal characters become adjacent, the next character written will correctly extend *their* run length — enabling further collapses automatically.
+- **State:** `(r, c, orientation)` where `(r, c)` is the tail (top-left) cell of the snake, and orientation is `HORIZONTAL` or `VERTICAL`. The head occupies `(r, c+1)` or `(r+1, c)` respectively.
+- **BFS from `(0, 0, HORIZONTAL)`:** Use a queue of `[r, c, orientation, moves]` and a visited set keyed on the state string.
+- **Goal:** `r === n-1 && c === n-2 && orientation === HORIZONTAL`.
+- **Transitions per state:**
+  - **Horizontal:**
+    - Move right: tail moves to `(r, c+1)` — requires `(r, c+2)` empty.
+    - Move down: tail moves to `(r+1, c)` — requires `(r+1, c)` and `(r+1, c+1)` both empty.
+    - Rotate clockwise to vertical `(r, c)`: same precondition as move down — requires `(r+1, c)` and `(r+1, c+1)` empty.
+  - **Vertical:**
+    - Move down: tail moves to `(r+1, c)` — requires `(r+2, c)` empty.
+    - Move right: tail moves to `(r, c+1)` — requires `(r, c+1)` and `(r+1, c+1)` both empty.
+    - Rotate counterclockwise to horizontal `(r, c)`: same precondition as move right.
+- Move down and rotate share the same precondition check — both branches are emitted together when the condition holds.
+- Return `-1` if the queue empties without reaching the goal.
 
 # Complexity
-- Time complexity: $$O(n)$$ — each character is read once and written at most once.
+- Time complexity: $$O(n^2)$$ — at most `2n²` states, each processed once with O(1) transitions.
 
-- Space complexity: $$O(n)$$ — for the `chars` and `runLengths` arrays.
+- Space complexity: $$O(n^2)$$ — visited set and queue.
 
 # Code
 ```typescript []
-const removeDuplicates = (str: string, k: number): string => {
-    if (str.length < 2) return str;
+const minimumMoves = (grid: number[][]): number => {
+    const n = grid.length;
+    const HORIZONTAL = 0, VERTICAL = 1;
+    const visited = new Set<string>();
+    const queue: [number, number, number, number][] = [[0, 0, HORIZONTAL, 0]];
 
-    const chars = str.split('');
-    const runLengths: number[] = [];
-    let write = 0;
+    const isEmpty = (r: number, c: number) =>
+        r >= 0 && c >= 0 && r < n && c < n && grid[r][c] === 0;
 
-    for (let read = 0; read < str.length; read++) {
-        chars[write] = chars[read];
-        runLengths[write] = write > 0 && chars[write - 1] === chars[write]
-            ? runLengths[write - 1] + 1
-            : 1;
+    while (queue.length) {
+        const [r, c, orientation, moves] = queue.shift()!;
+        const key = `${r},${c},${orientation}`;
+        if (visited.has(key)) continue;
+        visited.add(key);
 
-        if (runLengths[write] === k) write -= k;
-        write++;
+        if (r === n - 1 && c === n - 2 && orientation === HORIZONTAL) return moves;
+
+        if (orientation === HORIZONTAL) {
+            if (isEmpty(r, c + 2)) queue.push([r, c + 1, HORIZONTAL, moves + 1]);
+            if (isEmpty(r + 1, c) && isEmpty(r + 1, c + 1)) {
+                queue.push([r + 1, c, HORIZONTAL, moves + 1]);
+                queue.push([r, c, VERTICAL, moves + 1]);
+            }
+        } else {
+            if (isEmpty(r + 2, c)) queue.push([r + 1, c, VERTICAL, moves + 1]);
+            if (isEmpty(r, c + 1) && isEmpty(r + 1, c + 1)) {
+                queue.push([r, c + 1, VERTICAL, moves + 1]);
+                queue.push([r, c, HORIZONTAL, moves + 1]);
+            }
+        }
     }
 
-    return chars.slice(0, write).join('');
+    return -1;
 };
 ```

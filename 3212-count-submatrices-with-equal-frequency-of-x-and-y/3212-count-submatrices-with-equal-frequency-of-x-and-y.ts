@@ -1,40 +1,32 @@
 function numberOfSubmatrices(grid: string[][]): number {
-    let n = grid.length;
-    let m = grid[0].length;
-    let cnt : number[][] = Array.from({length: n}, () => Array(m).fill(0));
-    let prefix : number[][] = Array.from({length: n}, () => Array(m).fill(0));
-    let ans = 0;
-
-    for(let i = 0; i < n; i++){
-        for(let j = 0; j < m; j++){
-            if(grid[i][j] == "X"){
-                prefix[i][j] = 1;
-                cnt[i][j] = 1;
-            }
-            else if(grid[i][j] == "Y"){
-                prefix[i][j] = -1;
-            }
-            else{
-                prefix[i][j] = 0;
-            }
-
-            if(i > 0){
-                prefix[i][j] += prefix[i - 1][j];
-                cnt[i][j] += cnt[i - 1][j];
-            }
-            if(j > 0){
-                prefix[i][j] += prefix[i][j - 1];
-                cnt[i][j] += cnt[i][j - 1];
-            }
-            if(i > 0 && j > 0){
-                prefix[i][j] -= prefix[i - 1][j - 1];
-                cnt[i][j] -= cnt[i - 1][j - 1];
-            }
-
-            if(cnt[i][j] > 0 && prefix[i][j] == 0){
-                ans += 1;
-            }
-        }
+  const n = grid.length;
+  const m = grid[0].length;
+  let prevSum = new Int32Array(m);
+  let prevX = new Int32Array(m);
+  let ans = 0;
+  for (let i = 0; i < n; i++) {
+    const curSum = new Int32Array(m);
+    const curX = new Int32Array(m);
+    let leftSum = 0;
+    let leftX = 0;
+    for (let j = 0; j < m; j++) {
+      const ch = grid[i][j];
+      const val = ch === 'X' ? 1 : (ch === 'Y' ? -1 : 0);
+      const isX = ch === 'X' ? 1 : 0;
+      const up = prevSum[j];
+      const upLeft = j > 0 ? prevSum[j - 1] : 0;
+      const s = val + up + leftSum - upLeft;
+      curSum[j] = s;
+      const upX = prevX[j];
+      const upLeftX = j > 0 ? prevX[j - 1] : 0;
+      const xcount = isX + upX + leftX - upLeftX;
+      curX[j] = xcount;
+      if (s === 0 && xcount > 0) ans++;
+      leftSum = s;
+      leftX = xcount;
     }
-    return ans;
-};
+    prevSum = curSum;
+    prevX = curX;
+  }
+  return ans;
+}

@@ -1,4 +1,4 @@
-function minRemoveToMakeValid(s: string): string {
+const minRemoveToMakeValid = (s: string): string => {
     const result = s.split(''); // Convert the string into an array for easy manipulation
     const stack: number[] = []; // Stack to track indices of unmatched '('
 

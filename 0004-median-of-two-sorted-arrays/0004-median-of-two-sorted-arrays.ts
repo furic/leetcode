@@ -1,43 +1,42 @@
-function mergeSortedArrays(nums1: number[], nums2: number[]): number[] {
-    let i1: number = 0;
-    let i2: number = 0;
-    const mergedNums: number[] = [];
-    while(i1 < nums1.length || i2 < nums2.length) {
-        if (i1 >= nums1.length) {
-            mergedNums.push(nums2[i2]);
-            i2++;
-            continue;
-        }
-        if (i2 >= nums2.length) {
-            mergedNums.push(nums1[i1]);
-            i1++;
-            continue;
-        }
-        const num1 = nums1[i1];
-        const num2 = nums2[i2];
-        if (num1 < num2) {
-            mergedNums.push(num1);
-            i1++;
-        } else {
-            mergedNums.push(num2);
-            i2++;
-        }
-    }
-    return mergedNums;
-}
+function findMedianSortedArrays(nums1: number[], nums2: number[]):
+  number {
+      // Ensure binary search on the shorter array
+      if (nums1.length > nums2.length) {
+          const tmp = nums1; nums1 = nums2; nums2 = tmp;
+      }
 
-function findMedian(sortedNums: number[]): number {
-    // middle index of an odd array
-    // (3 - 1) / 2 == 1.0 exactly
-    // if array is even length, e.g. 4:
-    // (4 - 1) / 2 == 1.5 exactly (base 2!)
-    // use 1 and 2
-    const middle = (sortedNums.length - 1) / 2;
-    if (middle % 1 === 0) return sortedNums[middle];
-    return (sortedNums[middle - 0.5] + sortedNums[middle + 0.5]) / 2;
-}
+      const m = nums1.length;
+      const n = nums2.length;
+      const half = (m + n + 1) >> 1;
 
-function findMedianSortedArrays(nums1: number[], nums2: number[]): number {
-    const mergedNums: number[] = mergeSortedArrays(nums1, nums2);
-    return findMedian(mergedNums);
-};
+      let lo = 0;
+      let hi = m;
+
+      while (lo <= hi) {
+          const i = (lo + hi) >> 1;      // partition in nums1
+          const j = half - i;             // partition in nums2
+
+          const left1  = i > 0 ? nums1[i - 1] : -Infinity;
+          const right1 = i < m ? nums1[i]     :  Infinity;
+          const left2  = j > 0 ? nums2[j - 1] : -Infinity;
+          const right2 = j < n ? nums2[j]     :  Infinity;
+
+          if (left1 <= right2 && left2 <= right1) {
+              // Found valid partition
+              if ((m + n) & 1) {
+                  return left1 > left2 ? left1 : left2;
+              }
+              const maxLeft = left1 > left2 ? left1 : left2;
+              const minRight = right1 < right2 ? right1 : right2;
+              return (maxLeft + minRight) / 2;
+          }
+
+          if (left1 > right2) {
+              hi = i - 1;
+          } else {
+              lo = i + 1;
+          }
+      }
+
+      return 0;
+  }

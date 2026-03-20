@@ -1,23 +1,15 @@
-function longestOnes(nums: number[], k: number): number {
-  let max:number = -Infinity;
-  let left:number = 0;
-  let count = k;
-  
-  for (let right = 0; right < nums.length; right++) {
+const longestOnes = (nums: number[], k: number): number => {
+    let zeroCount = 0;
+    let left = 0;
 
-  
-    
-    
-    while(count == 0 && nums[right]==0){
-    if(nums[left]==0)count++;
-     left++;
-    
+    for (let right = 0; right < nums.length; right++) {
+        if (nums[right] === 0) zeroCount++;
+
+        if (zeroCount > k) {
+            if (nums[left] === 0) zeroCount--;
+            left++;
+        }
     }
 
-    
-    max= Math.max(max,(right-left+1));
-      if(nums[right]==0) count--;
-  }
-    
-    return max;
+    return nums.length - left;
 };

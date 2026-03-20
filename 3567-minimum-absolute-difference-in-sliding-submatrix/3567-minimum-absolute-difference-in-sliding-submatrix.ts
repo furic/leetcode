@@ -1,35 +1,30 @@
-function minAbsDiff(grid: number[][], k: number): number[][] {
-  const m = grid.length;
-  const n = grid[0].length;
-  const ans = Array.from({ length: m - k + 1 }, () =>
-    Array<number>(n - k + 1).fill(0),
-  );
+const minAbsDiff = (grid: number[][], k: number): number[][] => {
+    const rows = grid.length;
+    const cols = grid[0].length;
+    const result = Array.from({ length: rows - k + 1 }, () =>
+        new Array<number>(cols - k + 1).fill(0)
+    );
 
-  // Key optimization: buffer singleton.
-  const values = new Int32Array(k * k);
+    const cellBuffer = new Int32Array(k * k); // Reused across all submatrices to avoid allocation
 
-  for (let i = m - k; i >= 0; --i) {
-    for (let j = n - k; j >= 0; --j) {
-      let idx = 0;
-      
-      for (let r = i; r < i + k; ++r) {
-        for (let c = j; c < j + k; ++c) {
-          values[idx++] = grid[r][c];
+    for (let r = rows - k; r >= 0; r--) {
+        for (let c = cols - k; c >= 0; c--) {
+            let idx = 0;
+            for (let dr = r; dr < r + k; dr++)
+                for (let dc = c; dc < c + k; dc++)
+                    cellBuffer[idx++] = grid[dr][dc];
+
+            cellBuffer.sort();
+
+            let minDiff = Infinity;
+            for (let idx = 1; idx < cellBuffer.length; idx++) {
+                if (cellBuffer[idx] !== cellBuffer[idx - 1])
+                    minDiff = Math.min(minDiff, cellBuffer[idx] - cellBuffer[idx - 1]);
+            }
+
+            if (minDiff < Infinity) result[r][c] = minDiff;
         }
-      }
-
-      values.sort();
-
-      let minDiff = Infinity;
-
-      for (let i = 1; i < values.length; ++i) {
-        if (values[i] === values[i - 1]) continue;
-        minDiff = Math.min(minDiff, values[i] - values[i - 1]);
-      }
-
-      if (minDiff < Infinity) ans[i][j] = minDiff;
     }
-  }
 
-  return ans;
-}
+    return result;
+};

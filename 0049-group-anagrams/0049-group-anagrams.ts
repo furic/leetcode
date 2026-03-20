@@ -1,8 +1,14 @@
-const groupAnagrams = (strs: string[]): string[][] => {
-    const anagramsMap = new Map<string, string[]>();
-    strs.forEach((str) => {
-        const key = str.split('').sort().join();
-        anagramsMap.set(key, [...(anagramsMap.get(key) || []), str]);
-    });
-    return [...anagramsMap.values()];
+function groupAnagrams(strs: string[]): string[][] {
+    const anagramMap = strs.reduce((acc, word) => {
+        const sorted = word.split('').sort().join('');
+        if (acc.has(sorted)) {
+            let value = acc.get(sorted);
+            value.push(word);
+        } else {
+            acc.set(sorted, [word]);
+        }
+        return acc;
+    }, new Map() as Map<string, string[]>)
+
+    return Array.from(anagramMap.values());
 };

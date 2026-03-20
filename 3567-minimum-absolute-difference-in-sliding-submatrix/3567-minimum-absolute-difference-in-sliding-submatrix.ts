@@ -1,29 +1,35 @@
-const minAbsDiff = (grid: number[][], k: number): number[][] => {
-    const m = grid.length;
-    const n = grid[0].length;
-    const ans: number[][] = [];
+function minAbsDiff(grid: number[][], k: number): number[][] {
+  const m = grid.length;
+  const n = grid[0].length;
+  const ans = Array.from({ length: m - k + 1 }, () =>
+    Array<number>(n - k + 1).fill(0),
+  );
 
-    for (let i = 0; i <= m - k; i++) {
-        const row: number[] = [];
-        for (let j = 0; j <= n - k; j++) {
-            const values: number[] = [];
-            for (let x = i; x < i + k; x++) {
-                for (let y = j; y < j + k; y++) {
-                    values.push(grid[x][y]);
-                }
-            }
+  // Key optimization: buffer singleton.
+  const values = new Int32Array(k * k);
 
-            const unique = Array.from(new Set(values)).sort((a, b) => a - b);
-
-            let minDiff = Infinity;
-            for (let z = 1; z < unique.length; z++) {
-                minDiff = Math.min(minDiff, unique[z] - unique[z - 1]);
-            }
-
-            row.push(unique.length === 1 ? 0 : minDiff);
+  for (let i = m - k; i >= 0; --i) {
+    for (let j = n - k; j >= 0; --j) {
+      let idx = 0;
+      
+      for (let r = i; r < i + k; ++r) {
+        for (let c = j; c < j + k; ++c) {
+          values[idx++] = grid[r][c];
         }
-        ans.push(row);
-    }
+      }
 
-    return ans;
-};
+      values.sort();
+
+      let minDiff = Infinity;
+
+      for (let i = 1; i < values.length; ++i) {
+        if (values[i] === values[i - 1]) continue;
+        minDiff = Math.min(minDiff, values[i] - values[i - 1]);
+      }
+
+      if (minDiff < Infinity) ans[i][j] = minDiff;
+    }
+  }
+
+  return ans;
+}

@@ -1,30 +1,27 @@
-function findRotation(mat: number[][], target: number[][]): boolean {
+const findRotation = (mat: number[][], target: number[][]): boolean => {
     const n = mat.length;
+    const half = Math.floor(n / 2);
+    const halfCeil = Math.floor((n + 1) / 2);
 
-    const isEqual = (): boolean => {
-        for (let i = 0; i < n; i++)
-            for (let j = 0; j < n; j++)
-                if (mat[i][j] !== target[i][j])
-                    return false;
+    const matchesTarget = (): boolean => {
+        for (let r = 0; r < n; r++)
+            for (let c = 0; c < n; c++)
+                if (mat[r][c] !== target[r][c]) return false;
         return true;
     };
 
-    for (let r = 0; r < 4; r++) {
-
-        for (let i = 0; i < Math.floor(n / 2); i++) {
-            for (let j = 0; j < Math.floor((n + 1) / 2); j++) {
-
-                const temp = mat[i][j];
-
-                mat[i][j] = mat[n - 1 - j][i];
-                mat[n - 1 - j][i] = mat[n - 1 - i][n - 1 - j];
-                mat[n - 1 - i][n - 1 - j] = mat[j][n - 1 - i];
-                mat[j][n - 1 - i] = temp;
+    // Try all 4 rotations: rotate 90° clockwise each iteration then check
+    for (let rotation = 0; rotation < 4; rotation++) {
+        for (let r = 0; r < half; r++) {
+            for (let c = 0; c < halfCeil; c++) {
+                const tmp        = mat[r][c];
+                mat[r][c]        = mat[n - 1 - c][r];
+                mat[n - 1 - c][r]        = mat[n - 1 - r][n - 1 - c];
+                mat[n - 1 - r][n - 1 - c] = mat[c][n - 1 - r];
+                mat[c][n - 1 - r] = tmp;
             }
         }
-
-        if (isEqual())
-            return true;
+        if (matchesTarget()) return true;
     }
 
     return false;

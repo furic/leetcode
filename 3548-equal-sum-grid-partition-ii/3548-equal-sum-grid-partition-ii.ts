@@ -1,85 +1,62 @@
 function canPartitionGrid(grid: number[][]): boolean {
-    const n = grid.length;
-    const m = grid[0].length;
-
-    const prefRow: number[] = new Array(n).fill(0);
-    const prefCol: number[] = new Array(m).fill(0);
-    const mp: Map<number, [number, number][]> = new Map();
-
-    
-    for (let i = 0; i < n; i++) {
-        let rowSum = 0;
-        for (let j = 0; j < m; j++) {
-            const val = grid[i][j];
-            rowSum += val;
-            if (!mp.has(val)) mp.set(val, []);
-            mp.get(val)!.push([i, j]);
+    let total = 0;
+    let m = grid.length;
+    let n = grid[0].length;
+    for (let i = 0; i < m; i++) {
+        for (let j = 0; j < n; j++) {
+            total += grid[i][j];
         }
-        prefRow[i] = rowSum + (i > 0 ? prefRow[i - 1] : 0);
     }
-
-    
-    for (let j = 0; j < m; j++) {
-        let colSum = 0;
-        for (let i = 0; i < n; i++) {
-            colSum += grid[i][j];
+    for (let k = 0; k < 4; k++) {
+        const exist = new Set<number>();
+        exist.add(0);
+        let sum = 0;
+        m = grid.length;
+        n = grid[0].length;
+        if (m < 2) {
+            grid = rotation(grid);
+            continue;
         }
-        prefCol[j] = colSum + (j > 0 ? prefCol[j - 1] : 0);
-    }
-
-    const total = prefRow[n - 1];
-
-    
-    const canRemove = (r1: number, c1: number, r2: number, c2: number, i: number, j: number): boolean => {
-        const rows = r2 - r1 + 1;
-        const cols = c2 - c1 + 1;
-        if (rows * cols <= 1) return false;
-        if (rows === 1) return j === c1 || j === c2;
-        if (cols === 1) return i === r1 || i === r2;
-        return true;
-    };
-
-    
-    for (let i = 0; i < n - 1; i++) {
-        const top = prefRow[i];
-        const bottom = total - top;
-        if (top === bottom) return true;
-
-        const diff = Math.abs(top - bottom);
-        const coords = mp.get(diff);
-        if (coords) {
-            for (const [x, y] of coords) {
-                if (top > bottom) {
-                    
-                    if (x <= i && canRemove(0, 0, i, m - 1, x, y)) return true;
-                } else {
-                    
-                    if (x > i && canRemove(i + 1, 0, n - 1, m - 1, x, y)) return true;
+        if (n == 1) {
+            for (let i = 0; i < m - 1; i++) {
+                sum += grid[i][0];
+                let tag = sum * 2 - total;
+                if (tag == 0 || tag == grid[0][0] || tag == grid[i][0]) {
+                    return true;
                 }
             }
+            grid = rotation(grid);
+            continue;
         }
-    }
-
-    
-    for (let j = 0; j < m - 1; j++) {
-        const left = prefCol[j];
-        const right = total - left;
-        if (left === right) return true;
-
-        const diff = Math.abs(left - right);
-        const coords = mp.get(diff);
-        if (coords) {
-            for (const [x, y] of coords) {
-                if (left > right) {
-                    
-                    if (y <= j && canRemove(0, 0, n - 1, j, x, y)) return true;
-                } else {
-                    
-                    if (y > j && canRemove(0, j + 1, n - 1, m - 1, x, y)) return true;
+        for (let i = 0; i < m - 1; i++) {
+            for (let j = 0; j < n; j++) {
+                exist.add(grid[i][j]);
+                sum += grid[i][j];
+            }
+            let tag = sum * 2 - total;
+            if (i == 0) {
+                if (tag == 0 || tag == grid[0][0] || tag == grid[0][n - 1]) {
+                    return true;
                 }
+                continue;
+            }
+            if (exist.has(tag)) {
+                return true;
             }
         }
+        grid = rotation(grid);
     }
-
     return false;
+}
+
+function rotation(grid: number[][]): number[][] {
+    const m = grid.length,
+        n = grid[0].length;
+    const tmp: number[][] = Array.from({ length: n }, () => Array(m).fill(0));
+    for (let i = 0; i < m; i++) {
+        for (let j = 0; j < n; j++) {
+            tmp[j][m - 1 - i] = grid[i][j];
+        }
+    }
+    return tmp;
 }

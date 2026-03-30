@@ -21,12 +21,6 @@ ls {problem-directory}/*.sql 2>/dev/null
 - Do NOT categorize problems as SQL if they only contain `.ts`, `.js`, `.py`, or other non-SQL files
 - ALWAYS verify the presence of `.sql` files before categorizing as SQL
 
-### Workflow Status
-
-The auto-categorize workflow (`.github/workflows/auto-categorize.yml`) has been **disabled** (renamed to `.disabled`) to prevent duplicate entries in README.md. It was causing massive duplication by appending entries without checking for existing ones.
-
-**Current State**: Manual categorization only
-
 ## README.md Structure
 
 The README.md uses collapsible `<details>` and `<summary>` tags for better navigation:
@@ -37,6 +31,6 @@ The README.md uses collapsible `<details>` and `<summary>` tags for better navig
 
 ## Notes
 
-- The project contains 483 unique LeetCode solutions across 11 categories
+- The project contains 562 unique LeetCode solutions across 11 categories
 - File was reduced from 9,000+ lines to 648 lines after deduplication
 - Pattern-based categorization is recommended (see CATEGORIZATION_GUIDE.md)

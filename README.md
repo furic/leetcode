@@ -33,6 +33,9 @@ Each problem is organized in its own directory following the format:
 <details>
 <summary>Prefix Sum & Subarray/Product Problems</summary>
 
+- [0152. Maximum Product Subarray](./0152-maximum-product-subarray/)
+- [0238. Product of Array Except Self](./0238-product-of-array-except-self/)
+- [0560. Subarray Sum Equals K](./0560-subarray-sum-equals-k/)
 - [0713. Subarray Product Less Than K](./0713-subarray-product-less-than-k/)
 - [1590. Make Sum Divisible By P](./1590-make-sum-divisible-by-p/)
 - [2110. Number Of Smooth Descent Periods Of A Stock](./2110-number-of-smooth-descent-periods-of-a-stock/)
@@ -67,6 +70,7 @@ Each problem is organized in its own directory following the format:
 - [0014. Longest Common Prefix](./0014-longest-common-prefix/)
 - [0026. Remove Duplicates From Sorted Array](./0026-remove-duplicates-from-sorted-array/)
 - [0049. Group Anagrams](./0049-group-anagrams/)
+- [0561. Array Partition](./0561-array-partition/)
 - [0056. Merge Intervals](./0056-merge-intervals/)
 - [0073. Set Matrix Zeroes](./0073-set-matrix-zeroes/)
 - [0075. Sort Colors](./0075-sort-colors/)
@@ -110,6 +114,7 @@ Each problem is organized in its own directory following the format:
 - [3774. Absolute Difference Between Maximum And Minimum K Elements](./3774-absolute-difference-between-maximum-and-minimum-k-elements/)
 - [3814. Maximum Capacity Within Budget](./3814-maximum-capacity-within-budget/)
 - [3836. Maximum Score Using Exactly K Pairs](./3836-maximum-score-using-exactly-k-pairs/)
+- [3880. Minimum Absolute Difference Between Two Values](./3880-minimum-absolute-difference-between-two-values/)
 
 </details>
 
@@ -125,6 +130,7 @@ Each problem is organized in its own directory following the format:
 - [1504. Count Submatrices With All Ones](./1504-count-submatrices-with-all-ones/)
 - [1733. Minimum Number Of People To Teach](./1733-minimum-number-of-people-to-teach/)
 - [1751. Maximum Number Of Events That Can Be Attended Ii](./1751-maximum-number-of-events-that-can-be-attended-ii/)
+- [1944. Number Of Visible People In A Queue](./1944-number-of-visible-people-in-a-queue/)
 - [2147. Number Of Ways To Divide A Long Corridor](./2147-number-of-ways-to-divide-a-long-corridor/)
 - [2210. Count Hills And Valleys In An Array](./2210-count-hills-and-valleys-in-an-array/)
 - [2406. Divide Intervals Into Minimum Number of Groups](./2406-divide-intervals-into-minimum-number-of-groups/)
@@ -161,6 +167,7 @@ Each problem is organized in its own directory following the format:
 - [3843. First Element With Unique Frequency](./3843-first-element-with-unique-frequency/)
 - [3852. Smallest Pair With Different Frequencies](./3852-smallest-pair-with-different-frequencies/)
 - [3866. First Unique Even Element](./3866-first-unique-even-element/)
+- [3881. Direction Assignments With Exactly K Visible People](./3881-direction-assignments-with-exactly-k-visible-people/)
 
 </details>
 
@@ -331,6 +338,8 @@ Each problem is organized in its own directory following the format:
 - [3731. Find Missing Elements](./3731-find-missing-elements/)
 - [3732. Maximum Product Of Three Elements After One Replacement](./3732-maximum-product-of-three-elements-after-one-replacement/)
 - [3782. Last Remaining Integer After Alternating Deletion Operations](./3782-last-remaining-integer-after-alternating-deletion-operations/)
+- [3875. Construct Uniform Parity Array I](./3875-construct-uniform-parity-array-i/)
+- [3876. Construct Uniform Parity Array II](./3876-construct-uniform-parity-array-ii/)
 
 </details>
 
@@ -349,18 +358,27 @@ Each problem is organized in its own directory following the format:
 - [0417. Pacific Atlantic Water Flow](./0417-pacific-atlantic-water-flow/)
 - [0778. Swim In Rising Water](./0778-swim-in-rising-water/)
 - [0885. Spiral Matrix III](./0885-spiral-matrix-iii/)
+- [1210. Minimum Moves To Reach Target With Rotations](./1210-minimum-moves-to-reach-target-with-rotations/)
 - [1292. Maximum Side Length Of A Square With Sum Less Than Or Equal To Threshold](./1292-maximum-side-length-of-a-square-with-sum-less-than-or-equal-to-threshold/)
 - [1536. Minimum Swaps To Arrange A Binary Grid](./1536-minimum-swaps-to-arrange-a-binary-grid/)
 - [1582. Special Positions In A Binary Matrix](./1582-special-positions-in-a-binary-matrix/)
+- [1727. Largest Submatrix With Rearrangements](./1727-largest-submatrix-with-rearrangements/)
+- [1878. Get Biggest Three Rhombus Sums In A Grid](./1878-get-biggest-three-rhombus-sums-in-a-grid/)
+- [1886. Determine Whether Matrix Can Be Obtained By Rotation](./1886-determine-whether-matrix-can-be-obtained-by-rotation/)
 - [1895. Largest Magic Square](./1895-largest-magic-square/)
 - [1975. Maximum Matrix Sum](./1975-maximum-matrix-sum/)
+- [2125. Number Of Laser Beams In A Bank](./2125-number-of-laser-beams-in-a-bank/)
 - [2257. Count Unguarded Cells In The Grid](./2257-count-unguarded-cells-in-the-grid/)
 - [2326. Spiral Matrix IV](./2326-spiral-matrix-iv/)
 - [2435. Paths In Matrix Whose Sum Is Divisible By K](./2435-paths-in-matrix-whose-sum-is-divisible-by-k/)
 - [2536. Increment Submatrices By One](./2536-increment-submatrices-by-one/)
+- [2906. Construct Product Matrix](./2906-construct-product-matrix/)
+- [2946. Matrix Similarity After Cyclic Shifts](./2946-matrix-similarity-after-cyclic-shifts/)
 - [3000. Maximum Area Of Longest Diagonal Rectangle](./3000-maximum-area-of-longest-diagonal-rectangle/)
 - [3047. Find The Largest Area Of Square Inside Two Rectangles](./3047-find-the-largest-area-of-square-inside-two-rectangles/)
+- [3070. Count Submatrices With Top Left Element And Sum Less Than K](./3070-count-submatrices-with-top-left-element-and-sum-less-than-k/)
 - [3195. Find The Minimum Area To Cover All Ones I](./3195-find-the-minimum-area-to-cover-all-ones-i/)
+- [3212. Count Submatrices With Equal Frequency Of X And Y](./3212-count-submatrices-with-equal-frequency-of-x-and-y/)
 - [3341. Find Minimum Time To Reach Last Room I](./3341-find-minimum-time-to-reach-last-room-i/)
 - [3342. Find Minimum Time To Reach Last Room Ii](./3342-find-minimum-time-to-reach-last-room-ii/)
 - [3363. Find The Maximum Number Of Fruits Collected](./3363-find-the-maximum-number-of-fruits-collected/)
@@ -371,6 +389,8 @@ Each problem is organized in its own directory following the format:
 - [3459. Length Of Longest V Shaped Diagonal Segment](./3459-length-of-longest-v-shaped-diagonal-segment/)
 - [3529. Count Cells In Overlapping Horizontal And Vertical Substrings](./3529-count-cells-in-overlapping-horizontal-and-vertical-substrings/)
 - [3537. Fill A Special Grid](./3537-fill-a-special-grid/)
+- [3546. Equal Sum Grid Partition I](./3546-equal-sum-grid-partition-i/)
+- [3548. Equal Sum Grid Partition II](./3548-equal-sum-grid-partition-ii/)
 - [3552. Grid Teleportation Traversal](./3552-grid-teleportation-traversal/)
 - [3567. Minimum Absolute Difference In Sliding Submatrix](./3567-minimum-absolute-difference-in-sliding-submatrix/)
 - [3603. Minimum Cost Path With Alternating Directions Ii](./3603-minimum-cost-path-with-alternating-directions-ii/)
@@ -378,21 +398,26 @@ Each problem is organized in its own directory following the format:
 - [3625. Count Number Of Trapezoids Ii](./3625-count-number-of-trapezoids-ii/)
 - [3643. Flip Square Submatrix Vertically](./3643-flip-square-submatrix-vertically/)
 - [3858. Minimum Bitwise Or From Grid](./3858-minimum-bitwise-or-from-grid/)
+- [3882. Minimum Xor Path In A Grid](./3882-minimum-xor-path-in-a-grid/)
 
 </details>
 
 <details>
 <summary>Two-Pointer & Sliding Window</summary>
 
+- [0004. Median Of Two Sorted Arrays](./0004-median-of-two-sorted-arrays/)
 - [0011. Container With Most Water](./0011-container-with-most-water/)
 - [0013. Roman To Integer](./0013-roman-to-integer/)
 - [0015. 3Sum](./0015-3sum/)
+- [0042. Trapping Rain Water](./0042-trapping-rain-water/)
 - [0120. Triangle](./0120-triangle/)
 - [0135. Candy](./0135-candy/)
 - [0165. Compare Version Numbers](./0165-compare-version-numbers/)
+- [0239. Sliding Window Maximum](./0239-sliding-window-maximum/)
 - [0326. Power Of Three](./0326-power-of-three/)
 - [0837. New 21 Game](./0837-new-21-game/)
 - [0904. Fruit Into Baskets](./0904-fruit-into-baskets/)
+- [1004. Max Consecutive Ones III](./1004-max-consecutive-ones-iii/)
 - [1249. Minimum Remove to Make Valid Parentheses](./1249-minimum-remove-to-make-valid-parentheses/)
 - [1353. Maximum Number Of Events That Can Be Attended](./1353-maximum-number-of-events-that-can-be-attended/)
 - [1493. Longest Subarray Of 1s After Deleting One Element](./1493-longest-subarray-of-1s-after-deleting-one-element/)
@@ -415,6 +440,7 @@ Each problem is organized in its own directory following the format:
 - [3727. Maximum Alternating Sum Of Squares](./3727-maximum-alternating-sum-of-squares/)
 - [3845. Maximum Subarray Xor With Bounded Range](./3845-maximum-subarray-xor-with-bounded-range/)
 - [3859. Count Subarrays With K Distinct Integers](./3859-count-subarrays-with-k-distinct-integers/)
+- [3884. First Matching Character From Both Ends](./3884-first-matching-character-from-both-ends/)
 
 </details>
 
@@ -435,6 +461,7 @@ Each problem is organized in its own directory following the format:
 - [1411. Number Of Ways To Paint N 3 Grid](./1411-number-of-ways-to-paint-n-3-grid/)
 - [1432. Max Difference You Can Get From Changing an Integer](./1432-max-difference-you-can-get-from-changing-an-integer/)
 - [1458. Max Dot Product Of Two Subsequences](./1458-max-dot-product-of-two-subsequences/)
+- [1594. Maximum Non Negative Product In A Matrix](./1594-maximum-non-negative-product-in-a-matrix/)
 - [1653. Minimum Deletions To Make String Balanced](./1653-minimum-deletions-to-make-string-balanced/)
 - [2787. Ways To Express An Integer As Sum Of Powers](./2787-ways-to-express-an-integer-as-sum-of-powers/)
 - [2826. Sorting Three Groups](./2826-sorting-three-groups/)
@@ -458,6 +485,7 @@ Each problem is organized in its own directory following the format:
 - [3840. House Robber V](./3840-house-robber-v/)
 - [3850. Count Sequences To K](./3850-count-sequences-to-k/)
 - [3872. Longest Arithmetic Sequence After Changing At Most One Element](./3872-longest-arithmetic-sequence-after-changing-at-most-one-element/)
+- [3883. Count Non Decreasing Arrays With Given Digit Sums](./3883-count-non-decreasing-arrays-with-given-digit-sums/)
 
 </details>
 
@@ -486,6 +514,7 @@ Each problem is organized in its own directory following the format:
 
 - [0022. Generate Parentheses](./0022-generate-parentheses/)
 - [0067. Add Binary](./0067-add-binary/)
+- [1209. Remove All Adjacent Duplicates In String II](./1209-remove-all-adjacent-duplicates-in-string-ii/)
 - [1545. Find Kth Bit In Nth Binary String](./1545-find-kth-bit-in-nth-binary-string/)
 - [1758. Minimum Changes To Make Alternating Binary String](./1758-minimum-changes-to-make-alternating-binary-string/)
 - [1768. Merge Strings Alternately](./1768-merge-strings-alternately/)
@@ -493,6 +522,8 @@ Each problem is organized in its own directory following the format:
 - [2138. Divide A String Into Groups Of Size K](./2138-divide-a-string-into-groups-of-size-k/)
 - [2976. Minimum Cost To Convert String I](./2976-minimum-cost-to-convert-string-i/)
 - [2977. Minimum Cost To Convert String Ii](./2977-minimum-cost-to-convert-string-ii/)
+- [2839. Check If Strings Can Be Made Equal With Operations I](./2839-check-if-strings-can-be-made-equal-with-operations-i/)
+- [2840. Check If Strings Can Be Made Equal With Operations II](./2840-check-if-strings-can-be-made-equal-with-operations-ii/)
 - [3228. Maximum Number Of Operations To Move Ones To The End](./3228-maximum-number-of-operations-to-move-ones-to-the-end/)
 - [3330. Find the Original Typed String I](./3330-find-the-original-typed-string-i/)
 - [3333. Find the Original Typed String II](./3333-find-the-original-typed-string-ii/)
@@ -546,6 +577,7 @@ Each problem is organized in its own directory following the format:
 - [1461. Check If A String Contains All Binary Codes Of Size K](./1461-check-if-a-string-contains-all-binary-codes-of-size-k/)
 - [1717. Maximum Score From Removing Substrings](./1717-maximum-score-from-removing-substrings/)
 - [1784. Check If Binary String Has At Most One Segment Of Ones](./1784-check-if-binary-string-has-at-most-one-segment-of-ones/)
+- [2573. Find The String With LCP](./2573-find-the-string-with-lcp/)
 - [3085. Minimum Deletions to Make String K-Special](./3085-minimum-deletions-to-make-string-k-special/)
 - [3234. Count The Number Of Substrings With Dominant Ones](./3234-count-the-number-of-substrings-with-dominant-ones/)
 - [3448. Count Substrings Divisible by Last Digit](./3448-count-substrings-divisible-by-last-digit/)
@@ -642,6 +674,7 @@ Each problem is organized in its own directory following the format:
 <details>
 <summary>🌳 Trees & Graphs</summary>
 
+- [0023. Merge K Sorted Lists](./0023-merge-k-sorted-lists/)
 - [0110. Balanced Binary Tree](./0110-balanced-binary-tree/)
 - [0124. Binary Tree Maximum Path Sum](./0124-binary-tree-maximum-path-sum/)
 - [0199. Binary Tree Right Side View](./0199-binary-tree-right-side-view/)
@@ -663,6 +696,7 @@ Each problem is organized in its own directory following the format:
 - [2322. Minimum Score After Removals on a Tree](./2322-minimum-score-after-removals-on-a-tree/)
 - [2359. Find Closest Node to Given Two Nodes](./2359-find-closest-node-to-given-two-nodes/)
 - [2561. Rearranging Fruits](./2561-rearranging-fruits/)
+- [2858. Minimum Edge Reversals So Every Node Is Reachable](./2858-minimum-edge-reversals-so-every-node-is-reachable/)
 - [2872. Maximum Number Of K Divisible Components](./2872-maximum-number-of-k-divisible-components/)
 - [3068. Find the Maximum Sum of Node Values](./3068-find-the-maximum-sum-of-node-values/)
 - [3217. Delete Nodes From Linked List Present In Array](./3217-delete-nodes-from-linked-list-present-in-array/)
@@ -709,6 +743,7 @@ Each problem is organized in its own directory following the format:
 
 - [0146. LRU Cache](./0146-lru-cache/)
 - [0166. Fraction To Recurring Decimal](./0166-fraction-to-recurring-decimal/)
+- [0347. Top K Frequent Elements](./0347-top-k-frequent-elements/)
 - [0966. Vowel Spellchecker](./0966-vowel-spellchecker/)
 - [1366. Rank Teams by Votes](./1366-rank-teams-by-votes/)
 - [1394. Find Lucky Integer in an Array](./1394-find-lucky-integer-in-an-array/)
@@ -730,6 +765,7 @@ Each problem is organized in its own directory following the format:
 - [0869. Reordered Power Of 2](./0869-reordered-power-of-2/)
 - [1009. Complement Of Base 10 Integer](./1009-complement-of-base-10-integer/)
 - [1018. Binary Prefix Divisible By 5](./1018-binary-prefix-divisible-by-5/)
+- [1386. Cinema Seat Allocation](./1386-cinema-seat-allocation/)
 - [1611. Minimum One Bit Operations To Make Integers Zero](./1611-minimum-one-bit-operations-to-make-integers-zero/)
 - [1680. Concatenation Of Consecutive Binary Numbers](./1680-concatenation-of-consecutive-binary-numbers/)
 - [1716. Calculate Money In Leetcode Bank](./1716-calculate-money-in-leetcode-bank/)
@@ -737,6 +773,7 @@ Each problem is organized in its own directory following the format:
 - [2311. Longest Binary Subsequence Less Than Or Equal To K](./2311-longest-binary-subsequence-less-than-or-equal-to-k/)
 - [2411. Smallest Subarrays With Maximum Bitwise Or](./2411-smallest-subarrays-with-maximum-bitwise-or/)
 - [2425. Bitwise Xor Of All Pairings](./2425-bitwise-xor-of-all-pairings/)
+- [2571. Minimum Operations To Reduce An Integer To 0](./2571-minimum-operations-to-reduce-an-integer-to-0/)
 - [2918. Minimum Equal Sum Of Two Arrays After Replacing Zeros](./2918-minimum-equal-sum-of-two-arrays-after-replacing-zeros/)
 - [3003. Maximize The Number Of Partitions After Operations](./3003-maximize-the-number-of-partitions-after-operations/)
 - [3314. Construct The Minimum Bitwise Array I](./3314-construct-the-minimum-bitwise-array-i/)
@@ -771,6 +808,7 @@ Each problem is organized in its own directory following the format:
 - [0120. Triangle](./0120-triangle/)
 - [0812. Largest Triangle Area](./0812-largest-triangle-area/)
 - [0909. Snakes And Ladders](./0909-snakes-and-ladders/)
+- [1266. Minimum Time Visiting All Points](./1266-minimum-time-visiting-all-points/)
 - [1304. Find N Unique Integers Sum Up To Zero](./1304-find-n-unique-integers-sum-up-to-zero/)
 - [1317. Convert Integer To The Sum Of Two No Zero Integers](./1317-convert-integer-to-the-sum-of-two-no-zero-integers/)
 - [1390. Four Divisors](./1390-four-divisors/)
@@ -831,6 +869,7 @@ Each problem is organized in its own directory following the format:
 - [3484. Design Spreadsheet](./3484-design-spreadsheet/)
 - [3508. Implement Router](./3508-implement-router/)
 - [3815. Design Auction System](./3815-design-auction-system/)
+- [3885. Design Event Manager](./3885-design-event-manager/)
 
 </details>
 

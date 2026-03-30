@@ -1,6 +1,6 @@
 const checkStrings = (s1: string, s2: string): boolean => {
-    // Chars at even indices can only swap with even indices, odd with odd.
-    // Use offset 0 for even positions and 128 for odd — one pass tracks both parities.
+    // Chars at even indices can only swap with even indices, odd with odd
+    // Use offset 0 for even positions and 128 for odd — one pass tracks both parities
     const counts = new Int32Array(256);
 
     for (let i = 0; i < s1.length; i++) {

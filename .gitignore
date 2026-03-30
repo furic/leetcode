@@ -12,6 +12,7 @@ yarn-error.log*
 
 # Claude Code local settings
 .claude/settings.local.json
+.claude/settings.json
 
 # IDE and editor files
 .vscode/

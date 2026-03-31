@@ -1,46 +1,40 @@
-function generateString(S: string, t: string): string {
-    const s = S.split('');
-    const n = s.length;
-    const m = t.length;
-    const ans: string[] = Array(n + m - 1).fill('?'); // '?' indicates undecided positions
+const generateString = (str1: string, str2: string): string => {
+    const n = str1.length;
+    const m = str2.length;
 
-    // Process T
+    // Phase 1: fix positions required by 'T' constraints, leave the rest as '?'
+    const result: string[] = Array(n + m - 1).fill('?');
+
     for (let i = 0; i < n; i++) {
-        if (s[i] !== 'T') continue;
-
-        // Substring must equal t
+        if (str1[i] !== 'T') continue;
         for (let j = 0; j < m; j++) {
-            const v = ans[i + j];
-            if (v !== '?' && v !== t[j]) return "";
-            ans[i + j] = t[j];
+            const existing = result[i + j];
+            if (existing !== '?' && existing !== str2[j]) return '';
+            result[i + j] = str2[j];
         }
     }
 
-    const oldAns = [...ans];
-    for (let i = 0; i < ans.length; i++) {
-        if (ans[i] === '?')
-            ans[i] = 'a'; // initial value for undecided positions is 'a'
-    }
+    // Track which positions were free before filling '?' with 'a'
+    const wasUndecided = result.map(ch => ch === '?');
+    for (let i = 0; i < result.length; i++)
+        if (result[i] === '?') result[i] = 'a';
 
-    // Process F
+    // Phase 2: fix 'F' violations by changing the rightmost free position in the window to 'b'
     for (let i = 0; i < n; i++) {
-        if (s[i] !== 'F') continue;
+        if (str1[i] !== 'F') continue;
+        if (result.slice(i, i + m).join('') !== str2) continue;
 
-        // Substring must not equal t
-        if (ans.slice(i, i + m).join('') !== t) continue;
-
-        // Find the last undecided position
-        let ok = false;
+        // Window currently matches str2 — flip the rightmost free char to break the match
+        let fixed = false;
         for (let j = i + m - 1; j >= i; j--) {
-            if (oldAns[j] === '?') { // previously filled with 'a', now change to 'b'
-                ans[j] = 'b';
-                ok = true;
+            if (wasUndecided[j]) {
+                result[j] = 'b';
+                fixed = true;
                 break;
             }
         }
-
-        if (!ok) return "";
+        if (!fixed) return '';
     }
 
-    return ans.join('');
+    return result.join('');
 };

@@ -1,50 +1,46 @@
-function survivedRobotsHealths(
-    pos: number[],
-    h: number[],
-    d: string
-): number[] {
+const survivedRobotsHealths = (
+    positions: number[],
+    healths: number[],
+    directions: string
+): number[] => {
+    const n = positions.length;
 
-    const n = pos.length;
+    // Process robots in positional order to simulate collisions correctly
+    const sortedIndices = Array.from({ length: n }, (_, i) => i)
+        .sort((a, b) => positions[a] - positions[b]);
 
-    const order = Array.from({length:n}, (_,i)=>i)
-        .sort((a,b)=>pos[a]-pos[b]);
+    const survived = new Array(n).fill(true);
+    const rightStack: number[] = []; // Indices of live right-moving robots awaiting collision
 
-    const alive = new Array(n).fill(true);
-    const stack: number[] = [];
-
-    for (const idx of order) {
-
-        if (d[idx] === 'R') {
-            stack.push(idx);
+    for (const idx of sortedIndices) {
+        if (directions[idx] === 'R') {
+            rightStack.push(idx);
         } else {
+            // Left-moving robot: fight rightmost right-mover until one dies or stack empties
+            while (rightStack.length) {
+                const opponent = rightStack[rightStack.length - 1];
 
-            while (stack.length) {
-
-                const top = stack[stack.length-1];
-
-                if (h[top] < h[idx]) {
-                    alive[top] = false;
-                    stack.pop();
-                    h[idx]--;
-                }
-                else if (h[top] > h[idx]) {
-                    alive[idx] = false;
-                    h[top]--;
+                if (healths[opponent] < healths[idx]) {
+                    survived[opponent] = false;
+                    rightStack.pop();
+                    healths[idx]--;
+                } else if (healths[opponent] > healths[idx]) {
+                    survived[idx] = false;
+                    healths[opponent]--;
                     break;
-                }
-                else {
-                    alive[top] = false;
-                    alive[idx] = false;
-                    stack.pop();
+                } else {
+                    survived[opponent] = false;
+                    survived[idx] = false;
+                    rightStack.pop();
                     break;
                 }
             }
         }
     }
 
-    const res: number[] = [];
+    const result: number[] = [];
     for (let i = 0; i < n; i++)
-        if (alive[i]) res.push(h[i]);
+        if (survived[i]) result.push(healths[i]);
 
-    return res;
-}
+    return result;
+};

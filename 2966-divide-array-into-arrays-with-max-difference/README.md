@@ -1,4 +1,4 @@
-<h2><a href="https://leetcode.com/problems/divide-array-into-arrays-with-max-difference">2966. Divide Array Into Arrays With Max Difference</a></h2><h3>Medium</h3><hr><p>You are given an integer array <code>nums</code> of size <code>n</code> where <code>n</code> is a multiple of 3 and a positive integer <code>k</code>.</p>
+<h2><a href="https://leetcode.com/problems/divide-array-into-arrays-with-max-difference/">2966. Divide Array Into Arrays With Max Difference</a></h2><h3>Medium</h3><hr><p>You are given an integer array <code>nums</code> of size <code>n</code> where <code>n</code> is a multiple of 3 and a positive integer <code>k</code>.</p>
 
 <p>Divide the array <code>nums</code> into <code>n / 3</code> arrays of size <strong>3</strong> satisfying the following condition:</p>
 
@@ -45,7 +45,7 @@
 <div class="example-block">
 <p><strong>Input:</strong> <span class="example-io">nums = [4,2,9,8,2,12,7,12,10,5,8,5,5,7,9,2,5,11], k = 14</span></p>
 
-<p><strong>Output:</strong> <span class="example-io">[[2,2,12],[4,8,5],[5,9,7],[7,8,5],[5,9,10],[11,12,2]]</span></p>
+<p><strong>Output:</strong> <span class="example-io">[[2,2,2],[4,5,5],[5,5,7],[7,8,8],[9,9,10],[11,12,12]]</span></p>
 
 <p><strong>Explanation:</strong></p>
 

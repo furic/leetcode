@@ -1,100 +1,86 @@
-function maxWalls(
-    robots: number[],
-    distance: number[],
-    walls: number[],
-): number {
+const maxWalls = (robots: number[], distance: number[], walls: number[]): number => {
     const n = robots.length;
-    const left = new Array(n).fill(0);
-    const right = new Array(n).fill(0);
-    const num = new Array(n).fill(0);
-    const robotsToDistance = new Map<number, number>();
 
-    for (let i = 0; i < n; i++) {
-        robotsToDistance.set(robots[i], distance[i]);
-    }
+    // Map each robot position to its shooting distance before sorting
+    const distanceByPos = new Map<number, number>();
+    for (let i = 0; i < n; i++) distanceByPos.set(robots[i], distance[i]);
 
     robots.sort((a, b) => a - b);
     walls.sort((a, b) => a - b);
 
-    const lowerBound = (arr: number[], target: number): number => {
-        let left = 0,
-            right = arr.length;
-        while (left < right) {
-            const mid = Math.floor((left + right) / 2);
-            if (arr[mid] < target) {
-                left = mid + 1;
-            } else {
-                right = mid;
-            }
+    // First index where walls[idx] >= target
+    const lowerBound = (target: number): number => {
+        let lo = 0, hi = walls.length;
+        while (lo < hi) {
+            const mid = (lo + hi) >> 1;
+            if (walls[mid] < target) lo = mid + 1;
+            else hi = mid;
         }
-        return left;
+        return lo;
     };
 
-    const upperBound = (arr: number[], target: number): number => {
-        let left = 0,
-            right = arr.length;
-        while (left < right) {
-            const mid = Math.floor((left + right) / 2);
-            if (arr[mid] <= target) {
-                left = mid + 1;
-            } else {
-                right = mid;
-            }
+    // First index where walls[idx] > target
+    const upperBound = (target: number): number => {
+        let lo = 0, hi = walls.length;
+        while (lo < hi) {
+            const mid = (lo + hi) >> 1;
+            if (walls[mid] <= target) lo = mid + 1;
+            else hi = mid;
         }
-        return left;
+        return lo;
     };
+
+    // wallsLeft[i]  = walls robot i can hit firing left  (blocked by left neighbour)
+    // wallsRight[i] = walls robot i can hit firing right (blocked by right neighbour)
+    // wallsBetween[i] = walls strictly between robot i-1 and robot i
+    const wallsLeft    = new Array(n).fill(0);
+    const wallsRight   = new Array(n).fill(0);
+    const wallsBetween = new Array(n).fill(0);
 
     for (let i = 0; i < n; i++) {
-        const pos1 = upperBound(walls, robots[i]);
+        const pos  = robots[i];
+        const dist = distanceByPos.get(pos)!;
 
-        let leftPos: number;
-        if (i >= 1) {
-            const leftBound = Math.max(
-                robots[i] - robotsToDistance.get(robots[i])!,
-                robots[i - 1] + 1,
-            );
-            leftPos = lowerBound(walls, leftBound);
-        } else {
-            leftPos = lowerBound(
-                walls,
-                robots[i] - robotsToDistance.get(robots[i])!,
-            );
+        // Left range: capped by left neighbour's position
+        const leftBound = i > 0
+            ? Math.max(pos - dist, robots[i - 1] + 1)
+            : pos - dist;
+        const leftWallStart  = lowerBound(leftBound);
+        const leftWallEnd    = upperBound(pos);       // walls[idx] <= pos
+        wallsLeft[i] = leftWallEnd - leftWallStart;
+
+        // Right range: capped by right neighbour's position
+        const rightBound = i < n - 1
+            ? Math.min(pos + dist, robots[i + 1] - 1)
+            : pos + dist;
+        const rightWallStart = lowerBound(pos);       // walls[idx] >= pos
+        const rightWallEnd   = upperBound(rightBound);
+        wallsRight[i] = rightWallEnd - rightWallStart;
+
+        // Walls in the gap between robot i-1 and robot i (shared decision boundary)
+        if (i > 0) {
+            const gapStart = lowerBound(robots[i - 1]);
+            wallsBetween[i] = leftWallEnd - gapStart;
         }
-        left[i] = pos1 - leftPos;
-
-        let rightPos: number;
-        if (i < n - 1) {
-            const rightBound = Math.min(
-                robots[i] + robotsToDistance.get(robots[i])!,
-                robots[i + 1] - 1,
-            );
-            rightPos = upperBound(walls, rightBound);
-        } else {
-            rightPos = upperBound(
-                walls,
-                robots[i] + robotsToDistance.get(robots[i])!,
-            );
-        }
-        const pos2 = lowerBound(walls, robots[i]);
-        right[i] = rightPos - pos2;
-
-        if (i === 0) continue;
-
-        const pos3 = lowerBound(walls, robots[i - 1]);
-        num[i] = pos1 - pos3;
     }
 
-    let subLeft = left[0],
-        subRight = right[0];
+    // DP: accumulate best total walls destroyed up to robot i
+    // dpLeft[i]  = best total if robot i fires left
+    // dpRight[i] = best total if robot i fires right
+    let dpLeft = wallsLeft[0], dpRight = wallsRight[0];
+
     for (let i = 1; i < n; i++) {
-        const currentLeft = Math.max(
-            subLeft + left[i],
-            subRight - right[i - 1] + Math.min(left[i] + right[i - 1], num[i]),
+        const newLeft = Math.max(
+            dpLeft  + wallsLeft[i],
+            dpRight - wallsRight[i - 1] + Math.min(wallsLeft[i] + wallsRight[i - 1], wallsBetween[i]),
         );
-        const currentRight = Math.max(subLeft + right[i], subRight + right[i]);
-        subLeft = currentLeft;
-        subRight = currentRight;
+        const newRight = Math.max(
+            dpLeft  + wallsRight[i],
+            dpRight + wallsRight[i],
+        );
+        dpLeft  = newLeft;
+        dpRight = newRight;
     }
 
-    return Math.max(subLeft, subRight);
-}
+    return Math.max(dpLeft, dpRight);
+};

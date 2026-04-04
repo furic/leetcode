@@ -1,18 +1,18 @@
-function decodeCiphertext(encodedText: string, rows: number): string {
+const decodeCiphertext = (encodedText: string, rows: number): string => {
     if (rows === 1) return encodedText;
 
-    const n = encodedText.length;
-    const cols = Math.floor(n / rows);
-    let res = [];
+    const cols = Math.floor(encodedText.length / rows);
+    const decoded: string[] = [];
 
-    for (let c = 0; c < cols; c++) {
-        let r = 0, j = c;
-        while (r < rows && j < cols) {
-            res.push(encodedText[r * cols + j]);
+    // Each diagonal starts at column c, reading top-left to bottom-right
+    for (let startCol = 0; startCol < cols; startCol++) {
+        let r = 0, c = startCol;
+        while (r < rows && c < cols) {
+            decoded.push(encodedText[r * cols + c]);
             r++;
-            j++;
+            c++;
         }
     }
 
-    return res.join('').replace(/\s+$/, '');
+    return decoded.join('').replace(/\s+$/, '');
 };

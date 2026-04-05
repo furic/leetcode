@@ -1,15 +1,20 @@
-const findGoodIntegers = (n: number): number[] => {
-    const pairCount = new Map<number, number>();
+const LIMIT = 1000;
 
-    for (let a = 1; a ** 3 * 2 <= n; a++) {       // a³ + b³ ≥ 2a³, so 2a³ ≤ n
-        for (let b = a; a ** 3 + b ** 3 <= n; b++) {
-            const sum = a ** 3 + b ** 3;
-            pairCount.set(sum, (pairCount.get(sum) ?? 0) + 1);
-        }
+// Precompute all "taxicab numbers" (expressible as sum of two cubes in 2+ ways)
+const cubeSumFreq = new Map<number, number>();
+for (let b = 1; b <= LIMIT; b++) {
+    for (let a = 1; a <= b; a++) {
+        const sum = a ** 3 + b ** 3;
+        cubeSumFreq.set(sum, (cubeSumFreq.get(sum) ?? 0) + 1);
     }
+}
 
-    return [...pairCount.entries()]
-        .filter(([, count]) => count >= 2)
-        .map(([sum]) => sum)
-        .sort((x, y) => x - y);
+const goodIntegers = [...cubeSumFreq.entries()]
+    .filter(([_, freq]) => freq >= 2)
+    .map(([val]) => val)
+    .sort((a, b) => a - b);
+
+const findGoodIntegers = (n: number): number[] => {
+    const end = goodIntegers.findIndex(val => val > n);
+    return end === -1 ? [...goodIntegers] : goodIntegers.slice(0, end);
 };

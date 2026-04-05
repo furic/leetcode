@@ -1,27 +1,30 @@
 const minIncrease = (nums: number[]): number => {
     const n = nums.length;
 
-    const costToMakeSpecial = (i: number): number =>
-        Math.max(0, Math.max(nums[i - 1], nums[i + 1]) + 1 - nums[i]);
+    // Cost to make index i special: must exceed both neighbours
+    const costToMakeSpecial = (i: number): number => {
+        const neighbourMax = Math.max(nums[i - 1], nums[i + 1]);
+        return neighbourMax >= nums[i] ? neighbourMax - nums[i] + 1 : 0;
+    };
 
-    // dp[skip] = [maxCount, minCost] where skip=0 means current index not selected
-    let skip: [number, number] = [0, 0];
-    let pick:  [number, number] = [-Infinity, 0]; // invalid until first index
-
-    for (let i = 1; i <= n - 2; i++) {
-        const cost = costToMakeSpecial(i);
-        const newPick: [number, number] = [skip[0] + 1, skip[1] + cost];
-        const newSkip: [number, number] = pick[0] > skip[0] || (pick[0] === skip[0] && pick[1] < skip[1])
-            ? pick
-            : skip;
-        skip = newSkip;
-        pick = newPick;
+    // Odd length: all interior odd indices can be special simultaneously (no overlap)
+    if (n % 2 !== 0) {
+        let total = 0;
+        for (let i = 1; i < n - 1; i += 2) total += costToMakeSpecial(i);
+        return total;
     }
 
-    const [countSkip, costSkip] = skip;
-    const [countPick, costPick] = pick;
+    // Even length: special indices can't all be odd — sliding window of k odd indices,
+    // one even index replaces one odd index, find the cheapest swap
+    const k = (n - 2) / 2;
+    let windowCost = 0;
+    for (let i = 0; i < k; i++) windowCost += costToMakeSpecial(2 * i + 1);
 
-    if (countPick > countSkip) return costPick;
-    if (countSkip > countPick) return costSkip;
-    return Math.min(costPick, costSkip);
+    let minCost = windowCost;
+    for (let i = k - 1; i >= 0; i--) {
+        windowCost = windowCost - costToMakeSpecial(2 * i + 1) + costToMakeSpecial(2 * i + 2);
+        if (windowCost < minCost) minCost = windowCost;
+    }
+
+    return minCost;
 };

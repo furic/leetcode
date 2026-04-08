@@ -1,16 +1,14 @@
-function xorAfterQueries(nums: number[], queries: number[][]): number {
-    const mod = 1e9 + 7;
+const xorAfterQueries = (nums: number[], queries: number[][]): number => {
+    const MOD = 1_000_000_007;
 
-    for (const [l, r, k, v] of queries) {
-        for (let i = l; i <= r; i += k) {
-            nums[i] = (nums[i] * v) % mod;
+    for (const [left, right, step, multiplier] of queries) {
+        for (let i = left; i <= right; i += step) {
+            nums[i] = nums[i] * multiplier % MOD;
         }
     }
 
-    let res = 0;
-    for (const x of nums) {
-        res ^= x;
-    }
+    let result = 0;
+    for (const num of nums) result ^= num;
 
-    return res;
+    return result;
 };

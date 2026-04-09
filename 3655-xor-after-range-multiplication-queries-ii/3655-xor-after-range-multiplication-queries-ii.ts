@@ -1,80 +1,69 @@
-function mulMod(a: bigint, b: bigint, MOD: bigint): bigint {
-  return (a * b) % MOD;
-}
-
-function modPowerBig(base: bigint, exp: bigint, MOD: bigint): bigint {
-  let res = 1n;
-  base = base % MOD;
-  while (exp > 0n) {
-    if (exp & 1n) res = (res * base) % MOD;
-    base = (base * base) % MOD;
-    exp >>= 1n;
-  }
-  return res;
-}
-
-export function xorAfterQueries(nums: number[], queries: number[][]): number {
-  const n = nums.length;
-  const MOD = 1_000_000_007n;
-  const S = (Math.sqrt(n) | 0) + 1;
-
-  const bigNums = new BigInt64Array(n);
-  for (let i = 0; i < n; i++) bigNums[i] = BigInt(nums[i]);
-
-  // events[k][i] — накопленный множитель на позиции i для шага k
-  // Float64Array с нейтралью 1.0
-  const events: (Float64Array | null)[] = new Array(S).fill(null);
-
-  const getEvents = (k: number): Float64Array => {
-    if (!events[k]) {
-      const arr = new Float64Array(n + 1).fill(1.0);
-      events[k] = arr;
+const modPow = (base: bigint, exp: bigint, MOD: bigint): bigint => {
+    let result = 1n;
+    base %= MOD;
+    while (exp > 0n) {
+        if (exp & 1n) result = result * base % MOD;
+        base = base * base % MOD;
+        exp >>= 1n;
     }
-    return events[k]!;
-  };
+    return result;
+};
 
-  for (const q of queries) {
-    const [l, r, k, v] = q;
-    const vBig = BigInt(v);
+const xorAfterQueries = (nums: number[], queries: number[][]): number => {
+    const n = nums.length;
+    const MOD = 1_000_000_007n;
+    const BLOCK = (Math.sqrt(n) | 0) + 1; // Sqrt decomposition threshold
 
-    if (k >= S) {
-      for (let i = l; i <= r; i += k) {
-        bigNums[i] = (bigNums[i] * vBig) % MOD;
-      }
-      continue;
-    }
+    const values = new BigInt64Array(n);
+    for (let i = 0; i < n; i++) values[i] = BigInt(nums[i]);
 
-    const e = getEvents(k);
-    e[l] = Number((BigInt(e[l]) * vBig) % MOD);
+    // For small steps (k < BLOCK): lazily accumulate multipliers per step size,
+    // then apply in a single sweep. Each events[k] is a Float64Array of length n+1
+    // initialised to 1.0 (neutral multiplier).
+    const stepEvents: (Float64Array | null)[] = new Array(BLOCK).fill(null);
 
-    const rem = (r - l) % k;
-    const r2 = rem === 0 ? r + k : r + (k - rem);
-    if (r2 <= n) {
-      const invV = modPowerBig(vBig, MOD - 2n, MOD);
-      e[r2] = Number((BigInt(e[r2]) * invV) % MOD);
-    }
-  }
+    const getStepEvents = (k: number): Float64Array => {
+        if (!stepEvents[k]) stepEvents[k] = new Float64Array(n + 1).fill(1.0);
+        return stepEvents[k]!;
+    };
 
-  for (let k = 1; k < S; k++) {
-    const e = events[k];
-    if (!e) continue;
+    for (const [left, right, step, multiplier] of queries) {
+        const vBig = BigInt(multiplier);
 
-    // Итерируем по независимым цепочкам: start=0,1,...,k-1
-    for (let start = 0; start < k && start < n; start++) {
-      let mult = 1n;
-      for (let i = start; i < n; i += k) {
-        const ev = e[i];
-        if (ev !== 1.0) {
-          mult = (mult * BigInt(ev)) % MOD;
+        if (step >= BLOCK) {
+            // Large step: few affected indices — apply directly
+            for (let i = left; i <= right; i += step)
+                values[i] = values[i] * vBig % MOD;
+            continue;
         }
-        if (mult !== 1n) {
-          bigNums[i] = (bigNums[i] * mult) % MOD;
-        }
-      }
-    }
-  }
 
-  let res = 0;
-  for (let i = 0; i < n; i++) res ^= Number(bigNums[i]);
-  return res;
-}
+        // Small step: mark range [left, nextBeyondRight) in the difference array
+        const e = getStepEvents(step);
+        e[left] = Number(BigInt(e[left]) * vBig % MOD);
+
+        const rem = (right - left) % step;
+        const endExclusive = rem === 0 ? right + step : right + (step - rem);
+        if (endExclusive <= n) {
+            const invV = modPow(vBig, MOD - 2n, MOD);
+            e[endExclusive] = Number(BigInt(e[endExclusive]) * invV % MOD);
+        }
+    }
+
+    // Sweep each step size: propagate prefix product and apply to values
+    for (let step = 1; step < BLOCK; step++) {
+        const e = stepEvents[step];
+        if (!e) continue;
+
+        for (let start = 0; start < step && start < n; start++) {
+            let runningMult = 1n;
+            for (let i = start; i < n; i += step) {
+                if (e[i] !== 1.0) runningMult = runningMult * BigInt(e[i]) % MOD;
+                if (runningMult !== 1n) values[i] = values[i] * runningMult % MOD;
+            }
+        }
+    }
+
+    let result = 0;
+    for (let i = 0; i < n; i++) result ^= Number(values[i]);
+    return result;
+};

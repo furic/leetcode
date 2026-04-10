@@ -1,22 +1,17 @@
-function minimumDistance(nums: number[]): number {
-    const maxVal = Math.max(...nums);
-    
-    const pos: [number, number][] = Array.from({ length: maxVal + 1 }, () => [-1, -1]);
-    
-    let res: number = Infinity;
+const minimumDistance = (nums: number[]): number => {
+    let minDist = nums.length + 1;
 
-    for (let i = 0; i < nums.length; i++) {
-        const val = nums[i];
-        const [last, secondLast] = pos[val];
-
-        if (secondLast !== -1) {
-            const distance = (i - secondLast) * 2;
-            if (distance < res) 
-                res = distance;
+    for (let i = 0; i < nums.length - 2; i++) {
+        for (let j = i + 1; j < nums.length - 1; j++) {
+            if (nums[i] !== nums[j]) continue;
+            for (let k = j + 1; k < nums.length; k++) {
+                if (nums[k] === nums[j]) {
+                    minDist = Math.min(minDist, k - i);
+                    break;
+                }
+            }
         }
-
-        pos[val] = [i, last];
     }
 
-    return res === Infinity ? -1 : res;
+    return minDist === nums.length + 1 ? -1 : minDist * 2;
 };

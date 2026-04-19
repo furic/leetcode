@@ -1,4 +1,4 @@
-function findSuffixMinIdx(nums: number[], from: number): number {
+const findSuffixMinIdx = (nums: number[], from: number): number => {
     let min = nums[from];
     let minIdx = from;
     for (let i = from; i < nums.length; i++) {
@@ -6,9 +6,9 @@ function findSuffixMinIdx(nums: number[], from: number): number {
         if (min === nums[i]) minIdx = i;
     }
     return minIdx;
-}
+};
 
-function firstStableIndex(nums: number[], k: number): number {
+const firstStableIndex = (nums: number[], k: number): number => {
     let prefixMax = -1;
     let suffixMinIdx = findSuffixMinIdx(nums, 0);
 
@@ -19,4 +19,4 @@ function firstStableIndex(nums: number[], k: number): number {
     }
 
     return -1;
-}
+};

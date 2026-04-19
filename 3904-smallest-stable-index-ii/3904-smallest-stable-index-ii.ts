@@ -1,16 +1,16 @@
 const firstStableIndex = (nums: number[], k: number): number => {
     const n = nums.length;
 
-    const prefixMax = new Array<number>(n);
-    prefixMax[0] = nums[0];
-    for (let i = 1; i < n; i++) prefixMax[i] = Math.max(prefixMax[i - 1], nums[i]);
-
-    const suffixMin = new Array<number>(n);
+    // Precompute suffix minimums: suffixMin[i] = min(nums[i..n-1])
+    const suffixMin = new Array(n);
     suffixMin[n - 1] = nums[n - 1];
-    for (let i = n - 2; i >= 0; i--) suffixMin[i] = Math.min(suffixMin[i + 1], nums[i]);
+    for (let i = n - 2; i >= 0; i--)
+        suffixMin[i] = Math.min(nums[i], suffixMin[i + 1]);
 
+    let prefixMax = -Infinity;
     for (let i = 0; i < n; i++) {
-        if (prefixMax[i] - suffixMin[i] <= k) return i;
+        prefixMax = Math.max(prefixMax, nums[i]);
+        if (prefixMax - suffixMin[i] <= k) return i;
     }
 
     return -1;

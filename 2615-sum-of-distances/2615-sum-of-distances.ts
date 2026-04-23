@@ -1,31 +1,26 @@
-function distance(nums: number[]): number[] {
+const distance = (nums: number[]): number[] => {
     const n = nums.length;
-    const groups: Map<number, number[]> = new Map();
+    const groups = new Map<number, number[]>();
 
     for (let i = 0; i < n; i++) {
-        if (!groups.has(nums[i])) {
-            groups.set(nums[i], []);
-        }
+        if (!groups.has(nums[i])) groups.set(nums[i], []);
         groups.get(nums[i])!.push(i);
     }
 
-    const res: number[] = new Array(n).fill(0);
+    const result = new Array(n).fill(0);
 
     for (const group of groups.values()) {
-        let total = 0;
-        for (const idx of group) {
-            total += idx;
-        }
+        const groupSize = group.length;
+        let totalIdx = group.reduce((sum, idx) => sum + idx, 0);
+        let prefixSum = 0;
 
-        let prefixTotal = 0;
-        const sz = group.length;
-
-        for (let i = 0; i < sz; i++) {
+        for (let i = 0; i < groupSize; i++) {
             const idx = group[i];
-            res[idx] = total - prefixTotal * 2 + idx * (2 * i - sz);
-            prefixTotal += idx;
+            // Left elements contribute (idx*i - prefixSum), right contribute (totalIdx - prefixSum - idx*(groupSize-i))
+            result[idx] = totalIdx - prefixSum * 2 + idx * (2 * i - groupSize);
+            prefixSum += idx;
         }
     }
 
-    return res;
-}
+    return result;
+};

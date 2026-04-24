@@ -1,15 +1,13 @@
-function furthestDistanceFromOrigin(moves: string): number {
-    let a = 0, B = 0;
+const furthestDistanceFromOrigin = (moves: string): number => {
+    let position = 0;
+    let wildcards = 0;
 
-    for (let c of moves) {
-        if (c === 'L') {
-            a--;
-        } else if (c === 'R') {
-            a++;
-        } else {
-            B++;
-        }
+    for (const move of moves) {
+        if      (move === 'L') position--;
+        else if (move === 'R') position++;
+        else                   wildcards++;
     }
 
-    return Math.abs(a) + B;
-}
+    // Wildcards all go in the direction of net movement to maximise distance
+    return Math.abs(position) + wildcards;
+};

@@ -1,33 +1,32 @@
-function containsCycle(grid: string[][]): boolean {
-    const rows = grid.length, cols = grid[0].length;
-    const parent: number[] = Array.from({ length: rows * cols }, (_, i) => i);
-    const find = (x: number): number => {
-        while (parent[x] !== x) {
-            parent[x] = parent[parent[x]];
-            x = parent[x];
-        }
-        return x;
-    };
+const containsCycle = (grid: string[][]): boolean => {
+    const rows = grid.length;
+    const cols = grid[0].length;
+    const visited = Array.from({ length: rows }, () => Array(cols).fill(false));
+    const directions = [[0, 1], [1, 0], [0, -1], [-1, 0]];
 
-    const unionSets = (a: number, b: number): boolean => {
-        const ra = find(a), rb = find(b);
-        if (ra === rb) 
-            return true;
-        parent[ra] = rb;
+    const dfs = (r: number, c: number, prevR: number, prevC: number): boolean => {
+        visited[r][c] = true;
+
+        for (const [dr, dc] of directions) {
+            const nr = r + dr;
+            const nc = c + dc;
+
+            if (
+                nr >= 0 && nr < rows &&
+                nc >= 0 && nc < cols &&
+                grid[nr][nc] === grid[r][c] &&
+                !(nr === prevR && nc === prevC)
+            ) {
+                if (visited[nr][nc] || dfs(nr, nc, r, c)) return true;
+            }
+        }
+
         return false;
     };
 
-    for (let i = 0; i < rows; i++) {
-        for (let j = 0; j < cols; j++) {
-            if (j + 1 < cols && grid[i][j] === grid[i][j + 1]) {
-                if (unionSets(i * cols + j, i * cols + j + 1)) 
-                    return true;
-            }
-            if (i + 1 < rows && grid[i][j] === grid[i + 1][j]) {
-                if (unionSets(i * cols + j, (i + 1) * cols + j)) 
-                    return true;
-            }
-        }
-    }
+    for (let r = 0; r < rows; r++)
+        for (let c = 0; c < cols; c++)
+            if (!visited[r][c] && dfs(r, c, -1, -1)) return true;
+
     return false;
 };

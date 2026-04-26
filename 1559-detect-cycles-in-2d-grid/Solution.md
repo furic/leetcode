@@ -1,17 +1,23 @@
 # DFS Same-Value Cycle Detection | 18 Lines | O(m×n) | 33ms
 
 # Intuition
-<!-- Describe your first thoughts on how to solve this problem. -->
+A cycle exists when DFS on same-value connected cells reaches an already-visited cell via a path that isn't just immediately backtracking. We prevent trivial back-edges by passing the previous cell coordinates and skipping that neighbour.
 
 # Approach
-<!-- Describe your approach to solving the problem. -->
+- Use a global `visited` matrix to ensure each cell is processed at most once across all DFS calls.
+- For each unvisited cell, launch DFS with `(prevR, prevC) = (-1, -1)` (no parent).
+- In DFS from `(r, c)`:
+  - Mark `(r, c)` as visited.
+  - For each of the 4 neighbours `(nr, nc)` with the same character:
+    - Skip `(nr, nc)` if it equals `(prevR, prevC)` — this is the cell we just came from.
+    - If `(nr, nc)` is already visited → cycle found, return `true`.
+    - Otherwise recurse. If recursion returns `true`, propagate it up.
+- **Why this detects cycles of length ≥ 4:** The `!(nr === prevR && nc === prevC)` check only blocks the immediate parent. Reaching any other visited cell implies a longer path exists, forming a valid cycle.
 
 # Complexity
-- Time complexity:
-<!-- Add your time complexity here, e.g. $$O(n)$$ -->
+- Time complexity: $$O(m \times n)$$ — each cell is visited at most once.
 
-- Space complexity:
-<!-- Add your space complexity here, e.g. $$O(n)$$ -->
+- Space complexity: $$O(m \times n)$$ — visited matrix and recursion stack depth up to `m × n`.
 
 # Code
 ```typescript []

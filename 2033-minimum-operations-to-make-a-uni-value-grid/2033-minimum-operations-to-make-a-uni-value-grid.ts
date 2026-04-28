@@ -1,40 +1,9 @@
-function minOperations(grid: number[][], x: number): number {
-    /**
-    let count: number[] = [];
-    for (let row of grid) {
-        for (let num of row) {
-            count.push(num);
-        }
-    }
-    count.sort((a, b) => a - b);
+const minOperations = (grid: number[][], x: number): number => {
+    const values = grid.flat().sort((a, b) => a - b);
+    const targetMod = values[0] % x;
 
-    for (let c of count) {
-        if (Math.abs(c - count[0]) % x !== 0) {
-            return -1; 
-        }
-    }
-    let cost = count[Math.floor(count.length / 2)];
-    let op = 0;
-    for (let c of count) {
-        op += Math.abs(c - cost) / x;
-    }
+    if (values.some(v => v % x !== targetMod)) return -1;
 
-    return op;
-    */
-    let res: number[] = [];
-
-    for (let row of grid) {
-        for (let v of row) res.push(v);
-    }
-    let mod = res[0] % x;
-    for (let v of res) {
-        if (v % x !== mod) return -1;
-    }
-    res.sort((a, b) => a - b);
-    let m = res[Math.floor(res.length / 2)];
-    let cnt = 0;
-    for (let v of res) {
-        cnt += Math.abs(v - m) / x;
-    }
-    return cnt;
+    const median = values[Math.floor(values.length / 2)];
+    return values.reduce((ops, v) => ops + Math.abs(v - median) / x, 0);
 };

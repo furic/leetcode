@@ -1,41 +1,36 @@
-function maxPathScore(grid: number[][], k: number): number {
-    const m: number = grid.length;
-    const n: number = grid[0].length;
-    let dp: Int32Array[] = Array.from({ length: n }, () => new Int32Array(k + 1).fill(-1));
+const maxPathScore = (grid: number[][], k: number): number => {
+    const rows = grid.length;
+    const cols = grid[0].length;
 
+    // dp[col][remainingK] = best score reachable at this column with remainingK budget left
+    let dp: Int32Array[] = Array.from({ length: cols }, () => new Int32Array(k + 1).fill(-1));
     dp[0][k] = 0;
 
-    for (let i = 0; i < m; i++) {
-        for (let j = 0; j < n; j++) {
-            const curr: number = grid[i][j];
-            const combined: Int32Array = new Int32Array(k + 1).fill(-1);
+    for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+            const cellValue = grid[r][c];
 
-            for (let rk = 0; rk <= k; rk++) {
-                combined[rk] = Math.max(combined[rk], dp[j][rk]);
-            }
+            // Merge best scores from current and left column
+            const best = new Int32Array(k + 1).fill(-1);
+            for (let budget = 0; budget <= k; budget++)
+                best[budget] = Math.max(best[budget], dp[c][budget]);
+            if (c > 0)
+                for (let budget = 0; budget <= k; budget++)
+                    best[budget] = Math.max(best[budget], dp[c - 1][budget]);
 
-            if (j > 0) {
-                for (let rk = 0; rk <= k; rk++) {
-                    combined[rk] = Math.max(combined[rk], dp[j - 1][rk]);
-                }
-            }
-
-            if (curr !== 0) {
-                dp[j].fill(-1);
-                for (let rk = 1; rk <= k; rk++) {
-                    if (combined[rk] !== -1) {
-                        dp[j][rk - 1] = combined[rk] + curr;
-                    }
-                }
+            if (cellValue !== 0) {
+                dp[c].fill(-1);
+                for (let budget = 1; budget <= k; budget++)
+                    if (best[budget] !== -1)
+                        dp[c][budget - 1] = best[budget] + cellValue;
             } else {
-                dp[j] = combined;
+                dp[c] = best;
             }
         }
     }
 
-    let maxVal: number = -1;
-    for (let rk = 0; rk <= k; rk++) {
-        maxVal = Math.max(maxVal, dp[n - 1][rk]);
-    }
-    return maxVal;
+    let maxScore = -1;
+    for (let budget = 0; budget <= k; budget++)
+        maxScore = Math.max(maxScore, dp[cols - 1][budget]);
+    return maxScore;
 };

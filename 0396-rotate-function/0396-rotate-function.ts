@@ -1,23 +1,15 @@
-function maxRotateFunction(nums: number[]): number {
-    const F = (arr: number[]): number => {
-        let f = 0;
-        for (let i = 0; i < arr.length; i++) {
-            f += i * arr[i];
-        }
-        return f;
-    };
-
+const maxRotateFunction = (nums: number[]): number => {
     const n = nums.length;
+    const totalSum = nums.reduce((sum, val) => sum + val, 0);
 
-    let total = 0;
-    for (const x of nums) total += x;
+    // F(k) = F(k-1) + totalSum - n * nums[n-k]
+    let rotatedF = nums.reduce((sum, val, i) => sum + i * val, 0);
+    let maxF = rotatedF;
 
-    const dp: number[] = [F(nums)];
-
-    for (let i = 1; i < n; i++) {
-        const curr = dp[i - 1] + total - n * nums[n - i];
-        dp.push(curr);
+    for (let k = 1; k < n; k++) {
+        rotatedF += totalSum - n * nums[n - k];
+        maxF = Math.max(maxF, rotatedF);
     }
 
-    return Math.max(...dp);
-}
+    return maxF;
+};

@@ -1,14 +1,11 @@
 const countOppositeParity = (nums: number[]): number[] => {
-    let oddCount = 0;
-    let evenCount = 0;
+    const parityCount = [0, 0]; // [evenCount, oddCount]
+
     for (let i = nums.length - 1; i >= 0; i--) {
-        if (nums[i] % 2 === 1) {
-            oddCount++;
-            nums[i] = evenCount;
-        } else {
-            evenCount++;
-            nums[i] = oddCount;
-        }
+        const parity = nums[i] & 1;
+        nums[i] = parityCount[1 ^ parity]; // count of opposite parity seen so far
+        parityCount[parity]++;
     }
+
     return nums;
 };

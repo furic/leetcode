@@ -1,37 +1,25 @@
-/**
- * Definition for singly-linked list.
- * class ListNode {
- *     val: number
- *     next: ListNode | null
- *     constructor(val?: number, next?: ListNode | null) {
- *         this.val = (val===undefined ? 0 : val)
- *         this.next = (next===undefined ? null : next)
- *     }
- * }
- */
+const rotateRight = (head: ListNode | null, k: number): ListNode | null => {
+    if (!head || !head.next) return head;
 
-function rotateRight(head: ListNode | null, k: number): ListNode | null {
-    if (!head || !head.next) 
-        return head;
-    let n = 1;
-    let last = head;
-    while (last.next) {
-        n++;
-        last = last.next;
-    }
-    k %= n;
-
-    if (k === 0) 
-        return head;
-    let curr = head;
-    let count = 1;
-    while (count < n - k) {
-        curr = curr.next!;
-        count++;
+    // Find tail and length in one pass
+    let tail = head;
+    let length = 1;
+    while (tail.next) {
+        tail = tail.next;
+        length++;
     }
 
-    let newHead = curr.next;
-    curr.next = null;
-    last.next = head;
+    const effectiveK = k % length;
+    if (effectiveK === 0) return head;
+
+    // Find the new tail: (length - effectiveK - 1) steps from head
+    let newTail = head;
+    for (let i = 0; i < length - effectiveK - 1; i++)
+        newTail = newTail.next!;
+
+    const newHead = newTail.next!;
+    tail.next = head;
+    newTail.next = null;
+
     return newHead;
 };

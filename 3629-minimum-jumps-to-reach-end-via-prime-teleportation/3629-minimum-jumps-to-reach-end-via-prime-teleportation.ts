@@ -1,68 +1,56 @@
-function minJumps(nums: number[]): number {
-    const n: number = nums.length;
-    if (n <= 1) 
-        return 0;
+const MAX_VAL = 1_000_001;
 
-    const port: Map<number, number[]> = new Map();
-
-    for (let i = 0; i < n; i++) {
-        let tmp: number = nums[i];
-        for (let d = 2; d * d <= tmp; d++) {
-            if (tmp % d === 0) {
-                if (!port.has(d)) 
-                    port.set(d, []);
-                port.get(d)!.push(i);
-                while (tmp % d === 0) 
-                    tmp /= d;
-            }
+// Precompute prime factors for each number (only stores primes, not composites)
+const primeFactors: number[][] = Array.from({ length: MAX_VAL }, () => []);
+for (let p = 2; p < MAX_VAL; p++) {
+    if (primeFactors[p].length === 0) { // p is prime
+        for (let multiple = p; multiple < MAX_VAL; multiple += p) {
+            primeFactors[multiple].push(p);
         }
-        if (tmp > 1) {
-            if (!port.has(tmp)) port.set(tmp, []);
-            port.get(tmp)!.push(i);
+    }
+}
+
+const minJumps = (nums: number[]): number => {
+    const n = nums.length;
+
+    // Map each prime to indices where nums[i] equals that prime (direct teleport targets)
+    const primeToIndices = new Map<number, number[]>();
+    for (let i = 0; i < n; i++) {
+        const val = nums[i];
+        if (primeFactors[val].length === 1 && primeFactors[val][0] === val) { // val is prime
+            if (!primeToIndices.has(val)) primeToIndices.set(val, []);
+            primeToIndices.get(val)!.push(i);
         }
     }
 
-    const visited: Uint8Array = new Uint8Array(n);
-    const q: Int32Array = new Int32Array(n);
-    let head: number = 0;
-    let tail: number = 0;
+    const visited = new Array(n).fill(false);
+    visited[n - 1] = true;
+    let queue = [n - 1];
+    let steps = 0;
 
-    q[tail++] = 0;
-    visited[0] = 1;
-    let steps: number = 0;
+    while (true) {
+        const nextQueue: number[] = [];
 
-    while (head < tail) {
-        let sz: number = tail - head;
-        while (sz--) {
-            const i: number = q[head++];
+        for (const i of queue) {
+            if (i === 0) return steps;
 
-            if (i === n - 1) 
-                return steps;
+            // Adjacent steps
+            if (i > 0     && !visited[i - 1]) { visited[i - 1] = true; nextQueue.push(i - 1); }
+            if (i < n - 1 && !visited[i + 1]) { visited[i + 1] = true; nextQueue.push(i + 1); }
 
-            const num: number = nums[i];
-            if (port.has(num)) {
-                const neighbors: number[] = port.get(num)!;
-                for (let k = 0; k < neighbors.length; k++) {
-                    const nei = neighbors[k];
-                    if (!visited[nei]) {
-                        visited[nei] = 1;
-                        q[tail++] = nei;
+            // Prime teleportation: jump to all indices sharing a prime factor
+            for (const prime of primeFactors[nums[i]]) {
+                const targets = primeToIndices.get(prime);
+                if (targets) {
+                    for (const j of targets) {
+                        if (!visited[j]) { visited[j] = true; nextQueue.push(j); }
                     }
+                    primeToIndices.set(prime, []); // Clear to avoid revisiting
                 }
-                port.delete(num);
-            }
-            if (i + 1 < n && !visited[i + 1]) {
-                visited[i + 1] = 1;
-                q[tail++] = i + 1;
-            }
-
-            if (i - 1 >= 0 && !visited[i - 1]) {
-                visited[i - 1] = 1;
-                q[tail++] = i - 1;
             }
         }
+
+        queue = nextQueue;
         steps++;
     }
-
-    return steps;
-}
+};

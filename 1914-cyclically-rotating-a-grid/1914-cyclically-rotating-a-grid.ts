@@ -1,43 +1,25 @@
-function rotateGrid(grid: number[][], k: number): number[][] {
-    const m = grid.length;
-    const n = grid[0].length;
+const rotateGrid = (grid: number[][], k: number): number[][] => {
+    const rows = grid.length;
+    const cols = grid[0].length;
 
-    for (let layer = 0; layer < Math.min(m, n) / 2; layer++) {
-        const r: number[] = [];
-        const c: number[] = [];
-        const val: number[] = [];
+    for (let layer = 0; layer < Math.min(rows, cols) / 2; layer++) {
+        const rowCoords: number[] = [];
+        const colCoords: number[] = [];
+        const values:    number[] = [];
 
-        for (let i = layer; i < m - layer - 1; i++) {
-            r.push(i);
-            c.push(layer);
-            val.push(grid[i][layer]);
-        }
+        // Collect perimeter cells counter-clockwise: left, bottom, right, top
+        for (let r = layer; r < rows - layer - 1; r++) { rowCoords.push(r); colCoords.push(layer);          values.push(grid[r][layer]); }
+        for (let c = layer; c < cols - layer - 1; c++) { rowCoords.push(rows - layer - 1); colCoords.push(c);          values.push(grid[rows - layer - 1][c]); }
+        for (let r = rows - layer - 1; r > layer; r--) { rowCoords.push(r); colCoords.push(cols - layer - 1); values.push(grid[r][cols - layer - 1]); }
+        for (let c = cols - layer - 1; c > layer; c--) { rowCoords.push(layer); colCoords.push(c);          values.push(grid[layer][c]); }
 
-        for (let j = layer; j < n - layer - 1; j++) {
-            r.push(m - layer - 1);
-            c.push(j);
-            val.push(grid[m - layer - 1][j]);
-        }
+        const perimeter = values.length;
+        const effectiveK = k % perimeter;
 
-        for (let i = m - layer - 1; i > layer; i--) {
-            r.push(i);
-            c.push(n - layer - 1);
-            val.push(grid[i][n - layer - 1]);
-        }
-
-        for (let j = n - layer - 1; j > layer; j--) {
-            r.push(layer);
-            c.push(j);
-            val.push(grid[layer][j]);
-        }
-
-        const total = val.length;
-        const kk = k % total;
-
-        for (let i = 0; i < total; i++) {
-            const idx = (i + total - kk) % total;
-            grid[r[i]][c[i]] = val[idx];
+        for (let i = 0; i < perimeter; i++) {
+            grid[rowCoords[i]][colCoords[i]] = values[(i + perimeter - effectiveK) % perimeter];
         }
     }
+
     return grid;
 };

@@ -1,4 +1,4 @@
-# Event Switch Simulation | 8 Lines | O(n) | 1ms
+# Event Switch Simulation | 8 Lines | O(n) |
 
 # Intuition
 A straightforward simulation — process events left to right, update score and counter per the rules, and stop early when counter hits 10.

@@ -1,12 +1,10 @@
-function minimumEffort(tasks: number[][]): number {
-    tasks.sort((a, b) => b[1] - b[0] - (a[1] - a[0]));
-    let ans = 0;
-    let remain = 0;
-    for (const task of tasks) {
-        if (remain <= task[1]) {
-            ans += task[1] - remain;
-        }
-        remain = Math.max(task[1] - task[0], remain - task[0]);
-    }
-    return ans;
-}
+const minimumEffort = (tasks: number[][]): number => {
+    // Sort by "slack" (minimum - actual) ascending: tasks with less buffer go last
+    tasks.sort((a, b) => (a[1] - a[0]) - (b[1] - b[0]));
+
+    let energy = 0;
+    for (const [actual, minimum] of tasks)
+        energy = Math.max(energy + actual, minimum);
+
+    return energy;
+};

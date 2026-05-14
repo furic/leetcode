@@ -1,10 +1,11 @@
-function isGood(nums: number[]): boolean {
-    const n: number = nums.length;
-    const sorted_num: number[] = [...nums].sort((a, b) => a - b);
-    const expected: number[] = [];
-    for (let i = 1; i < n; i++) {
-        expected.push(i);
+const isGood = (nums: number[]): boolean => {
+    const n = nums.length; // base[n-1] has length n, so target n = nums.length - 1
+    const freq = new Array(n).fill(0);
+
+    for (const val of nums) {
+        if (val >= n) return false;           // out of range for base[n-1]
+        if (++freq[val] > (val === n - 1 ? 2 : 1)) return false; // n-1 appears twice, others once
     }
-    expected.push(n - 1);
-    return JSON.stringify(sorted_num) === JSON.stringify(expected);
+
+    return true;
 };

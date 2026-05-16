@@ -1,19 +1,13 @@
-function findMin(nums: number[]): number {
-    let l = 0;
-    let r = nums.length - 1;
+const findMin = (nums: number[]): number => {
+    let lo = 0;
+    let hi = nums.length - 1;
 
-    while (l < r) {
-        let mid = l + Math.floor((r - l) / 2);
-        if (nums[mid] > nums[r]) {
-            l = mid + 1;
-        } 
-
-        else if (nums[mid] < nums[r]) {
-            r = mid;
-        } 
-        else {
-            r--;
-        }
+    while (lo < hi) {
+        const mid = (lo + hi) >> 1;
+        if      (nums[mid] > nums[hi]) lo = mid + 1;
+        else if (nums[mid] < nums[hi]) hi = mid;
+        else                           hi--;  // duplicate at hi: safe to shrink
     }
-    return nums[l];
+
+    return nums[lo];
 };

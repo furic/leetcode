@@ -1,23 +1,18 @@
-function canReach(arr: number[], start: number): boolean {
+const canReach = (arr: number[], start: number): boolean => {
     const n = arr.length;
-
     const visited = new Set<number>();
-    const q: number[] = [start];
+    const queue: number[] = [start];
 
-    while (q.length) {
-        const i = q.shift()!;
+    while (queue.length) {
+        const idx = queue.shift()!;
 
-        if (i < 0 || i >= n || visited.has(i))
-            continue;
+        if (idx < 0 || idx >= n || visited.has(idx)) continue;
+        if (arr[idx] === 0) return true;
 
-        if (arr[i] === 0)
-            return true;
-
-        visited.add(i);
-
-        q.push(i + arr[i]);
-        q.push(i - arr[i]);
+        visited.add(idx);
+        queue.push(idx + arr[idx]);
+        queue.push(idx - arr[idx]);
     }
 
     return false;
-}
+};

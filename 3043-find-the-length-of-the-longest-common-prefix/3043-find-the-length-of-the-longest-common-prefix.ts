@@ -1,31 +1,22 @@
-function longestCommonPrefix(arr1: number[], arr2: number[]): number {
-    const prefixs = new Set<number>();
-
-    // 1. Generate and store all prefixes for numbers in arr1
-    for (let i = 0; i < arr1.length; i++) {
-        let x = arr1[i];
-        while (x > 0) {
-            prefixs.add(x);
-            x = Math.floor(x / 10); // Remove the last digit
-        }
+const longestCommonPrefix = (arr1: number[], arr2: number[]): number => {
+    // Store all numeric prefixes of arr1 values
+    const arr1Prefixes = new Set<number>();
+    for (const num of arr1) {
+        for (let x = num; x > 0; x = Math.floor(x / 10))
+            arr1Prefixes.add(x);
     }
 
-    let res = 0;
+    let maxLen = 0;
 
-    // 2. Check prefixes for numbers in arr2 against the Set
-    for (let i = 0; i < arr2.length; i++) {
-        let x = arr2[i];
-
-        while (x > 0) {
-            // Check if the current prefix exists in arr1
-            if (prefixs.has(x)) {
-                // The first match is the longest for this number
-                res = Math.max(res, x.toString().length);
-                break; // Optimization: Stop checking shorter prefixes
+    // For each arr2 value, find the longest prefix that exists in arr1Prefixes
+    for (const num of arr2) {
+        for (let x = num; x > 0; x = Math.floor(x / 10)) {
+            if (arr1Prefixes.has(x)) {
+                maxLen = Math.max(maxLen, x.toString().length);
+                break; // First match is the longest for this number
             }
-            x = Math.floor(x / 10); // Remove the last digit
         }
     }
 
-    return res;
+    return maxLen;
 };

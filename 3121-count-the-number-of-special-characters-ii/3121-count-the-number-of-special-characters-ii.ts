@@ -1,41 +1,22 @@
-function numberOfSpecialChars(word: string): number {
-    const lastLower: number[] = new Array(26).fill(-1);
-    const firstUpper: number[] = new Array(26).fill(-1);
-
-    const invalid = new Set<number>();
+const numberOfSpecialChars = (word: string): number => {
+    const lastLowerIdx = new Array(26).fill(-1);
+    const firstUpperIdx = new Array(26).fill(-1);
 
     for (let i = 0; i < word.length; i++) {
         const ch = word[i];
-
-        if (ch >= 'a' && ch <= 'z') {
-            const idx = ch.charCodeAt(0) - 97;
-
-            lastLower[idx] = i;
-
-            if (firstUpper[idx] !== -1) {
-                invalid.add(idx);
-            }
-
+        if (ch >= 'a') {
+            lastLowerIdx[ch.charCodeAt(0) - 97] = i;
         } else {
             const idx = ch.charCodeAt(0) - 65;
-
-            if (firstUpper[idx] === -1) {
-                firstUpper[idx] = i;
-            }
+            if (firstUpperIdx[idx] === -1) firstUpperIdx[idx] = i;
         }
     }
 
-    let specialCount = 0;
-
+    let count = 0;
     for (let i = 0; i < 26; i++) {
-        if (
-            lastLower[i] !== -1 &&
-            firstUpper[i] !== -1 &&
-            !invalid.has(i)
-        ) {
-            specialCount++;
-        }
+        if (lastLowerIdx[i] !== -1 && firstUpperIdx[i] !== -1 && lastLowerIdx[i] < firstUpperIdx[i])
+            count++;
     }
 
-    return specialCount;
-}
+    return count;
+};

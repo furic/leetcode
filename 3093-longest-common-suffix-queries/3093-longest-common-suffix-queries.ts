@@ -1,37 +1,39 @@
 interface TrieNode {
     children: Record<string, TrieNode>;
-    best: number;
-    len: number;
+    bestIdx: number;
+    bestLen: number;
 }
 
-function stringIndices(wordsContainer: string[], wordsQuery: string[]): number[] {
-    const root: TrieNode = { children: {}, best: -1, len: Infinity };
-    
-    let minLenIdx = 0;
+const makeNode = (idx: number, len: number): TrieNode =>
+    ({ children: {}, bestIdx: idx, bestLen: len });
+
+const stringIndices = (wordsContainer: string[], wordsQuery: string[]): number[] => {
+    const root: TrieNode = makeNode(-1, Infinity);
+
+    let shortestIdx = 0;
     wordsContainer.forEach((word, idx) => {
-        if (word.length < wordsContainer[minLenIdx].length) 
-            minLenIdx = idx;
-        
-        let curr = root;
+        if (word.length < wordsContainer[shortestIdx].length) shortestIdx = idx;
+
+        let node = root;
         for (let i = word.length - 1; i >= 0; i--) {
-            const char = word[i];
-            if (!curr.children[char]) 
-                curr.children[char] = { children: {}, best: idx, len: word.length };
-            curr = curr.children[char];
-            if (word.length < curr.len) { 
-                curr.best = idx; curr.len = word.length; 
+            const ch = word[i];
+            if (!node.children[ch]) node.children[ch] = makeNode(idx, word.length);
+            node = node.children[ch];
+            if (word.length < node.bestLen) {
+                node.bestIdx = idx;
+                node.bestLen = word.length;
             }
         }
     });
 
     return wordsQuery.map(word => {
-        let curr = root, lastBest = -1;
+        let node = root;
+        let lastBestIdx = -1;
         for (let i = word.length - 1; i >= 0; i--) {
-            if (!curr.children[word[i]]) 
-                break;
-            curr = curr.children[word[i]];
-            lastBest = curr.best;
+            if (!node.children[word[i]]) break;
+            node = node.children[word[i]];
+            lastBestIdx = node.bestIdx;
         }
-        return lastBest === -1 ? minLenIdx : lastBest;
+        return lastBestIdx === -1 ? shortestIdx : lastBestIdx;
     });
-}
+};

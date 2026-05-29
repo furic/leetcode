@@ -1,16 +1,12 @@
-function minElement(nums: number[]): number {
-    let minVal = Infinity;
+const minElement = (nums: number[]): number => {
+    let minDigitSum = Infinity;
 
-    for (let num of nums) {
-        let currentSum = 0;
-
-        while (num > 0) {
-            currentSum += num % 10;
-            num = Math.floor(num / 10);
-        }
-
-        minVal = Math.min(minVal, currentSum);
+    for (const num of nums) {
+        let digitSum = 0;
+        for (let n = num; n > 0; n = Math.floor(n / 10))
+            digitSum += n % 10;
+        minDigitSum = Math.min(minDigitSum, digitSum);
     }
 
-    return minVal;
-}
+    return minDigitSum;
+};

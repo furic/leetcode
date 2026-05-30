@@ -1,61 +1,56 @@
-function getResults(queries: number[][]): boolean[] {
+const getResults = (queries: number[][]): boolean[] => {
     let maxX = 0;
-    for (const q of queries) {
-        maxX = Math.max(maxX, q[1]);
-    }
-    
-    let n = 1;
-    while (n <= maxX + 1) n *= 2;
-    const tree = new Int32Array(2 * n);
-    
-    const update = (i: number, val: number): void => {
-        for (tree[i += n] = val; i > 1; i >>= 1) {
-            tree[i >> 1] = Math.max(tree[i], tree[i ^ 1]);
-        }
-    };
-    
-    const query = (r: number): number => {
-        let res = 0;
-        for (let l = n, r_idx = r + n + 1; l < r_idx; l >>= 1, r_idx >>= 1) {
-            if (l & 1) 
-                res = Math.max(res, tree[l++]);
-            if (r_idx & 1) 
-                res = Math.max(res, tree[--r_idx]);
-        }
-        return res;
-    };
-    
-    const obstacles: number[] = [0];
-    const res: boolean[] = [];
-    
-    for (const q of queries) {
-        const type = q[0];
-        const x = q[1];
+    for (const q of queries) maxX = Math.max(maxX, q[1]);
 
-        let l = 0, r = obstacles.length;
-        while (l < r) {
-            const mid = (l + r) >> 1;
-            if (obstacles[mid] > x) r = mid;
-            else l = mid + 1;
+    // Segment tree sized to next power of 2 above maxX
+    let size = 1;
+    while (size <= maxX + 1) size *= 2;
+    const tree = new Int32Array(2 * size);
+
+    const update = (pos: number, val: number): void => {
+        for (tree[pos += size] = val; pos > 1; pos >>= 1)
+            tree[pos >> 1] = Math.max(tree[pos], tree[pos ^ 1]);
+    };
+
+    // Range max query over [0, right]
+    const queryMax = (right: number): number => {
+        let result = 0;
+        for (let lo = size, hi = right + size + 1; lo < hi; lo >>= 1, hi >>= 1) {
+            if (lo & 1) result = Math.max(result, tree[lo++]);
+            if (hi & 1) result = Math.max(result, tree[--hi]);
         }
-        const idx = l;
-        
+        return result;
+    };
+
+    const obstaclePositions: number[] = [0]; // Sentinel at origin
+    const results: boolean[] = [];
+
+    for (const q of queries) {
+        const [type, x] = q;
+
+        // Binary search: find insertion point for x in obstaclePositions
+        let lo = 0, hi = obstaclePositions.length;
+        while (lo < hi) {
+            const mid = (lo + hi) >> 1;
+            if (obstaclePositions[mid] > x) hi = mid;
+            else lo = mid + 1;
+        }
+        const insertIdx = lo;
+
         if (type === 1) {
-            const prev = obstacles[idx - 1];
-            const nxt = idx < obstacles.length ? obstacles[idx] : -1;
-            
-            update(x, x - prev);
-            if (nxt !== -1) {
-                update(nxt, nxt - x);
-            }
-            obstacles.splice(idx, 0, x);
+            const prevObstacle = obstaclePositions[insertIdx - 1];
+            const nextObstacle = insertIdx < obstaclePositions.length ? obstaclePositions[insertIdx] : -1;
+
+            update(x, x - prevObstacle);
+            if (nextObstacle !== -1) update(nextObstacle, nextObstacle - x);
+            obstaclePositions.splice(insertIdx, 0, x);
         } else {
-            const sz = q[2];
-            const prev = obstacles[idx - 1];
-            const mx = Math.max(x - prev, query(prev));
-            res.push(sz <= mx);
+            const blockSize = q[2];
+            const prevObstacle = obstaclePositions[insertIdx - 1];
+            const maxGap = Math.max(x - prevObstacle, queryMax(prevObstacle));
+            results.push(blockSize <= maxGap);
         }
     }
-    
-    return res;
+
+    return results;
 };

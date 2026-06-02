@@ -1,25 +1,25 @@
-function earliestFinishTime(landStartTime: number[], landDuration: number[], waterStartTime: number[], waterDuration: number[]): number {
-    let res = Infinity;
-    const n = landStartTime.length;
-    const m = waterStartTime.length;
+// Earliest finish time when doing a "first" ride then a "second" ride:
+// Try every combination, take the minimum over all first-ride choices,
+// then for each finish time find the best second ride.
+const earliestFinishSequence = (
+    firstStart: number[], firstDuration: number[],
+    secondStart: number[], secondDuration: number[],
+): number => {
+    let bestFirstFinish = Infinity;
+    for (let i = 0; i < firstStart.length; i++)
+        bestFirstFinish = Math.min(bestFirstFinish, firstStart[i] + firstDuration[i]);
 
-    for (let i = 0; i < n; i++) {
-        let landFinish = landStartTime[i] + landDuration[i];
-        for (let j = 0; j < m; j++) {
-            let waterStart = Math.max(landFinish, waterStartTime[j]);
-            let totalFinish = waterStart + waterDuration[j];
-            res = Math.min(res, totalFinish);
-        }
-    }
+    let bestTotalFinish = Infinity;
+    for (let j = 0; j < secondStart.length; j++)
+        bestTotalFinish = Math.min(bestTotalFinish, Math.max(secondStart[j], bestFirstFinish) + secondDuration[j]);
 
-    for (let j = 0; j < m; j++) {
-        let waterFinish = waterStartTime[j] + waterDuration[j];
-        for (let i = 0; i < n; i++) {
-            let landStart = Math.max(waterFinish, landStartTime[i]);
-            let totalFinish = landStart + landDuration[i];
-            res = Math.min(res, totalFinish);
-        }
-    }
-
-    return res;
+    return bestTotalFinish;
 };
+
+const earliestFinishTime = (
+    landStartTime: number[], landDuration: number[],
+    waterStartTime: number[], waterDuration: number[],
+): number => Math.min(
+    earliestFinishSequence(landStartTime, landDuration, waterStartTime, waterDuration),
+    earliestFinishSequence(waterStartTime, waterDuration, landStartTime, landDuration),
+);

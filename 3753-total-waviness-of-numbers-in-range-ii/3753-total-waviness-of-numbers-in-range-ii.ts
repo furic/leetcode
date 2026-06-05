@@ -1,66 +1,64 @@
-function totalWaviness(num1: number, num2: number): number {
-    const getDir = (a: number, b: number): number => {
-        if (a < b) 
-            return 0;
-        if (a === b) 
-            return 1;
-        return 2;
-    };
-    const matchDir = (dir1: number, dir2: number): boolean => {
-        return (dir1 === 0 && dir2 === 2) || (dir1 === 2 && dir2 === 0);
-    };
-    const getIndex = (
-        pos: number,
-        tie: number,
-        lastDir: number,
-        lastDigit: number
-    ): number => {
-        return ((pos * 2 + tie) * 3 + lastDir) * 10 + lastDigit;
-    };
-    const helper = (num: number): number => {
-        if (num <= 0) 
-            return 0;
+const totalWaviness = (num1: number, num2: number): number => {
+    // Direction encoding: 0 = rising, 1 = flat, 2 = falling
+    const getDir = (a: number, b: number): number =>
+        a < b ? 0 : a === b ? 1 : 2;
+
+    // A peak (0→2) or valley (2→0) contributes +1 waviness
+    const isWavy = (prevDir: number, newDir: number): boolean =>
+        (prevDir === 0 && newDir === 2) || (prevDir === 2 && newDir === 0);
+
+    // Flatten 4D state [pos, isFree, lastDir, lastDigit] into a 1D index
+    const stateIdx = (pos: number, isFree: number, lastDir: number, lastDigit: number): number =>
+        ((pos * 2 + isFree) * 3 + lastDir) * 10 + lastDigit;
+
+    // Digit DP: count total waviness for all numbers in [1, num]
+    const countUpTo = (num: number): number => {
+        if (num <= 0) return 0;
+
         const digits = String(num).split('').map(Number);
         const m = digits.length;
-        const size = m * 2 * 3 * 10;
-        const totalWaviness: number[] = new Array(size).fill(0);
-        const totalWays: number[] = new Array(size).fill(0);
-        for (let firstPos = 0; firstPos < m; firstPos++) {
-            const maxFirstDigit = firstPos === 0 ? digits[0] : 9;
-            for (let firstDigit = 1; firstDigit <= maxFirstDigit; firstDigit++) {
-                const tie = firstPos === 0 ? (firstDigit < digits[0] ? 1 : 0) : 1;
-                const lastDir = 1;
-                totalWays[getIndex(firstPos, tie, lastDir, firstDigit)]++;
+        const stateCount = m * 2 * 3 * 10;
+        const wavinessSum = new Array(stateCount).fill(0);
+        const wayCount    = new Array(stateCount).fill(0);
+
+        // Seed: place the first digit at each position (free or tight)
+        for (let startPos = 0; startPos < m; startPos++) {
+            const maxFirstDigit = startPos === 0 ? digits[0] : 9;
+            for (let d = 1; d <= maxFirstDigit; d++) {
+                const isFree = startPos === 0 ? (d < digits[0] ? 1 : 0) : 1;
+                wayCount[stateIdx(startPos, isFree, 1, d)]++;
             }
         }
+
+        // Transition: extend each state by one more digit
         for (let pos = 0; pos + 1 < m; pos++) {
-            for (let tie = 0; tie < 2; tie++) {
+            for (let isFree = 0; isFree < 2; isFree++) {
                 for (let lastDir = 0; lastDir < 3; lastDir++) {
                     for (let lastDigit = 0; lastDigit < 10; lastDigit++) {
-                        const idx = getIndex(pos, tie, lastDir, lastDigit);
-                        if (totalWays[idx] === 0)
-                            continue;
-                        const maxNextDigit = tie ? 9 : digits[pos + 1];
-                        for (let nextDigit = 0; nextDigit <= maxNextDigit; nextDigit++) {
-                            const newTie = tie || nextDigit < digits[pos + 1] ? 1 : 0;
-                            const newDir = getDir(lastDigit, nextDigit);
-                            const newIdx = getIndex(pos + 1, newTie, newDir, nextDigit);
-                            totalWaviness[newIdx] += totalWaviness[idx] + totalWays[idx] * (matchDir(lastDir, newDir) ? 1 : 0);
-                            totalWays[newIdx] += totalWays[idx];
+                        const idx = stateIdx(pos, isFree, lastDir, lastDigit);
+                        if (wayCount[idx] === 0) continue;
+
+                        const maxNext = isFree ? 9 : digits[pos + 1];
+                        for (let nextDigit = 0; nextDigit <= maxNext; nextDigit++) {
+                            const newFree  = isFree || nextDigit < digits[pos + 1] ? 1 : 0;
+                            const newDir   = getDir(lastDigit, nextDigit);
+                            const newIdx   = stateIdx(pos + 1, newFree, newDir, nextDigit);
+                            wavinessSum[newIdx] += wavinessSum[idx] + wayCount[idx] * (isWavy(lastDir, newDir) ? 1 : 0);
+                            wayCount[newIdx]    += wayCount[idx];
                         }
                     }
                 }
             }
         }
-        let ans = 0;
-        for (let tie = 0; tie < 2; tie++) {
-            for (let lastDir = 0; lastDir < 3; lastDir++) {
-                for (let lastDigit = 0; lastDigit < 10; lastDigit++) {
-                    ans += totalWaviness[getIndex(m - 1, tie, lastDir, lastDigit)]
-                }
-            }
-        }
-        return ans;
+
+        let total = 0;
+        for (let isFree = 0; isFree < 2; isFree++)
+            for (let lastDir = 0; lastDir < 3; lastDir++)
+                for (let lastDigit = 0; lastDigit < 10; lastDigit++)
+                    total += wavinessSum[stateIdx(m - 1, isFree, lastDir, lastDigit)];
+
+        return total;
     };
-    return helper(num2) - helper(num1 - 1);
-}
+
+    return countUpTo(num2) - countUpTo(num1 - 1);
+};

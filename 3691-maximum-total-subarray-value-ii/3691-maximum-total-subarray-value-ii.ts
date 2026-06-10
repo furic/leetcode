@@ -1,38 +1,9 @@
-function maxTotalValue(nums: number[], k: number): number {
-    interface Node { val: number; l: number; r: number; }
-
-    class MaxHeap {
-        private heap: Node[] = [];
-        push(node: Node): void {
-            this.heap.push(node);
-            let idx = this.heap.length - 1;
-            while (idx > 0) {
-                let parent = Math.floor((idx - 1) / 2);
-                if (this.heap[idx].val <= this.heap[parent].val) break;
-                [this.heap[idx], this.heap[parent]] = [this.heap[parent], this.heap[idx]];
-                idx = parent;
-            }
-        }
-        pop(): Node {
-            const top = this.heap[0];
-            const last = this.heap.pop()!;
-            if (this.heap.length > 0) {
-                this.heap[0] = last;
-                let idx = 0;
-                while (true) {
-                    let left = 2 * idx + 1, right = 2 * idx + 2, largest = idx;
-                    if (left < this.heap.length && this.heap[left].val > this.heap[largest].val) largest = left;
-                    if (right < this.heap.length && this.heap[right].val > this.heap[largest].val) largest = right;
-                    if (largest === idx) break;
-                    [this.heap[idx], this.heap[largest]] = [this.heap[largest], this.heap[idx]];
-                    idx = largest;
-                }
-            }
-            return top;
-        }
-    }
+const maxTotalValue = (nums: number[], k: number): number => {
+    // --- Segment tree for range max and min queries ---
     const n = nums.length;
-    let size = 1; while (size < n) size *= 2;
+    let size = 1;
+    while (size < n) size *= 2;
+
     const segMax = new Int32Array(2 * size).fill(0);
     const segMin = new Int32Array(2 * size).fill(1e9);
 
@@ -42,33 +13,61 @@ function maxTotalValue(nums: number[], k: number): number {
         segMin[i] = Math.min(segMin[2 * i], segMin[2 * i + 1]);
     }
 
-    const query = (l: number, r: number): number => {
-        let mx = 0, mn = 1e9;
+    const rangeValue = (l: number, r: number): number => {
+        let rangeMax = 0, rangeMin = 1e9;
         for (l += size, r += size; l <= r; l >>= 1, r >>= 1) {
-            if (l & 1) { 
-                mx = Math.max(mx, segMax[l]); 
-                mn = Math.min(mn, segMin[l]); 
-                l++; 
-            }
-            if (!(r & 1)) { 
-                mx = Math.max(mx, segMax[r]); 
-                mn = Math.min(mn, segMin[r]); 
-                r--; 
-            }
+            if (l & 1) { rangeMax = Math.max(rangeMax, segMax[l]); rangeMin = Math.min(rangeMin, segMin[l++]); }
+            if (!(r & 1)) { rangeMax = Math.max(rangeMax, segMax[r]); rangeMin = Math.min(rangeMin, segMin[r--]); }
         }
-        return mx - mn;
+        return rangeMax - rangeMin;
     };
 
-    const pq = new MaxHeap();
-    for (let l = 0; l < n; l++) 
-        pq.push({val: query(l, n - 1), l, r: n - 1});
+    // --- Max-heap ordered by subarray value ---
+    interface SubarrayNode { val: number; l: number; r: number; }
 
-    let ans = 0;
+    const heap: SubarrayNode[] = [];
+
+    const heapPush = (node: SubarrayNode): void => {
+        heap.push(node);
+        let i = heap.length - 1;
+        while (i > 0) {
+            const parent = (i - 1) >> 1;
+            if (heap[i].val <= heap[parent].val) break;
+            [heap[i], heap[parent]] = [heap[parent], heap[i]];
+            i = parent;
+        }
+    };
+
+    const heapPop = (): SubarrayNode => {
+        const top = heap[0];
+        const last = heap.pop()!;
+        if (heap.length > 0) {
+            heap[0] = last;
+            let i = 0;
+            while (true) {
+                const left = 2 * i + 1, right = 2 * i + 2;
+                let largest = i;
+                if (left  < heap.length && heap[left].val  > heap[largest].val) largest = left;
+                if (right < heap.length && heap[right].val > heap[largest].val) largest = right;
+                if (largest === i) break;
+                [heap[i], heap[largest]] = [heap[largest], heap[i]];
+                i = largest;
+            }
+        }
+        return top;
+    };
+
+    // Seed heap: for each left boundary, the best right is n-1
+    for (let l = 0; l < n; l++)
+        heapPush({ val: rangeValue(l, n - 1), l, r: n - 1 });
+
+    // Greedily pick the k highest-value subarrays
+    let total = 0;
     for (let i = 0; i < k; i++) {
-        let {val, l, r} = pq.pop();
-        ans += val;
-        if (r > l) 
-            pq.push({val: query(l, r - 1), l, r: r - 1});
+        const { val, l, r } = heapPop();
+        total += val;
+        if (r > l) heapPush({ val: rangeValue(l, r - 1), l, r: r - 1 });
     }
-    return ans;
-}
+
+    return total;
+};

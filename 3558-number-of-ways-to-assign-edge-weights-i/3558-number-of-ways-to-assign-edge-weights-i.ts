@@ -1,46 +1,41 @@
-const MOD = 1e9 + 7;
-
-const assignEdgeWeights = (edges: number[][]): number => {
+function assignEdgeWeights(edges: number[][]): number {
+    const MOD = 1000000007n;
     const n = edges.length + 1;
-    const tree: number[][] = Array.from({ length: n + 1 }, () => []);
+
+    const graph: number[][] = Array.from({ length: n + 1 }, () => []);
+
     for (const [u, v] of edges) {
-        tree[u].push(v);
-        tree[v].push(u);
+        graph[u].push(v);
+        graph[v].push(u);
     }
-    // BFS to find max depth
-    const depths = Array(n + 1).fill(-1);
-    const queue: number[] = [1];
-    depths[1] = 0;
-    let maxDepth = 0;
-    while (queue.length) {
-        const node = queue.shift()!;
-        for (const neighbor of tree[node]) {
-            if (depths[neighbor] === -1) { // If v has not been visited
-                depths[neighbor] = depths[node] + 1;
-                maxDepth = Math.max(maxDepth, depths[neighbor]);
-                queue.push(neighbor);
+
+    const dfs = (node: number, prev: number): number => {
+        let dist = 0;
+
+        for (const c of graph[node]) {
+            if (c !== prev) {
+                dist = Math.max(dist, dfs(c, node) + 1);
             }
         }
-    }
 
-    console.log(maxDepth);
-    // Number of edges in path = maxDepth
-    // Number of ways = 2^(maxDepth-1) if maxDepth > 0, else 1
-    return maxDepth === 0 ? 1 : powmod(2, maxDepth - 1);
-};
+        return dist;
+    };
 
-const powmod = (base: number, exp: number): number => {
-    let res = 1n;
-    let currentBase = BigInt(base);
-    const bigMod = BigInt(MOD);
+    const modPow = (a: number, b: number): bigint => {
+        let res = 1n;
+        let base = BigInt(a);
+        let exp = BigInt(b);
 
-    while (exp > 0) {
-        if (exp & 1) {
-            res = (res * currentBase) % bigMod;
+        while (exp > 0n) {
+            if (exp & 1n) res = res * base % MOD;
+            base = base * base % MOD;
+            exp >>= 1n;
         }
-        // Square the base and halve the exponent (integer division)
-        currentBase = (currentBase * currentBase) % bigMod;
-        exp >>= 1;
-    }
-    return Number(res);
+
+        return res;
+    };
+
+    const d = dfs(1, 0);
+
+    return Number(modPow(2, d - 1));
 };

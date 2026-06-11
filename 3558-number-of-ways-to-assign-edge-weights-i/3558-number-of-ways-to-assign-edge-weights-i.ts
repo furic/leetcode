@@ -1,41 +1,30 @@
-function assignEdgeWeights(edges: number[][]): number {
-    const MOD = 1000000007n;
+const assignEdgeWeights = (edges: number[][]): number => {
+    const MOD = 1_000_000_007n;
+
+    const modPow = (base: number, exp: number): number => {
+        let result = 1n;
+        let b = BigInt(base);
+        while (exp > 0) {
+            if (exp & 1) result = result * b % MOD;
+            b = b * b % MOD;
+            exp >>= 1;
+        }
+        return Number(result);
+    };
+
+    const maxDepth = (adj: number[][], node: number, parent: number): number => {
+        let depth = 0;
+        for (const neighbour of adj[node]) {
+            if (neighbour !== parent)
+                depth = Math.max(depth, maxDepth(adj, neighbour, node) + 1);
+        }
+        return depth;
+    };
+
     const n = edges.length + 1;
+    const adj: number[][] = Array.from({ length: n + 1 }, () => []);
+    for (const [u, v] of edges) { adj[u].push(v); adj[v].push(u); }
 
-    const graph: number[][] = Array.from({ length: n + 1 }, () => []);
-
-    for (const [u, v] of edges) {
-        graph[u].push(v);
-        graph[v].push(u);
-    }
-
-    const dfs = (node: number, prev: number): number => {
-        let dist = 0;
-
-        for (const c of graph[node]) {
-            if (c !== prev) {
-                dist = Math.max(dist, dfs(c, node) + 1);
-            }
-        }
-
-        return dist;
-    };
-
-    const modPow = (a: number, b: number): bigint => {
-        let res = 1n;
-        let base = BigInt(a);
-        let exp = BigInt(b);
-
-        while (exp > 0n) {
-            if (exp & 1n) res = res * base % MOD;
-            base = base * base % MOD;
-            exp >>= 1n;
-        }
-
-        return res;
-    };
-
-    const d = dfs(1, 0);
-
-    return Number(modPow(2, d - 1));
+    // Half of 2^depth assignments give odd total cost
+    return modPow(2, maxDepth(adj, 1, 0) - 1);
 };

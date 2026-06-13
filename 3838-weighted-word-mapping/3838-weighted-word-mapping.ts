@@ -1,7 +1,11 @@
-const mapWordWeights = (words: string[], weights: number[]): string =>
-    words.map(word => {
-        let totalWeight = 0;
-        for (let i = 0; i < word.length; i++)
-            totalWeight += weights[word.charCodeAt(i) - 97];
-        return String.fromCharCode(122 - totalWeight % 26);
-    }).join('');
+const mapWordWeights = (words: string[], weights: number[]): string => {
+    let result = "";
+    for (let i = 0; i < words.length; i++) {
+        let weight = 0;
+        for (let j = 0; j < words[i].length; j++) {
+            weight += weights[words[i][j].charCodeAt(0) - 'a'.charCodeAt(0)];
+        }
+        result += String.fromCharCode('z'.charCodeAt(0) - (weight % 26));
+    }
+    return result;
+}

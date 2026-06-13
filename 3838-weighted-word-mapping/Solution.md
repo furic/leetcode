@@ -1,55 +1,48 @@
-# Sum Weights and Reverse Map | 14 Lines | O(n×m) | 1ms
+# Max Depth DFS + Half Power of Two | 14 Lines | O(n) | 1ms
 
 # Intuition
-
-Calculate each word's weight by summing character weights, take modulo 26, then map to reverse alphabet ('z' for 0, 'y' for 1, etc.). Concatenate all mapped characters.
+The path from root to the deepest node has `d` edges. Each edge can be 1 or 2 — there are `2^d` total assignments. Exactly half give an odd total (by symmetry: flipping any single edge toggles parity, so exactly `2^(d-1)` assignments yield odd sums). The answer is `2^(d-1) mod (10^9 + 7)`.
 
 # Approach
-
-**Three Steps Per Word:**
-1. **Sum weights**: Add weights[char - 'a'] for each character
-2. **Modulo 26**: Get value in range [0, 25]
-3. **Reverse map**: Convert to letter using 'z' - (weight % 26)
-
-**Reverse Alphabetical Mapping:**
-- 0 → 'z' (122 - 0 = 122 = 'z')
-- 1 → 'y' (122 - 1 = 121 = 'y')
-- ...
-- 25 → 'a' (122 - 25 = 97 = 'a')
-
-**Example: words=["abcd"], weights=[7,5,3,4,...]**
-
-Word "abcd":
-- Weight: 7+5+3+4 = 19
-- Mod 26: 19 % 26 = 19
-- Map: 'z' - 19 = 'g' (ASCII 122-19=103)
-
-Result: "g" ✓
+- Build an adjacency list from the edges.
+- Find the maximum depth `d` of the tree rooted at node 1 via DFS (tracking parent to avoid revisiting).
+- Return `modPow(2, d - 1)` — the number of assignments giving odd total cost on the longest path.
+- **Why half:** For any path of `d` edges with values in `{1, 2}`, note that `1 ≡ 1 (mod 2)` and `2 ≡ 0 (mod 2)`. So parity of the sum equals the count of edges assigned 1, mod 2. Out of all `2^d` binary choices, exactly `2^(d-1)` have an odd number of 1s — a standard combinatorial identity.
 
 # Complexity
+- Time complexity: $$O(n)$$ — one DFS traversal; `modPow` is $$O(\log d)$$ which is $$O(\log n)$$.
 
-- Time complexity: $$O(n \times m)$$
-  - n = number of words
-  - m = average word length
-  - Process each character once
-  - Overall: O(n×m)
-
-- Space complexity: $$O(1)$$
-  - Only result string (output)
-  - Constant extra space
-  - Overall: O(1) auxiliary space
+- Space complexity: $$O(n)$$ — adjacency list and recursion stack.
 
 # Code
 ```typescript []
-const mapWordWeights = (words: string[], weights: number[]): string => {
-    let result = "";
-    for (let i = 0; i < words.length; i++) {
-        let weight = 0;
-        for (let j = 0; j < words[i].length; j++) {
-            weight += weights[words[i][j].charCodeAt(0) - 'a'.charCodeAt(0)];
+const assignEdgeWeights = (edges: number[][]): number => {
+    const MOD = 1_000_000_007n;
+
+    const modPow = (base: number, exp: number): number => {
+        let result = 1n;
+        let b = BigInt(base);
+        while (exp > 0) {
+            if (exp & 1) result = result * b % MOD;
+            b = b * b % MOD;
+            exp >>= 1;
         }
-        result += String.fromCharCode('z'.charCodeAt(0) - (weight % 26));
-    }
-    return result;
-}
+        return Number(result);
+    };
+
+    const maxDepth = (adj: number[][], node: number, parent: number): number => {
+        let depth = 0;
+        for (const neighbour of adj[node]) {
+            if (neighbour !== parent)
+                depth = Math.max(depth, maxDepth(adj, neighbour, node) + 1);
+        }
+        return depth;
+    };
+
+    const n = edges.length + 1;
+    const adj: number[][] = Array.from({ length: n + 1 }, () => []);
+    for (const [u, v] of edges) { adj[u].push(v); adj[v].push(u); }
+
+    return modPow(2, maxDepth(adj, 1, 0) - 1);
+};
 ```

@@ -1,28 +1,31 @@
-/**
- * Definition for singly-linked list.
- * class ListNode {
- *     val: number
- *     next: ListNode | null
- *     constructor(val?: number, next?: ListNode | null) {
- *         this.val = (val===undefined ? 0 : val)
- *         this.next = (next===undefined ? null : next)
- *     }
- * }
- */
+const pairSum = (head: ListNode | null): number => {
+    // Find the midpoint
+    let slow: ListNode | null = head;
+    let fast: ListNode | null = head;
+    while (fast !== null && fast.next !== null) {
+        slow = slow!.next;
+        fast = fast.next.next;
+    }
 
-function pairSum(head: ListNode | null): number {
-    const temp = [];
-    let node = head;
-    while (node) {
-        temp.push(node.val);
-        node = node.next;
+    // Reverse the second half
+    let prev: ListNode | null = null;
+    let curr: ListNode | null = slow;
+    while (curr !== null) {
+        const next = curr.next;
+        curr.next = prev;
+        prev = curr;
+        curr = next;
     }
-    const n = temp.length;
-    node = head;
-    let res = -Infinity;
-    for (let i = 0; i < Math.floor(n / 2); i++) {
-        res = Math.max(res, node.val + temp.pop());
-        node = node.next;
+
+    // Walk both halves and find max twin sum
+    let maxSum = 0;
+    let left: ListNode | null = head;
+    let right: ListNode | null = prev;
+    while (right !== null) {
+        maxSum = Math.max(maxSum, left!.val + right.val);
+        left = left!.next;
+        right = right.next;
     }
-    return res;
+
+    return maxSum;
 };

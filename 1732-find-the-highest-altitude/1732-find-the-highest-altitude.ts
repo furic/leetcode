@@ -1,8 +1,11 @@
-function largestAltitude(gain: number[]): number {
-    let res = 0, curr = 0;
-    for (const x of gain) {
-        curr += x;
-        res = Math.max(res, curr);
+const largestAltitude = (gain: number[]): number => {
+    let maxAltitude = 0;
+    let altitude = 0;
+
+    for (const g of gain) {
+        altitude += g;
+        maxAltitude = Math.max(maxAltitude, altitude);
     }
-    return res;
+
+    return maxAltitude;
 };

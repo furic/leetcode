@@ -1,7 +1,5 @@
-function maxNumberOfBalloons(text: string): number {
-    const map: { [key: string]: number } = { b: 0, a: 0, l: 0, o: 0, n: 0 };
-    for (const char of text) {
-        if (char in map) map[char]++;
-    }
-    return Math.floor(Math.min(map.b, map.a, map.l / 2, map.o / 2, map.n));
-}
+const maxNumberOfBalloons = (text: string): number => {
+    const freq: Record<string, number> = { b: 0, a: 0, l: 0, o: 0, n: 0 };
+    for (const ch of text) if (ch in freq) freq[ch]++;
+    return Math.floor(Math.min(freq.b, freq.a, freq.l / 2, freq.o / 2, freq.n));
+};

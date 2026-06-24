@@ -1,69 +1,73 @@
-function zigZagArrays(n: number, l: number, r: number): number {
-    const MOD = 1000000007n;
-    const valueCount = r - l + 1;
+const MOD = 1_000_000_007n;
 
-    const initialDp: bigint[] = Array.from({ length: valueCount }, (_, i) => BigInt(i));
+class Matrix {
+    readonly data: BigInt64Array;
 
-    const transitionMatrix: bigint[][] = Array.from(
-        { length: valueCount },
-        () => Array(valueCount).fill(0n)
-    );
-
-    for (let row = 1; row < valueCount; row++) {
-        for (let col = valueCount - row; col < valueCount; col++) {
-            transitionMatrix[row][col] = 1n;
-        }
+    constructor(
+        readonly rows: number,
+        readonly cols: number,
+    ) {
+        this.data = new BigInt64Array(rows * cols);
     }
 
-    const multiplyMatrices = (matrixA: bigint[][], matrixB: bigint[][]): bigint[][] => {
-        const size = matrixA.length;
-        const result: bigint[][] = Array.from(
-            { length: size },
-            () => Array(size).fill(0n)
-        );
+    get(r: number, c: number): bigint {
+        return this.data[r * this.cols + c];
+    }
 
-        for (let row = 0; row < size; row++) {
-            for (let mid = 0; mid < size; mid++) {
-                if (matrixA[row][mid] === 0n) continue;
+    set(r: number, c: number, val: bigint): void {
+        this.data[r * this.cols + c] = val;
+    }
 
-                for (let col = 0; col < size; col++) {
-                    result[row][col] =
-                        (result[row][col] + matrixA[row][mid] * matrixB[mid][col]) % MOD;
-                }
+    mul(other: Matrix): Matrix {
+        const result = new Matrix(this.rows, other.cols);
+        for (let i = 0; i < this.rows; i++) {
+            for (let k = 0; k < this.cols; k++) {
+                const a = this.get(i, k);
+                if (a === 0n) continue;
+                for (let j = 0; j < other.cols; j++)
+                    result.set(i, j, (result.get(i, j) + a * other.get(k, j)) % MOD);
             }
+        }
+        return result;
+    }
+
+    // Multiply result by this^exp (modular matrix exponentiation)
+    powMul(exp: bigint, result: Matrix): Matrix {
+        let base = new Matrix(this.rows, this.cols);
+        base.data.set(this.data);
+
+        while (exp > 0n) {
+            if (exp & 1n) result = result.mul(base);
+            base = base.mul(base);
+            exp >>= 1n;
         }
 
         return result;
-    };
-
-    const matrixPower = (matrix: bigint[][], power: number): bigint[][] => {
-        const size = matrix.length;
-
-        let result: bigint[][] = Array.from({ length: size }, (_, row) =>
-            Array.from({ length: size }, (_, col) => row === col ? 1n : 0n)
-        );
-
-        while (power > 0) {
-            if (power & 1) {
-                result = multiplyMatrices(result, matrix);
-            }
-
-            matrix = multiplyMatrices(matrix, matrix);
-            power >>= 1;
-        }
-
-        return result;
-    };
-
-    const poweredTransition = matrixPower(transitionMatrix, n - 2);
-
-    let answer = 0n;
-
-    for (let row = 0; row < valueCount; row++) {
-        for (let col = 0; col < valueCount; col++) {
-            answer = (answer + poweredTransition[row][col] * initialDp[col]) % MOD;
-        }
     }
-
-    return Number((answer * 2n) % MOD);
 }
+
+const zigZagArrays = (n: number, l: number, r: number): number => {
+    const range = r - l + 1;
+    if (n === 1) return range;
+
+    const size = 2 * range;
+
+    // Transition matrix: u[i][j+range] = 1 if j < i (can go down from i)
+    //                    u[i+range][j] = 1 if j > i (can go up from i)
+    const transition = new Matrix(size, size);
+    for (let i = 0; i < range; i++) {
+        for (let j = 0; j < i; j++)          transition.set(i, j + range, 1n);
+        for (let j = i + 1; j < range; j++)  transition.set(i + range, j, 1n);
+    }
+
+    // Initial state: all positions reachable
+    let dp = new Matrix(1, size);
+    for (let i = 0; i < size; i++) dp.set(0, i, 1n);
+
+    dp = transition.powMul(BigInt(n - 1), dp);
+
+    let total = 0n;
+    for (let i = 0; i < size; i++) total = (total + dp.get(0, i)) % MOD;
+
+    return Number(total);
+};

@@ -1,25 +1,30 @@
-function countMajoritySubarrays(nums: number[], target: number): number {
+const countMajoritySubarrays = (nums: number[], target: number): number => {
     const n = nums.length;
-    const freq: number[] = Array(2 * n + 1).fill(0);
 
-    freq[n] = 1;
+    // prefixFreq[k + n] = how many times prefix sum k has been seen
+    const prefixFreq = new Array<number>(2 * n + 1).fill(0);
+    prefixFreq[n] = 1; // prefix sum 0 seen once (empty prefix)
 
-    let idx = n;
-    let res = 0;
-    let pref = 0;
+    let offsetIdx = n; // current prefix sum + n (offset to avoid negative indices)
+    let strictlyLess = 0; // count of past prefix sums strictly less than current
+    let count = 0;
 
-    for (const x of nums) {
-        if (x === target) {
-            pref += freq[idx];
-            idx++;
+    for (let i = 0; i < n; i++) {
+        if (nums[i] === target) {
+            // +1: current prefix sum grows, so one more past sum is now strictly less
+            strictlyLess += prefixFreq[offsetIdx];
+            offsetIdx++;
+            prefixFreq[offsetIdx]++;
         } else {
-            idx--;
-            pref -= freq[idx];
+            // -1: current prefix sum shrinks, drop the frequency at new position
+            offsetIdx--;
+            strictlyLess -= prefixFreq[offsetIdx];
+            prefixFreq[offsetIdx]++;
         }
-
-        freq[idx]++;
-        res += pref;
+        // All subarrays ending at i where target is majority correspond to
+        // past prefix sums strictly less than current
+        count += strictlyLess;
     }
 
-    return res;
-}
+    return count;
+};

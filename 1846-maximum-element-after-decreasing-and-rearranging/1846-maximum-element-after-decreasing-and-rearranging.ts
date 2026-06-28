@@ -1,10 +1,8 @@
-function maximumElementAfterDecrementingAndRearranging(arr: number[]): number {
+const maximumElementAfterDecrementingAndRearranging = (arr: number[]): number => {
     arr.sort((a, b) => a - b);
-    let res = 1;
+    let maxVal = 1;
     for (const x of arr) {
-        if (x >= res) {
-            res++;
-        }
+        if (x >= maxVal) maxVal++;
     }
-    return res - 1;
+    return maxVal - 1;
 };

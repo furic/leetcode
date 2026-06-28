@@ -1,8 +1,5 @@
 # Greedy Sort Increment Cap | 5 Lines | O(n log n) | 4ms
 
-Greedy Sort Increment Cap | 5 Lines | O(n log n) |
-
-```markdown
 # Intuition
 After sorting, we greedily assign the maximum possible value to each element. The first element must be 1, and each subsequent element can be at most 1 more than the previous. An element can only "claim" the next slot if its original value is large enough to allow it.
 
@@ -27,6 +24,3 @@ const maximumElementAfterDecrementingAndRearranging = (arr: number[]): number =>
     return maxVal - 1;
 };
 ```
-```
-
-Greedy | Sorting | Array

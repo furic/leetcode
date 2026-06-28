@@ -1,22 +1,26 @@
-function maximumLength(nums: number[]): number {
-    const count = new Map<number, number>();
-    for (const x of nums) {
-        count.set(x, (count.get(x) ?? 0) + 1);
-    }
-    let res = 0;
-    for (const [start, freq] of count) {
-        let key = start;
-        let total = 0;
-        if (key === 1) {
-            total = freq % 2 === 1 ? freq : freq - 1;
+const maximumLength = (nums: number[]): number => {
+    const freq = new Map<number, number>();
+    for (const x of nums) freq.set(x, (freq.get(x) ?? 0) + 1);
+
+    let maxLen = 0;
+
+    for (const [start, startFreq] of freq) {
+        let chainLen = 0;
+
+        if (start === 1) {
+            // 1^(2^k) = 1 always, so the whole chain is 1s
+            chainLen = startFreq % 2 === 1 ? startFreq : startFreq - 1;
         } else {
-            while ((count.get(key) ?? 0) >= 2 && count.has(key * key)) {
-                total += 2;
+            let key = start;
+            while ((freq.get(key) ?? 0) >= 2 && freq.has(key * key)) {
+                chainLen += 2;
                 key = key * key;
             }
-            total += 1;
+            chainLen++; // Peak element appears once in the middle
         }
-        res = Math.max(res, total);
+
+        maxLen = Math.max(maxLen, chainLen);
     }
-    return res;
+
+    return maxLen;
 };

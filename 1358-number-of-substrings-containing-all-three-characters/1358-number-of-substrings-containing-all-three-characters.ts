@@ -1,18 +1,14 @@
-function numberOfSubstrings(s: string): number {
-    const freq: number[] = [0, 0, 0];
+const numberOfSubstrings = (s: string): number => {
+    const lastSeen = [-1, -1, -1]; // last index where 'a', 'b', 'c' were seen
+    let count = 0;
 
-    let left = 0, res = 0;
-    const n = s.length;
+    for (let i = 0; i < s.length; i++) {
+        lastSeen[s.charCodeAt(i) - 97] = i;
 
-    for (let i = 0; i < n; i++) {
-        freq[s.charCodeAt(i) - 97]++;
-
-        while (freq[0] > 0 && freq[1] > 0 && freq[2] > 0) {
-            res += n - i;
-            freq[s.charCodeAt(left) - 97]--;
-            left++;
-        }
+        // For substrings ending at i, the leftmost valid start is bounded by
+        // the earliest of the three last-seen positions — every start <= that bound works
+        count += 1 + Math.min(lastSeen[0], lastSeen[1], lastSeen[2]);
     }
 
-    return res;
-}
+    return count;
+};

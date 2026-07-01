@@ -1,64 +1,196 @@
 function maximumSafenessFactor(grid: number[][]): number {
-    const n = grid.length;
-    if (grid[0][0] === 1 || grid[n-1][n-1] === 1) return 0;
-    
-    const safeness: number[][] = Array.from({ length: n }, () => Array(n).fill(-1));
-    let q: number[][] = [];
-    
-    for (let i = 0; i < n; i++) {
-        for (let j = 0; j < n; j++) {
-            if (grid[i][j] === 1) {
-                q.push([i, j]);
-                safeness[i][j] = 0;
+    const [rows, cols] = [grid.length, grid[0].length];
+    const directions: number[][] = [[0, 1], [-1, 0], [0, -1], [1, 0]];
+    if ( grid[0][0] === 1 || grid[rows - 1][cols - 1] === 1 ) {
+        return 0;
+    }
+    const dist: number[][] = new Array(rows).fill(null).map(() => new Array(cols).fill(-1));
+    let queue: [number, number][] = [];
+    for ( let row = 0; row < rows; row++ ) {
+        for ( let col = 0; col < cols; col++ ) {
+            if ( grid[row][col] === 1 ) {
+                queue.push([row, col]);
+                dist[row][col] = 0;
             }
         }
     }
-    
-    const dirs = [[0,1], [0,-1], [1,0], [-1,0]];
-    let head = 0;
-    
-    while (head < q.length) {
-        const [r, c] = q[head++];
-        for (const [dr, dc] of dirs) {
-            const nr = r + dr, nc = c + dc;
-            if (nr >= 0 && nr < n && nc >= 0 && nc < n && safeness[nr][nc] === -1) {
-                safeness[nr][nc] = safeness[r][c] + 1;
-                q.push([nr, nc]);
+    let index: number = 0;
+    while ( index < queue.length ) {
+        const [row, col] = queue[index++];
+        for ( const [ar, ac] of directions ) {
+            const [nr, nc] = [ar + row, ac + col];
+            if ( nr >= 0 && nr < rows && nc >= 0 && nc < cols && grid[nr][nc] === 0 && dist[nr][nc] === -1 ) {
+                dist[nr][nc] = dist[row][col] + 1;
+                queue.push([nr, nc]);
             }
         }
     }
-    
-    const isValid = (minSafe: number): boolean => {
-        if (safeness[0][0] < minSafe || safeness[n-1][n-1] < minSafe) return false;
-        let bfsQ: number[][] = [[0, 0]];
-        let bfsHead = 0;
-        const visited = Array.from({ length: n }, () => Array(n).fill(false));
-        visited[0][0] = true;
-        
-        while (bfsHead < bfsQ.length) {
-            const [r, c] = bfsQ[bfsHead++];
-            if (r === n - 1 && c === n - 1) return true;
-            
-            for (const [dr, dc] of dirs) {
-                const nr = r + dr, nc = c + dc;
-                if (nr >= 0 && nr < n && nc >= 0 && nc < n && !visited[nr][nc] && safeness[nr][nc] >= minSafe) {
-                    visited[nr][nc] = true;
-                    bfsQ.push([nr, nc]);
-                }
+    let heap = new MaxPriorityQueue<[number, number, number]>(([row, col, d]) => d);
+    heap.enqueue([0, 0, dist[0][0]]);
+    const visited: boolean[][] = new Array(rows).fill(null).map(() => new Array(cols).fill(false));
+    visited[0][0] = true;
+    while ( heap.size() > 0 ) {
+        const [row, col, d] = heap.dequeue();
+        if ( row === rows - 1 && col === cols - 1 ) {
+            return d;
+        }
+        for ( const [ar, ac] of directions ) {
+            const [nr, nc] = [ar + row, ac + col];
+            if ( nr >= 0 && nr < rows && nc >= 0 && nc < cols && !visited[nr][nc] ) {
+                visited[nr][nc] = true;
+                heap.enqueue([nr, nc, Math.min(d, dist[nr][nc])]);
             }
         }
-        return false;
-    };
-
-    let low = 0, high = n * 2, ans = 0;
-    while (low <= high) {
-        const mid = Math.floor((low + high) / 2);
-        if (isValid(mid)) {
-            ans = mid;
-            low = mid + 1;
-        } else {
-            high = mid - 1;
-        }
     }
-    return ans;
-}
+    // const [rows, cols] = [grid.length, grid[0].length];
+    // const directions: number[][] = [[0, 1], [-1, 0], [0, -1], [1, 0]];
+    // if ( grid[0][0] === 1 || grid[rows - 1][cols - 1] === 1 ) {
+    //     return 0;
+    // }
+    // const dist: number[][] = new Array(rows).fill(null).map(() => new Array(cols).fill(-1));
+    // let queue: [number, number][] = [];
+    // for ( let row = 0; row < rows; row++ ) {
+    //     for ( let col = 0; col < cols; col++ ) {
+    //         if ( grid[row][col] === 1 ) {
+    //             queue.push([row, col]);
+    //             dist[row][col] = 0;
+    //         }
+    //     }
+    // }
+    // let index: number = 0;
+    // while ( index < queue.length ) {
+    //     const [row, col] = queue[index++];
+    //     for ( const [ar, ac] of directions ) {
+    //         const [nr, nc] = [ar + row, ac + col];
+    //         if ( nr >= 0 && nr < rows && nc >= 0 && nc < cols && grid[nr][nc] === 0 && dist[nr][nc] === -1 ) {
+    //             dist[nr][nc] = dist[row][col] + 1;
+    //             queue.push([nr, nc]);
+    //         }
+    //     }
+    // }
+    // let heap = new MaxPriorityQueue<[number, number, number]>(([row, col, d]) => d);
+    // heap.enqueue([0, 0, dist[0][0]]);
+    // const visited: boolean[][] = new Array(rows).fill(null).map(() => new Array(cols).fill(false));
+    // visited[0][0] = true;
+    // while ( heap.size() > 0 ) {
+    //     const [row, col, d] = heap.dequeue();
+    //     if ( row === rows - 1 && col === cols - 1 ) {
+    //         return d;
+    //     }
+    //     for ( const [ar, ac] of directions ) {
+    //         const [nr, nc] = [ar + row, ac + col];
+    //         if ( nr >= 0 && nr < rows && nc >= 0 && nc < cols && !visited[nr][nc] ) {
+    //             visited[nr][nc] = true;
+    //             heap.enqueue([nr, nc, Math.min(d, dist[nr][nc])]);
+    //         }
+    //     }
+    // }
+    // const [rows, cols] = [grid.length, grid[0].length];
+    // const directions: number[][] = [[0, 1], [-1, 0], [0, -1], [1, 0]];
+    // if ( grid[0][0] === 1 || grid[rows - 1][cols - 1] === 1 ) {
+    //     return 0;
+    // }
+    // const dist: number[][] = new Array(rows).fill(null).map(() => new Array(cols).fill(-1));
+    // let queue: [number, number][] = [];
+    // for ( let row = 0; row < rows; row++ ) {
+    //     for ( let col = 0; col < cols; col++ ) {
+    //         if ( grid[row][col] === 1 ) {
+    //             queue.push([row, col]);
+    //             dist[row][col] = 0;
+    //         }
+    //     }
+    // }
+    // let index: number = 0;
+    // while ( index < queue.length ) {
+    //     const [row, col] = queue[index++];
+    //     for ( const [ar, ac] of directions ) {
+    //         const [nr, nc] = [ar + row, ac + col];
+    //         if ( nr >= 0 && nr < rows && nc >= 0 && nc < cols && grid[nr][nc] === 0 && dist[nr][nc] === -1 ) {
+    //             dist[nr][nc] = dist[row][col] + 1;
+    //             queue.push([nr, nc]);
+    //         }
+    //     }
+    // }
+    // let heap = new MaxPriorityQueue<[number, number, number]>(([row, col, d]) => d);
+    // heap.enqueue([0, 0, dist[0][0]]);
+    // const visited: boolean[][] = new Array(rows).fill(null).map(() => new Array(cols).fill(false));
+    // visited[0][0] = true;
+    // while ( heap.size() > 0 ) {
+    //     const [row, col, d] = heap.dequeue();
+    //     if ( row === rows - 1 && col === cols - 1 ) {
+    //         return d;
+    //     }
+    //     for ( const [ar, ac] of directions ) {
+    //         const [nr, nc] = [ar + row, ac + col];
+    //         if ( nr >= 0 && nr < rows && nc >= 0 && nc < cols && !visited[nr][nc] ) {
+    //             visited[nr][nc] = true;
+    //             heap.enqueue([nr, nc, Math.min(d, dist[nr][nc])]);
+    //         }
+    //     }
+    // }
+    // const [rows, cols] = [grid.length, grid[0].length];
+    // const directions: number[][] = [[0, 1], [-1, 0], [0, -1], [1, 0]];
+    // if ( grid[0][0] === 1 || grid[rows - 1][cols - 1] === 1 ) {
+    //     return 0;
+    // }
+    // const dist: number[][] = new Array(rows).fill(null).map(() => new Array(cols).fill(-1));
+    // let queue: [number, number][] = [];
+    // for ( let row = 0; row < rows; row++ ) {
+    //     for ( let col = 0; col < cols; col++ ) {
+    //         if ( grid[row][col] === 1 ) {
+    //             queue.push([row, col]);
+    //             dist[row][col] = 0;
+    //         }
+    //     }
+    // }
+    // let index: number = 0;
+    // while ( index < queue.length ) {
+    //     const [row, col] = queue[index++];
+    //     for ( const [ar, ac] of directions ) {
+    //         const [nr, nc] = [ar + row, ac + col];
+    //         if ( nr >= 0 && nr < rows && nc >= 0 && nc < cols && grid[nr][nc] === 0 && dist[nr][nc] === -1 ) {
+    //             dist[nr][nc] = dist[row][col] + 1;
+    //             queue.push([nr, nc]);
+    //         }
+    //     }
+    // }
+    // let heap = new MaxPriorityQueue<[number, number, number]>(([row, col, d]) => d);
+    // heap.enqueue([0, 0, dist[0][0]]);
+    // const visited: boolean[][] = new Array(rows).fill(null).map(() => new Array(cols).fill(false));
+    // visited[0][0] = true;
+    // while ( heap.size() > 0 ) {
+    //     const [row, col, d] = heap.dequeue();
+    //     if ( row === rows - 1 && col === cols - 1 ) {
+    //         return d;
+    //     }
+    //     for ( const [ar, ac] of directions ) {
+    //         const [nr, nc] = [ar + row, ac + col];
+    //         if ( nr >= 0 && nr < rows && nc >= 0 && nc < cols && !visited[nr][nc] ) {
+    //             visited[nr][nc] = true;
+    //             heap.enqueue([nr, nc, Math.min(d, dist[nr][nc])]);
+    //         }
+    //     }
+    // }
+    // let max: number = Number.MIN_SAFE_INTEGER;
+    // function dfs(row, col, min, visited) {
+    //     if ( row === rows - 1 && col === cols - 1 ) {
+    //         max = Math.max(max, min);
+    //         return;
+    //     }
+    //     if ( row === rows || col === cols || row < 0 || col < 0 ) {
+    //         return;
+    //     }
+    //     for ( const [ar, ac] of directions ) {
+    //         const [nr, nc] = [ar + row, ac + col];
+    //         if ( nr >= 0 && nr < rows && nc >= 0 && nc < cols && !visited[nr][nc] ) {
+    //             visited[nr][nc] = true;
+    //             dfs(nr, nc, Math.min(min, dist[nr][nc]), visited);
+    //             visited[nr][nc] = false;
+    //         }
+    //     }
+    // }
+    // const visited: boolean[][] = new Array(rows).fill(null).map(() => new Array(cols).fill(false));
+    // visited[0][0] = true;
+    // dfs(0, 0, dist[0][0], visited);
+    // return max;
+};

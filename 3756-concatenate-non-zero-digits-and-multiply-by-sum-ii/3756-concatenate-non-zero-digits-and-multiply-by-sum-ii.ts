@@ -1,52 +1,38 @@
-function sumAndMultiply(s: string, queries: number[][]): number[] {
-    const MOD = 1000000007n;
+const MOD = 1_000_000_007n;
+const MAX_N = 100_001;
+
+// Precompute powers of 10 mod MOD for prefix extraction
+const pow10: bigint[] = new Array(MAX_N);
+pow10[0] = 1n;
+for (let i = 1; i < MAX_N; i++)
+    pow10[i] = pow10[i - 1] * 10n % MOD;
+
+const sumAndMultiply = (s: string, queries: number[][]): number[] => {
     const n = s.length;
 
-    const idx: number[] = Array(n + 1).fill(0);
-    const val: bigint[] = Array(n + 1).fill(0n);
-    const total: bigint[] = Array(n + 1).fill(0n);
-    const pow10: bigint[] = Array(n + 1).fill(1n);
-
-    for (let i = 1; i <= n; i++) {
-        pow10[i] = (pow10[i - 1] * 10n) % MOD;
-    }
-
-    let count = 0;
+    // Prefix arrays (1-indexed):
+    // digitSum[i]  = sum of digits in s[0..i-1]
+    // concatVal[i] = value of non-zero digits in s[0..i-1] concatenated, mod MOD
+    // nonZeroCount[i] = count of non-zero digits in s[0..i-1]
+    const digitSum     = new Array<number>(n + 1).fill(0);
+    const concatVal    = new Array<bigint>(n + 1).fill(0n);
+    const nonZeroCount = new Array<number>(n + 1).fill(0);
 
     for (let i = 0; i < n; i++) {
-        const digit = BigInt(s.charCodeAt(i) - 48);
-
-        if (digit !== 0n) {
-            count++;
-            val[count] = (val[count - 1] * 10n + digit) % MOD;
-            total[count] = total[count - 1] + digit;
-        }
-
-        idx[i + 1] = count;
+        const d = s.charCodeAt(i) - 48;
+        digitSum[i + 1]     = digitSum[i] + d;
+        concatVal[i + 1]    = d > 0 ? (concatVal[i] * 10n + BigInt(d)) % MOD : concatVal[i];
+        nonZeroCount[i + 1] = nonZeroCount[i] + (d > 0 ? 1 : 0);
     }
 
-    const ans: number[] = [];
+    return queries.map(([l, r]) => {
+        const hi = r + 1;
+        const nonZeroLen = nonZeroCount[hi] - nonZeroCount[l];
 
-    for (const [left, right] of queries) {
-        const a = idx[left];
-        const b = idx[right + 1];
+        // Extract x = concatVal[hi] - concatVal[l] * 10^nonZeroLen (mod MOD)
+        const x   = (concatVal[hi] - concatVal[l] * pow10[nonZeroLen] % MOD + MOD) % MOD;
+        const sum = BigInt(digitSum[hi] - digitSum[l]);
 
-        if (a === b) {
-            ans.push(0);
-            continue;
-        }
-
-        const length = b - a;
-
-        let num = (val[b] - val[a] * pow10[length]) % MOD;
-        if (num < 0n) {
-            num += MOD;
-        }
-
-        const digitSum = total[b] - total[a];
-
-        ans.push(Number((num * digitSum) % MOD));
-    }
-
-    return ans;
-}
+        return Number(x * sum % MOD);
+    });
+};

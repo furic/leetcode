@@ -1,19 +1,5 @@
-function arrayRankTransform(arr: number[]): number[] {
-    const dict = new Map();
-    
-    for (let n of arr) {
-        dict.set(n, 0);
-    }
-    
-    const keys = [...dict.keys()].sort((a, b) => a - b);
-    
-    for (let i = 0; i < keys.length; i++) {
-        dict.set(keys[i], i+1);
-    }
-    
-    for (let i = 0; i < arr.length; i++) {
-        arr[i] = dict.get(arr[i]);
-    }
-    
-    return arr;
+const arrayRankTransform = (arr: number[]): number[] => {
+    const rank = new Map<number, number>();
+    [...new Set(arr)].sort((a, b) => a - b).forEach((val, i) => rank.set(val, i + 1));
+    return arr.map(n => rank.get(n)!);
 };

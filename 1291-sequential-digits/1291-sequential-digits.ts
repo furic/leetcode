@@ -1,19 +1,15 @@
-function sequentialDigits(low: number, high: number): number[] {
+const sequentialDigits = (low: number, high: number): number[] => {
     const digits = "123456789";
-    const res: number[] = [];
+    const result: number[] = [];
+    const minLen = String(low).length;
+    const maxLen = String(high).length;
 
-    const n = String(low).length;
-    const m = String(high).length;
-
-    for (let length = n; length <= m; length++) {
-        for (let i = 0; i < 10 - length; i++) {
-            const num = Number(digits.slice(i, i + length));
-
-            if (low <= num && num <= high) {
-                res.push(num);
-            }
+    for (let len = minLen; len <= maxLen; len++) {
+        for (let i = 0; i <= 9 - len; i++) {
+            const num = Number(digits.slice(i, i + len));
+            if (num >= low && num <= high) result.push(num);
         }
     }
 
-    return res;
-}
+    return result;
+};

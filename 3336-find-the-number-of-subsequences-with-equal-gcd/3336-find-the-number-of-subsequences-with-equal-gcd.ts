@@ -21,9 +21,9 @@ const subsequencePairCount = (nums: number[]): number => {
                 if (ways === 0) continue;
 
                 const ng2 = gcd(g2, num);
-                next[g1][g2]   = (next[g1][g2]   + ways) % MOD; // skip
-                next[ng1][g2]  = (next[ng1][g2]  + ways) % MOD; // add to seq1
-                next[g1][ng2]  = (next[g1][ng2]  + ways) % MOD; // add to seq2
+                next[g1][g2] = (next[g1][g2] + ways) % MOD; // skip
+                next[ng1][g2] = (next[ng1][g2] + ways) % MOD; // add to seq1
+                next[g1][ng2] = (next[g1][ng2] + ways) % MOD; // add to seq2
             }
         }
 

@@ -1,12 +1,6 @@
-function findGCD(nums: number[]): number {
-    let minNum = Math.min(...nums);
-    let maxNum = Math.max(...nums);
-
-    while (maxNum !== 0) {
-        const temp = maxNum;
-        maxNum = minNum % maxNum;
-        minNum = temp;
-    }
-
-    return minNum;
-}
+const findGCD = (nums: number[]): number => {
+    let a = Math.min(...nums);
+    let b = Math.max(...nums);
+    while (b !== 0) { const t = b; b = a % b; a = t; }
+    return a;
+};

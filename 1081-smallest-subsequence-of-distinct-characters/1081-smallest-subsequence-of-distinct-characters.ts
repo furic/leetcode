@@ -1,30 +1,19 @@
 function smallestSubsequence(s: string): string {
-    const freq = new Map<string, number>();
-    const visited = new Set<string>();
-    const stack: string[] = [];
-
-    for (const c of s) {
-        freq.set(c, (freq.get(c) ?? 0) + 1);
-    }
-
-    for (const c of s) {
-        freq.set(c, (freq.get(c) ?? 0) - 1);
-
-        if (visited.has(c)) {
-            continue;
-        }
-
-        while (
-            stack.length > 0 &&
-            stack[stack.length - 1] > c &&
-            (freq.get(stack[stack.length - 1]) ?? 0) > 0
+    let stack: string[] = [];
+    let seen = new Set<string>();
+    for (let i = 0; i < s.length; i++) {
+        let char = s[i];
+        if (seen.has(char)) continue;
+        while (stack.length
+            && stack.at(-1) > char
+            && s.lastIndexOf(stack.at(-1)) > i
         ) {
-            visited.delete(stack.pop()!);
+            const last = stack.pop();
+            seen.delete(last);
         }
-
-        stack.push(c);
-        visited.add(c);
+        stack.push(char);
+        seen.add(char);
     }
 
     return stack.join("");
-}
+};

@@ -1,20 +1,19 @@
-function shiftGrid(grid: number[][], k: number): number[][] {
-    const n = grid.length;
-    const m = grid[0].length;
+const shiftGrid = (grid: number[][], k: number): number[][] => {
+    const rows = grid.length;
+    const cols = grid[0].length;
+    const total = rows * cols;
 
-    const res: number[][] = Array.from(
-        { length: n },
-        () => Array(m).fill(0)
-    );
+    k %= total;
+    if (k === 0) return grid;
 
-    for (let i = 0; i < n; i++) {
-        for (let j = 0; j < m; j++) {
-            const newJ = (j + k) % m;
-            const newI = (i + Math.floor((j + k) / m)) % n;
+    const result: number[][] = Array.from({ length: rows }, () => new Array(cols).fill(0));
 
-            res[newI][newJ] = grid[i][j];
+    for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+            const newIdx = (r * cols + c + k) % total;
+            result[Math.floor(newIdx / cols)][newIdx % cols] = grid[r][c];
         }
     }
 
-    return res;
-}
+    return result;
+};

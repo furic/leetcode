@@ -1,38 +1,21 @@
-function maxActiveSectionsAfterTrade(s: string): number {
-    let ones = 0;
+const maxActiveSectionsAfterTrade = (s: string): number => {
+    let totalOnes = 0;
+    let prevZeroRun = 0;
+    let maxGain = 0;
 
-    for (const c of s) {
-        if (c === "1") {
-            ones++;
-        }
+    for (let i = 0; i < s.length; ) {
+        let onesRun = 0;
+        while (i < s.length && s[i] === '1') { i++; totalOnes++; onesRun++; }
+
+        let zerosRun = 0;
+        while (i < s.length && s[i] === '0') { i++; zerosRun++; }
+
+        // A valid trade merges prevZeroRun + zerosRun by flipping the ones block between them
+        if (prevZeroRun > 0 && onesRun > 0 && zerosRun > 0)
+            maxGain = Math.max(maxGain, prevZeroRun + zerosRun);
+
+        prevZeroRun = zerosRun;
     }
 
-    const paddedS = "1" + s + "1";
-    const zeroRuns: number[] = [];
-
-    let length = 0;
-
-    for (const c of paddedS) {
-        if (c === "0") {
-            length++;
-        } else if (length > 0) {
-            zeroRuns.push(length);
-            length = 0;
-        }
-    }
-
-    if (zeroRuns.length < 2) {
-        return ones;
-    }
-
-    let best = 0;
-
-    for (let i = 0; i + 1 < zeroRuns.length; i++) {
-        best = Math.max(
-            best,
-            zeroRuns[i] + zeroRuns[i + 1]
-        );
-    }
-
-    return ones + best;
-}
+    return totalOnes + maxGain;
+};

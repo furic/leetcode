@@ -1,4 +1,4 @@
-<h2><a href="https://leetcode.com/problems/number-of-unique-xor-triplets-ii">3514. Number of Unique XOR Triplets II</a></h2><h3>Medium</h3><hr><p data-end="261" data-start="147">You are given an integer array <code>nums</code>.</p>
+<h2><a href="https://leetcode.com/problems/number-of-unique-xor-triplets-ii/description/?envType=daily-question&envId=2026-07-24">3514. Number of Unique XOR Triplets II</a></h2><h3>Medium</h3><hr><p data-end="261" data-start="147">You are given an integer array <code>nums</code>.</p>
 
 <p>A <strong>XOR triplet</strong> is defined as the XOR of three elements <code>nums[i] XOR nums[j] XOR nums[k]</code> where <code>i &lt;= j &lt;= k</code>.</p>
 
@@ -43,5 +43,5 @@
 
 <ul>
 	<li><code>1 &lt;= nums.length &lt;= 1500</code></li>
-	<li><code><font face="monospace">1 &lt;= nums[i] &lt;= 1500</font></code></li>
+	<li><code>1 &lt;= nums[i] &lt;= 1500</code></li>
 </ul>

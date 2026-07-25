@@ -1,8 +1,8 @@
-const maxProduct = (n: number): number => {
-    const sortedDigits = n
-        .toString()
-        .split("")
-        .map(Number)
-        .sort((a, b) => b - a);
-    return sortedDigits[0] * sortedDigits[1];
+function maxProduct(n: number): number {
+    const s = String(n).split('').sort();
+
+    const d1 = Number(s[s.length - 2]);
+    const d2 = Number(s[s.length - 1]);
+
+    return d1 * d2;
 };

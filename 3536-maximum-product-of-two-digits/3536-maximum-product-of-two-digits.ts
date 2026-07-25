@@ -1,8 +1,16 @@
-function maxProduct(n: number): number {
-    const s = String(n).split('').sort();
+const maxProduct = (n: number): number => {
+    let largest = 0, secondLargest = 0;
 
-    const d1 = Number(s[s.length - 2]);
-    const d2 = Number(s[s.length - 1]);
+    while (n > 0) {
+        const digit = n % 10;
+        if (digit > largest) {
+            secondLargest = largest;
+            largest = digit;
+        } else if (digit > secondLargest) {
+            secondLargest = digit;
+        }
+        n = Math.floor(n / 10);
+    }
 
-    return d1 * d2;
+    return largest * secondLargest;
 };

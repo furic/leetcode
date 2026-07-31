@@ -1,15 +1,13 @@
-function minimumPushes(word: string): number {
-    const counts: number[] = new Array(26).fill(0);
-    for (const ch of word) {
-        counts[ch.charCodeAt(0) - 97]++;
-    }
-    counts.sort((a, b) => b - a);
-    let total = 0;
+const minimumPushes = (word: string): number => {
+    const freq = new Array(26).fill(0);
+    for (const ch of word) freq[ch.charCodeAt(0) - 97]++;
+    freq.sort((a, b) => b - a);
+
+    let totalPushes = 0;
     for (let i = 0; i < 26; i++) {
-        if (counts[i] === 0) {
-            break;
-        }
-        total += counts[i] * (Math.floor(i / 8) + 1);
+        if (freq[i] === 0) break;
+        totalPushes += freq[i] * (Math.floor(i / 8) + 1);
     }
-    return total;
-}
+
+    return totalPushes;
+};

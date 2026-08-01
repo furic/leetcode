@@ -1,17 +1,18 @@
-function predictTheWinner(nums: number[]): boolean {
+const predictTheWinner = (nums: number[]): boolean => {
     const n = nums.length;
-    const dp: number[] = Array(n).fill(0);
+    const dp: number[][] = Array.from({ length: n }, () => new Array(n).fill(0));
 
-    for (let left = n - 1; left >= 0; left--) {
-        dp[left] = nums[left];
+    for (let i = 0; i < n; i++) dp[i][i] = nums[i];
 
-        for (let right = left + 1; right < n; right++) {
-            dp[right] = Math.max(
-                nums[left] - dp[right],
-                nums[right] - dp[right - 1]
+    for (let len = 2; len <= n; len++) {
+        for (let l = 0; l + len - 1 < n; l++) {
+            const r = l + len - 1;
+            dp[l][r] = Math.max(
+                nums[l] - dp[l + 1][r],
+                nums[r] - dp[l][r - 1],
             );
         }
     }
 
-    return dp[n - 1] >= 0;
-}
+    return dp[0][n - 1] >= 0;
+};

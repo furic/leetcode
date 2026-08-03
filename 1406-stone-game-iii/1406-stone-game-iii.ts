@@ -1,28 +1,17 @@
-function stoneGameIII(stoneValue: number[]): string {
-    let s1 = 0;
-    let s2 = 0;
-    let s3 = 0;
-    let total = 0;
+const stoneGameIII = (stoneValue: number[]): string => {
+    let dp1 = 0, dp2 = 0, dp3 = 0;
+    let suffixSum = 0;
 
     for (let i = stoneValue.length - 1; i >= 0; i--) {
-        total += stoneValue[i];
-
-        const current = total - Math.min(s1, s2, s3);
-
-        s3 = s2;
-        s2 = s1;
-        s1 = current;
+        suffixSum += stoneValue[i];
+        const best = suffixSum - Math.min(dp1, dp2, dp3);
+        dp3 = dp2; dp2 = dp1; dp1 = best;
     }
 
-    const bob = total - s1;
+    const alice = dp1;
+    const bob   = suffixSum - dp1;
 
-    if (s1 > bob) {
-        return "Alice";
-    }
-
-    if (s1 < bob) {
-        return "Bob";
-    }
-
-    return "Tie";
-}
+    if (alice > bob) return 'Alice';
+    if (alice < bob) return 'Bob';
+    return 'Tie';
+};

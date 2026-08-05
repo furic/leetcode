@@ -1,46 +1,25 @@
-function remainingMethods(n: number, k: number, invocations: number[][]): number[] {
-    const adj: number[][] = Array.from(
-        { length: n },
-        () => []
-    );
+const remainingMethods = (n: number, k: number, invocations: number[][]): number[] => {
+    const adj: number[][] = Array.from({ length: n }, () => []);
+    for (const [a, b] of invocations) adj[a].push(b);
 
-    for (const [u, v] of invocations) {
-        adj[u].push(v);
-    }
+    // BFS to mark all methods reachable from k as suspicious
+    const suspicious = new Uint8Array(n);
+    const queue = new Int32Array(n);
+    let head = 0, tail = 0;
 
-    const suspicious: boolean[] = Array(n).fill(false);
-    suspicious[k] = true;
+    suspicious[k] = 1;
+    queue[tail++] = k;
 
-    const queue: number[] = [k];
-    let head = 0;
-
-    while (head < queue.length) {
+    while (head < tail) {
         const u = queue[head++];
-
-        for (const v of adj[u]) {
-            if (!suspicious[v]) {
-                suspicious[v] = true;
-                queue.push(v);
-            }
-        }
+        for (const v of adj[u])
+            if (!suspicious[v]) { suspicious[v] = 1; queue[tail++] = v; }
     }
 
-    for (const [u, v] of invocations) {
-        if (!suspicious[u] && suspicious[v]) {
-            return Array.from(
-                { length: n },
-                (_, i) => i
-            );
-        }
-    }
+    // Check if any non-suspicious method invokes a suspicious one
+    const canRemove = invocations.every(([a, b]) => !(suspicious[b] && !suspicious[a]));
 
-    const result: number[] = [];
-
-    for (let i = 0; i < n; i++) {
-        if (!suspicious[i]) {
-            result.push(i);
-        }
-    }
-
-    return result;
+    return canRemove
+        ? Array.from({ length: n }, (_, i) => i).filter(i => !suspicious[i])
+        : Array.from({ length: n }, (_, i) => i);
 };

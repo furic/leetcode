@@ -1,17 +1,7 @@
-function smallestNumber(n: number, t: number): number {
-    for (let i = n; i < n + 1000; i++) {
-        let x = i;
+const smallestNumber = (n: number, t: number): number => {
+    for (let num = n; ; num++) {
         let product = 1;
-
-        while (x > 0) {
-            product *= x % 10;
-            x = Math.floor(x / 10);
-        }
-
-        if (product % t === 0) {
-            return i;
-        }
+        for (const ch of String(num)) product *= +ch;
+        if (product % t === 0) return num;
     }
-
-    return -1;
 };

@@ -1,23 +1,12 @@
-function missingInteger(nums: number[]): number {
-    let prefixSum: number = nums[0];
-    const length: number = nums.length;
-    const storage: Set<number> = new Set(nums);
+const missingInteger = (nums: number[]): number => {
+    const seen = new Set(nums);
+    let sum = nums[0];
 
-    let index: number = 1;
-
-    // Find the sum of the longest consecutive prefix
-    while (
-        index < length &&
-        nums[index] === nums[index - 1] + 1
-    ) {
-        prefixSum += nums[index];
-        index++;
+    for (let i = 1; i < nums.length; i++) {
+        if (nums[i] !== nums[i - 1] + 1) break;
+        sum += nums[i];
     }
 
-    // Find the smallest missing integer
-    while (storage.has(prefixSum)) {
-        prefixSum++;
-    }
-
-    return prefixSum;
-}
+    while (seen.has(sum)) sum++;
+    return sum;
+};

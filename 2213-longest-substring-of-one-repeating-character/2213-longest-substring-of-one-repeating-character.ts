@@ -1,84 +1,65 @@
-function longestRepeating(s: string, queryCharacters: string, queryIndices: number[]): number[] {
+const longestRepeating = (s: string, queryCharacters: string, queryIndices: number[]): number[] => {
     const n = s.length;
-    const tree = new Array(4 * n).fill(null);
+    const chars = s.split('');
+    const size = 1 << (Math.ceil(Math.log2(n)) + 1);
 
-    const merge = (left, right) => {
-        if (left === null) 
-            return right;
-        if (right === null) 
-            return left;
+    const maxRun    = new Int32Array(size);
+    const prefLen   = new Int32Array(size);
+    const sufLen    = new Int32Array(size);
+    const prefChar  = new Int8Array(size);
+    const sufChar   = new Int8Array(size);
+    const rangeLen  = new Int32Array(size);
 
-        const [lc, lrc, llen, lp, ls, lb] = left;
+    const mergeUp = (idx: number): void => {
+        const l = idx << 1, r = (idx << 1) | 1;
 
-        const [rlc, rc, rlen, rp, rs, rb] = right;
+        rangeLen[idx] = rangeLen[l] + rangeLen[r];
 
-        const length = llen + rlen;
+        prefLen[idx]  = prefLen[l];
+        prefChar[idx] = prefChar[l];
+        if (prefLen[l] === rangeLen[l] && prefChar[l] === prefChar[r])
+            prefLen[idx] += prefLen[r];
 
-        let prefix = lp;
+        sufLen[idx]  = sufLen[r];
+        sufChar[idx] = sufChar[r];
+        if (sufLen[r] === rangeLen[r] && sufChar[r] === sufChar[l])
+            sufLen[idx] += sufLen[l];
 
-        if (lrc === rlc && lp === llen) {
-            prefix = llen + rp;
-        }
-
-        let suffix = rs;
-
-        if (lrc === rlc && rs === rlen) {
-            suffix = rlen + ls;
-        }
-
-        let best = Math.max(lb, rb);
-
-        if (lrc === rlc) {
-            best = Math.max(best,ls + rp);
-        }
-
-        return [lc, rc, length, prefix, suffix, best];
+        maxRun[idx] = Math.max(maxRun[l], maxRun[r]);
+        if (sufChar[l] === prefChar[r])
+            maxRun[idx] = Math.max(maxRun[idx], sufLen[l] + prefLen[r]);
     };
 
-    const build = (node, start, end) => {
-        if (start === end) {
-            tree[node] = [s[start], s[start], 1, 1, 1, 1];
+    const build = (idx: number, lo: number, hi: number): void => {
+        if (lo === hi) {
+            const code = chars[lo].charCodeAt(0);
+            maxRun[idx] = prefLen[idx] = sufLen[idx] = rangeLen[idx] = 1;
+            prefChar[idx] = sufChar[idx] = code;
             return;
         }
-
-        const mid = Math.floor(
-            (start + end) / 2
-        );
-
-        build(node * 2, start, mid);
-        build(node * 2 + 1, mid + 1, end);
-
-        tree[node] = merge(tree[node * 2],tree[node * 2 + 1]
-        );
+        const mid = (lo + hi) >> 1;
+        build(idx << 1, lo, mid);
+        build((idx << 1) | 1, mid + 1, hi);
+        mergeUp(idx);
     };
 
-    const update = (node, start, end, index, char) => {
-        if (start === end) {
-            tree[node] = [char, char, 1, 1, 1, 1];
+    const pointUpdate = (idx: number, lo: number, hi: number, pos: number, ch: string): void => {
+        if (lo === hi) {
+            chars[pos] = ch;
+            const code = ch.charCodeAt(0);
+            prefChar[idx] = sufChar[idx] = code;
             return;
         }
-
-        const mid = Math.floor(
-            (start + end) / 2
-        );
-
-        if (index <= mid) {
-            update(node * 2, start, mid, index, char );
-        } else {
-            update(node * 2 + 1, mid + 1, end, index, char);
-        }
-
-        tree[node] = merge(tree[node * 2], tree[node * 2 + 1]);
+        const mid = (lo + hi) >> 1;
+        if (pos <= mid) pointUpdate(idx << 1, lo, mid, pos, ch);
+        else            pointUpdate((idx << 1) | 1, mid + 1, hi, pos, ch);
+        mergeUp(idx);
     };
 
     build(1, 0, n - 1);
 
-    const answer = [];
-
-    for (let i = 0; i < queryIndices.length; i++) {
-        update( 1, 0, n - 1, queryIndices[i], queryCharacters[i]);
-        answer.push(tree[1][5]);
-    }
-
-    return answer;
+    return queryIndices.map((pos, i) => {
+        pointUpdate(1, 0, n - 1, pos, queryCharacters[i]);
+        return maxRun[1];
+    });
 };

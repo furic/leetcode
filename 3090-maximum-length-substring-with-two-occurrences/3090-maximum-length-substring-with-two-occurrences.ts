@@ -1,19 +1,16 @@
-function maximumLengthSubstring(s: string): number {
-    const count: number[] = new Array(26).fill(0);
+const maximumLengthSubstring = (s: string): number => {
+    const freq = new Array(26).fill(0);
     let left = 0;
-    let ans = 0;
+    let maxLen = 0;
 
     for (let right = 0; right < s.length; right++) {
         const idx = s.charCodeAt(right) - 97;
-        count[idx]++;
+        freq[idx]++;
 
-        while (count[idx] > 2) {
-            count[s.charCodeAt(left) - 97]--;
-            left++;
-        }
+        while (freq[idx] > 2) freq[s.charCodeAt(left++) - 97]--;
 
-        ans = Math.max(ans, right - left + 1);
+        maxLen = Math.max(maxLen, right - left + 1);
     }
 
-    return ans;
+    return maxLen;
 };

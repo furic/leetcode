@@ -1,13 +1,8 @@
-function stoneGameIX(stones: number[]): boolean {
-    const count: number[] = [0, 0, 0];
+const stoneGameIX = (stones: number[]): boolean => {
+    const mod = [0, 0, 0];
+    for (const stone of stones) mod[stone % 3]++;
 
-    for (const stone of stones) {
-        count[stone % 3]++;
-    }
-
-    if (count[0] % 2 === 0) {
-        return count[1] > 0 && count[2] > 0;
-    }
-
-    return Math.abs(count[1] - count[2]) >= 3;
+    return mod[0] % 2 === 0
+        ? mod[1] > 0 && mod[2] > 0
+        : Math.abs(mod[1] - mod[2]) >= 3;
 };

@@ -1,71 +1,39 @@
-function stoneGameV(stoneValue: number[]): number {
-    const n: number = stoneValue.length;
+const stoneGameV = (stoneValue: number[]): number => {
+    const n = stoneValue.length;
+    const makeGrid = () => Array.from({ length: n }, () => new Array(n).fill(0));
 
-    const prefix: number[] = new Array(n + 1).fill(0);
+    // f[l][r]    = max score Alice can get from subarray [l, r]
+    // maxL[l][r] = max of (rangeSum + f[l][r]) over all right endpoints — used for left-half picks
+    // maxR[l][r] = max of (rangeSum + f[l][r]) over all left endpoints  — used for right-half picks
+    const f    = makeGrid();
+    const maxL = makeGrid();
+    const maxR = makeGrid();
 
-    for (let i = 1; i <= n; i++) {
-        prefix[i] = prefix[i - 1] + stoneValue[i - 1];
-    }
+    for (let l = n - 1; l >= 0; l--) {
+        maxL[l][l] = maxR[l][l] = stoneValue[l];
+        let total = stoneValue[l];
+        let leftSum = 0;
+        let split = l - 1; // rightmost index where leftSum <= total/2
 
-    const search = (leftBound: number, rightBound: number): number => {
-        const total: number = prefix[rightBound + 1] - prefix[leftBound];
+        for (let r = l + 1; r < n; r++) {
+            total += stoneValue[r];
 
-        const start: number = leftBound;
-
-        let left: number = leftBound;
-        let right: number = rightBound;
-
-        while (left < right) {
-            const mid: number = left + Math.floor((right - left) / 2);
-
-            const leftSum: number = prefix[mid + 1] - prefix[start];
-
-            if (leftSum * 2 >= total) {
-                right = mid;
-            } else {
-                left = mid + 1;
-            }
-        }
-
-        return left;
-    };
-
-    const dp: number[][] = Array.from({ length: n }, () => new Array(n).fill(0));
-
-    const left: number[][] = Array.from({ length: n }, () => new Array(n).fill(0));
-
-    const right: number[][] = Array.from({ length: n }, () => new Array(n).fill(0));
-
-    for (let i = 0; i < n; i++) {
-        left[i][i] = stoneValue[i];
-        right[i][i] = stoneValue[i];
-    }
-
-    for (let length = 1; length < n; length++) {
-        for (let i = 0; i < n - length; i++) {
-            const j: number = i + length;
-
-            const k: number = search(i, j);
-
-            const total: number = prefix[j + 1] - prefix[i];
-
-            const leftHalf: number = prefix[k + 1] - prefix[i];
-
-            if (leftHalf * 2 === total) {
-                dp[i][j] = Math.max(left[i][k], right[k + 1][j]);
-            } else {
-                const leftBest: number = k === i ? 0 : left[i][k - 1];
-
-                const rightBest: number = k === j ? 0 : right[k + 1][j];
-
-                dp[i][j] = Math.max(leftBest, rightBest);
+            // Advance split pointer while left half sum stays <= half of total
+            while (split + 1 < r && (leftSum + stoneValue[split + 1]) * 2 <= total) {
+                leftSum += stoneValue[++split];
             }
 
-            left[i][j] = Math.max(left[i][j - 1], total + dp[i][j]);
+            // Alice picks the left half: [l, split]
+            if (l <= split)           f[l][r] = Math.max(f[l][r], maxL[l][split]);
+            // Alice picks the right half: [split+2, r] (strictly more than half)
+            if (split + 1 < r)        f[l][r] = Math.max(f[l][r], maxR[split + 2][r]);
+            // Equal split: Alice can pick either side; pick right [split+1, r]
+            if (leftSum * 2 === total) f[l][r] = Math.max(f[l][r], maxR[split + 1][r]);
 
-            right[i][j] = Math.max(right[i + 1][j], total + dp[i][j]);
+            maxL[l][r] = Math.max(maxL[l][r - 1], total + f[l][r]);
+            maxR[l][r] = Math.max(maxR[l + 1][r], total + f[l][r]);
         }
     }
 
-    return dp[0][n - 1];
+    return f[0][n - 1];
 };

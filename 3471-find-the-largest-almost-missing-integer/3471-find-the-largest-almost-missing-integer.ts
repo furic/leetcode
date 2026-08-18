@@ -1,21 +1,18 @@
-function largestInteger(nums: number[], k: number): number {
-    const n: number = nums.length;
+const largestInteger = (nums: number[], k: number): number => {
+    const n = nums.length;
+    const freq = new Map<number, number>();
+    for (const x of nums) freq.set(x, (freq.get(x) ?? 0) + 1);
 
-    if (k === n) {
-        return Math.max(...nums);
-    }
+    // Only elements that appear exactly once in nums can appear in exactly one subarray
+    const unique = (x: number) => freq.get(x) === 1;
 
-    let arr: number[] = [];
+    if (k === n) return Math.max(...nums);
 
-    if (k === 1) {
-        arr = nums.filter(
-            x => nums.filter(y => y === x).length === 1
-        );
-    } else {
-        arr = [nums[0], nums[n - 1]].filter(
-            x => nums.filter(y => y === x).length === 1
-        );
-    }
+    // k=1: every element forms its own subarray — unique elements qualify
+    // k>1: only endpoints can appear in exactly one subarray (only one window covers each end)
+    const candidates = k === 1
+        ? nums.filter(unique)
+        : [nums[0], nums[n - 1]].filter(unique);
 
-    return arr.length ? Math.max(...arr) : -1;
-}
+    return candidates.length ? Math.max(...candidates) : -1;
+};

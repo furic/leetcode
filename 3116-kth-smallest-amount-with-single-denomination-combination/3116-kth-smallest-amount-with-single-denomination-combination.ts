@@ -1,107 +1,61 @@
-function findKthSmallest(coins: number[], k: number): number {
+const findKthSmallest = (coins: number[], k: number): number => {
+    // Remove coins that are multiples of smaller coins (they add no new multiples)
     coins.sort((a, b) => a - b);
-
-    const newCoins: number[] = [];
-
+    const reduced: number[] = [];
     for (const x of coins) {
-        let keep = true;
-
-        for (const y of newCoins) {
-            if (x % y === 0) {
-                keep = false;
-                break;
-            }
-        }
-
-        if (keep) {
-            newCoins.push(x);
-        }
+        if (reduced.every(y => x % y !== 0)) reduced.push(x);
     }
+    coins = reduced;
 
-    const n: number = newCoins.length;
-    const m: number = 1 << n;
+    const n = coins.length;
+    const numMasks = 1 << n;
 
-    const lcm: number[] = new Array(m).fill(1);
-
-    let left: number = k;
-    let right: number = newCoins[0] * k + 1;
-
-    const gcd = (a: number, b: number): number => {
-        while (b !== 0) {
-            const temp = a % b;
-            a = b;
-            b = temp;
-        }
-
+    const gcd = (a: bigint, b: bigint): bigint => {
+        while (b !== 0n) { [a, b] = [b, a % b]; }
         return a;
     };
 
-    for (let mask = 1; mask < m; mask++) {
-        const prevMask = mask & (mask - 1);
-
-        const bit = mask & -mask;
-
+    const lowestSetBit = (x: number): number => {
         let i = 0;
-        let tempBit = bit;
-
-        while ((tempBit & 1) === 0) {
-            tempBit >>= 1;
-            i++;
-        }
-
-        const temp = lcm[prevMask] / gcd(lcm[prevMask], newCoins[i]);
-
-        if (temp <= Math.floor(right / newCoins[i])) {
-            lcm[mask] = temp * newCoins[i];
-        } else {
-            lcm[mask] = right + 1;
-        }
-    }
-
-    const bitCount = (x: number): number => {
-        let count = 0;
-
-        while (x > 0) {
-            count += x & 1;
-            x >>= 1;
-        }
-
-        return count;
+        while ((x & 1) === 0) { i++; x >>= 1; }
+        return i;
     };
 
-    const get = (x: number): number => {
-        let count = 0;
-
-        for (let mask = 1; mask < m; mask++) {
-            if (lcm[mask] > x) {
-                continue;
-            }
-
-            if (bitCount(mask) % 2 === 1) {
-                count += Math.floor(
-                    x / lcm[mask]
-                );
-            } else {
-                count -= Math.floor(
-                    x / lcm[mask]
-                );
-            }
-        }
-
-        return count;
+    const popcount = (x: number): number => {
+        let c = 0;
+        while (x) { c += x & 1; x >>= 1; }
+        return c;
     };
 
-    while (left < right) {
-        const mid = Math.floor(
-            left + (right - left) / 2
-        );
+    // Precompute LCM for each bitmask subset (inclusion-exclusion)
+    let lo = BigInt(k);
+    let hi = BigInt(coins[0]) * BigInt(k) + 1n;
 
-        if (get(mid) >= k) {
-            right = mid;
-        } else {
-            left = mid + 1;
-        }
+    const maskLCM = new Array<bigint>(numMasks).fill(0n);
+    maskLCM[0] = 1n;
+    for (let mask = 1; mask < numMasks; mask++) {
+        const prevMask = mask & (mask - 1);
+        const coinBig = BigInt(coins[lowestSetBit(mask)]);
+        const prevLCM = maskLCM[prevMask];
+        const candidate = (prevLCM / gcd(prevLCM, coinBig)) * coinBig;
+        maskLCM[mask] = candidate <= hi ? candidate : hi + 1n;
     }
 
-    return left;
+    // Count integers in [1, x] reachable by at least one coin (inclusion-exclusion)
+    const countReachable = (x: bigint): bigint => {
+        let total = 0n;
+        for (let mask = 1; mask < numMasks; mask++) {
+            if (maskLCM[mask] > x) continue;
+            total += popcount(mask) & 1 ? x / maskLCM[mask] : -(x / maskLCM[mask]);
+        }
+        return total;
+    };
+
+    while (lo < hi) {
+        const mid = (lo + hi) / 2n;
+        if (countReachable(mid) >= k) hi = mid;
+        else                          lo = mid + 1n;
+    }
+
+    return Number(lo);
 };

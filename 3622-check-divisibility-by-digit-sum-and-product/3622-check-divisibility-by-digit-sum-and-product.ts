@@ -1,18 +1,12 @@
-function checkDivisibility(n: number): boolean {
-    let s: number = 0;
-    let p: number = 1;
+const checkDivisibility = (n: number): boolean => {
+    let digitSum = 0, digitProduct = 1, rem = n;
 
-    const str: string = Math.abs(n).toString();
-
-    for (const ch of str) {
-        const d: number = Number(ch);
-        s += d;
-        p *= d;
+    while (rem > 0) {
+        const digit = rem % 10;
+        digitSum += digit;
+        digitProduct *= digit;
+        rem = Math.floor(rem / 10);
     }
 
-    if (n % (s + p) === 0) {
-        return true;
-    } else {
-        return false;
-    }
+    return n % (digitSum + digitProduct) === 0;
 };

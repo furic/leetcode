@@ -1,17 +1,17 @@
-function sumGame(num: string): boolean {
-    const n: number = Math.floor(num.length / 2);
+const sumGame = (num: string): boolean => {
+    const half = num.length / 2;
 
-    const nums: number[] = [...num].map(
-        ch => ch === '?' ? 9 : 2 * Number(ch)
-    );
+    const analyze = (s: string): [number, number] => {
+        let digitSum = 0, qCount = 0;
+        for (const ch of s) {
+            if (ch === '?') qCount++;
+            else digitSum += +ch;
+        }
+        return [digitSum, qCount];
+    };
 
-    const left: number = nums
-        .slice(0, n)
-        .reduce((sum, x) => sum + x, 0);
+    const [sum0, q0] = analyze(num.slice(0, half));
+    const [sum1, q1] = analyze(num.slice(half));
 
-    const right: number = nums
-        .slice(n)
-        .reduce((sum, x) => sum + x, 0);
-
-    return left !== right;
+    return (q0 + q1) % 2 === 1 || sum0 - sum1 !== (q1 - q0) * 9 / 2;
 };

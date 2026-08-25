@@ -1,13 +1,13 @@
-const missingMultiple = (nums: number[], k: number): number => {
-    nums.sort((a, b) => a - b);
-    let ans = k;
-    for (const num of nums) {
-        if (num === ans) {
-            ans += k;
+function missingMultiple(nums: number[], k: number): number {
+    const hashSet: Set<number> = new Set(nums);
+
+    let i: number = 1;
+
+    while (true) {
+        if (!hashSet.has(i * k)) {
+            return i * k;
         }
-        if (num > ans) {
-            return ans;
-        }
+
+        i++;
     }
-    return ans;
 };

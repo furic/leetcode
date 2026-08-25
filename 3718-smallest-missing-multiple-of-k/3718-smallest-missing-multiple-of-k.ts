@@ -1,13 +1,6 @@
-function missingMultiple(nums: number[], k: number): number {
-    const hashSet: Set<number> = new Set(nums);
-
-    let i: number = 1;
-
-    while (true) {
-        if (!hashSet.has(i * k)) {
-            return i * k;
-        }
-
-        i++;
-    }
+const missingMultiple = (nums: number[], k: number): number => {
+    const seen = new Set(nums);
+    let multiple = 1;
+    while (seen.has(k * multiple)) multiple++;
+    return k * multiple;
 };

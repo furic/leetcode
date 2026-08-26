@@ -1,53 +1,21 @@
-function shortestBeautifulSubstring(s: string, k: number): string {
-    let totalOnes: number = 0;
+const shortestBeautifulSubstring = (s: string, k: number): string => {
+    if (s.split('').filter(c => c === '1').length < k) return '';
 
-    for (const ch of s) {
-        if (ch === '1') {
-            totalOnes++;
-        }
-    }
-
-    if (totalOnes < k) {
-        return "";
-    }
-
-    let left: number = 0;
-    let countOne: number = 0;
-
-    let res: string = "";
+    let best = s;
+    let ones = 0, left = 0;
 
     for (let right = 0; right < s.length; right++) {
-        if (s[right] === '1') {
-            countOne++;
-        }
+        ones += +s[right];
 
-        while (
-            countOne > k ||
-            (left <= right && s[left] === '0')
-        ) {
-            if (s[left] === '1') {
-                countOne--;
-            }
+        // Shrink from left: remove excess 1s or leading 0s
+        while (ones > k || s[left] === '0') ones -= +s[left++];
 
-            left++;
-        }
-
-        if (countOne === k) {
-            const current: string =
-                s.slice(left, right + 1);
-
-            if (
-                res === "" ||
-                current.length < res.length ||
-                (
-                    current.length === res.length &&
-                    current < res
-                )
-            ) {
-                res = current;
-            }
+        if (ones === k) {
+            const window = s.slice(left, right + 1);
+            if (window.length < best.length || (window.length === best.length && window < best))
+                best = window;
         }
     }
 
-    return res;
+    return best;
 };

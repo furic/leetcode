@@ -1,89 +1,66 @@
-function lexPalindromicPermutation(s: string, target: string): string {
-    const n: number = s.length;
-    const freq: number[] = new Array(26).fill(0);
+const lexPalindromicPermutation = (s: string, target: string): string => {
+    const n = s.length;
+    const freq = new Array(26).fill(0);
+    for (const ch of s) freq[ch.charCodeAt(0) - 97]++;
 
-    for (const ch of s) {
-        freq[ch.charCodeAt(0) - 97]++;
-    }
-
-    let middle: string = "";
-
+    // Find the odd-frequency character (palindrome center)
+    let middle = '';
     for (let i = 0; i < 26; i++) {
         if (freq[i] % 2 === 1) {
-            if (middle !== "") {
-                return "";
-            }
-
+            if (middle !== '') return ''; // More than one odd → not palindromable
             middle = String.fromCharCode(97 + i);
         }
-
-        freq[i] = Math.floor(freq[i] / 2);
+        freq[i] >>= 1;
     }
 
-    const halfLen: number = Math.floor(n / 2);
+    const halfLen = n >> 1;
     const half: string[] = [];
 
-    let matched: number = 0;
-
+    // Greedily match target's prefix as long as chars are available
+    let matched = 0;
     while (matched < halfLen) {
-        const c: number = target.charCodeAt(matched) - 97;
-
-        if (freq[c] === 0) {
-            break;
-        }
-
+        const c = target.charCodeAt(matched) - 97;
+        if (freq[c] === 0) break;
         freq[c]--;
         half.push(String.fromCharCode(97 + c));
         matched++;
     }
 
-    let i: number = matched;
+    const buildCandidate = (leftHalf: string): string =>
+        leftHalf + middle + [...leftHalf].reverse().join('');
 
-    while (i >= 0) {
-        if (i < halfLen) {
-            const start: number = target.charCodeAt(i) - 97 + 1;
-
-            for (let c = start; c < 26; c++) {
-                if (freq[c] === 0) {
-                    continue;
-                }
-
+    // Backtrack: try incrementing at each position
+    let pos = matched;
+    while (pos >= 0) {
+        if (pos < halfLen) {
+            const minChar = target.charCodeAt(pos) - 97 + 1;
+            for (let c = minChar; c < 26; c++) {
+                if (freq[c] === 0) continue;
                 freq[c]--;
 
-                let suffix: string = "";
+                // Fill remaining positions with smallest available chars
+                let suffix = '';
+                for (let j = 0; j < 26; j++) suffix += String.fromCharCode(97 + j).repeat(freq[j]);
 
-                for (let j = 0; j < 26; j++) {
-                    suffix += String.fromCharCode(97 + j).repeat(freq[j]);
-                }
-
-                const left: string = half.slice(0, i).join("") + String.fromCharCode(97 + c) + suffix;
-                const candidate: string = left + middle + [...left].reverse().join("");
-
-                if (candidate > target) {
-                    return candidate;
-                }
+                const leftHalf = half.slice(0, pos).join('') + String.fromCharCode(97 + c) + suffix;
+                const candidate = buildCandidate(leftHalf);
+                if (candidate > target) return candidate;
 
                 freq[c]++;
             }
         }
 
-        if (i === halfLen) {
-            const left: string = half.join("");
-            const candidate: string = left + middle + [...left].reverse().join("");
-
-            if (candidate > target) {
-                return candidate;
-            }
+        if (pos === halfLen) {
+            const candidate = buildCandidate(half.join(''));
+            if (candidate > target) return candidate;
         }
 
-        i--;
-
-        if (i >= 0) {
-            const c: number = half[i].charCodeAt(0) - 97;
-            freq[c]++;
+        pos--;
+        if (pos >= 0) {
+            freq[half[pos].charCodeAt(0) - 97]++;
             half.pop();
         }
     }
 
-    return "";
-}
+    return '';
+};

@@ -1,89 +1,69 @@
-const minMoves = (classroom: string[], energy: number): number => {
+function minMoves(classroom: string[], energy: number): number {
+    const dx = [0, 1, 0, -1];
+    const dy = [1, 0, -1, 0];
     const m = classroom.length;
     const n = classroom[0].length;
-
-    let startI = -1, startJ = -1;
-    const litterList: [number, number][] = [];
-    const litterIndex: number[][] = Array.from({ length: m }, () =>
-        Array(n).fill(-1)
-    );
-
-    let litterCount = 0;
-
+    const id: number[][] = Array.from({ length: m }, () => Array(n).fill(0));
+    let sx = 0,
+        sy = 0,
+        cnt = 0;
     for (let i = 0; i < m; i++) {
         for (let j = 0; j < n; j++) {
-            const cell = classroom[i][j];
-            if (cell === 'S') {
-                startI = i;
-                startJ = j;
-            } else if (cell === 'L') {
-                litterList.push([i, j]);
-                litterIndex[i][j] = litterCount++;
+            const c = classroom[i][j];
+            if (c === "S") {
+                sx = i;
+                sy = j;
+            } else if (c === "L") {
+                id[i][j] = 1 << cnt;
+                cnt++;
             }
         }
     }
-
-    const totalLitters = litterList.length;
-    const targetMask = (1 << totalLitters) - 1;
-
-    if (totalLitters === 0) return 0;
-
-    const dist: number[][][] = Array.from({ length: m }, () =>
-        Array.from({ length: n }, () =>
-            Array(1 << totalLitters).fill(-1)
-        )
+    const full = 1 << cnt;
+    const bestEnergy = Array.from({ length: m }, () =>
+        Array.from({ length: n }, () => Array(full).fill(-1)),
     );
-
-    const directions = [
-        [0, 1], [0, -1], [1, 0], [-1, 0]
-    ];
-
-    let queue: [number, number, number, number][] = [[startI, startJ, 0, energy]];
-    dist[startI][startJ][0] = energy;
-
-    let moves = 0;
-
-    while (queue.length > 0) {
-        const nextQueue: [number, number, number, number][] = [];
-
-        for (const [i, j, mask, e] of queue) {
-            for (const [dx, dy] of directions) {
-                const ni = i + dx;
-                const nj = j + dy;
-
-                if (ni < 0 || ni >= m || nj < 0 || nj >= n || classroom[ni][nj] === 'X') {
-                    continue;
-                }
-
-                if (e < 1) continue;
-
-                let newEnergy = e - 1;
-                if (classroom[ni][nj] === 'R') {
-                    newEnergy = energy;
-                }
-
-                let newMask = mask;
-                if (classroom[ni][nj] === 'L') {
-                    const idx = litterIndex[ni][nj];
-                    if (idx !== -1) {
-                        newMask = mask | (1 << idx);
-                    }
-                }
-
-                if (newMask === targetMask) {
-                    return moves + 1;
-                }
-
-                if (newEnergy > dist[ni][nj][newMask]) {
-                    dist[ni][nj][newMask] = newEnergy;
-                    nextQueue.push([ni, nj, newMask, newEnergy]);
-                }
+    bestEnergy[sx][sy][0] = energy;
+    const q: {
+        x: number;
+        y: number;
+        mask: number;
+        e: number;
+        steps: number;
+    }[] = [];
+    q.push({ x: sx, y: sy, mask: 0, e: energy, steps: 0 });
+    let head = 0;
+    while (head < q.length) {
+        const t = q[head++];
+        if (t.mask === full - 1) {
+            return t.steps;
+        }
+        if (t.e === 0) {
+            continue;
+        }
+        for (let d = 0; d < 4; d++) {
+            const nx = t.x + dx[d];
+            const ny = t.y + dy[d];
+            if (nx < 0 || nx >= m || ny < 0 || ny >= n) {
+                continue;
+            }
+            const c = classroom[nx][ny];
+            if (c === "X") {
+                continue;
+            }
+            const ne = c === "R" ? energy : t.e - 1;
+            const nmask = t.mask | id[nx][ny];
+            if (ne > bestEnergy[nx][ny][nmask]) {
+                bestEnergy[nx][ny][nmask] = ne;
+                q.push({
+                    x: nx,
+                    y: ny,
+                    mask: nmask,
+                    e: ne,
+                    steps: t.steps + 1,
+                });
             }
         }
-
-        queue = nextQueue;
-        moves++;
     }
-
     return -1;
-};
+}

@@ -4,5 +4,5 @@ const uniformArray = (nums1: number[]): boolean => {
     const canBeAllEven = oddCount === 0 || oddCount >= 2;
     const canBeAllOdd  = oddCount >= 1;
 
-    return canBeAllEven || canBeAllOdd;
+    return true;
 };

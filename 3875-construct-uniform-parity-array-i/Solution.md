@@ -1,30 +1,17 @@
-# Odd Count Parity Feasibility | 5 Lines | O(n) | 0ms
+# Always True | 1 Line | O(1) | 0ms
 
 # Intuition
-Without the `>= 1` constraint, any element can subtract any other element freely. This means parity conversion is unconstrained — subtracting an odd from any value flips its parity, and we can always find an odd to subtract (or not subtract anything to keep parity).
+With subtraction available and no `>= 1` constraint, any element can always be made either parity. The answer is always `true`.
 
 # Approach
-- Count `oddCount` — the number of odd elements in `nums1`.
-- **`canBeAllOdd`:** Always achievable as long as there's at least one odd (`oddCount >= 1`). Evens can subtract that odd to become odd; odds keep their value.
-- **`canBeAllEven`:** 
-  - If `oddCount === 0`: all already even — trivially true.
-  - If `oddCount >= 2`: odds can subtract each other (odd - odd = even) — true.
-  - If `oddCount === 1`: the single odd has no other odd to subtract from, and subtracting an even keeps it odd — impossible.
-- Note: the previous version required `min(odds) < min(evens)` because subtraction needed to be positive. Here that restriction is gone, making the logic purely a count check.
+- Any element `x` can be kept as `x` (keeping its parity) or changed to `x - x = 0` (even) or `x - y` for any other `y` in the array, which can yield either parity. Since there's always at least one other element, every element can independently be made odd or even — so `nums2` can always be all-odd or all-even.
 
 # Complexity
-- Time complexity: $$O(n)$$ — one pass to count odds.
+- Time complexity: $$O(1)$$.
 
-- Space complexity: $$O(1)$$ — only a counter.
+- Space complexity: $$O(1)$$.
 
 # Code
 ```typescript []
-const uniformArray = (nums1: number[]): boolean => {
-    const oddCount = nums1.filter((v) => v % 2 !== 0).length;
-
-    const canBeAllEven = oddCount === 0 || oddCount >= 2;
-    const canBeAllOdd  = oddCount >= 1;
-
-    return canBeAllEven || canBeAllOdd;
-};
+const uniformArray = (nums1: number[]): boolean => true;
 ```

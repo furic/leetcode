@@ -1,11 +1,11 @@
 const uniformArray = (nums1: number[]): boolean => {
-    const odds  = nums1.filter((v) => v % 2 !== 0);
-    const evens = nums1.filter((v) => v % 2 === 0);
+    let minOdd = Infinity, minEven = Infinity;
 
-    const canBeAllEven = odds.length === 0;
+    for (const x of nums1) {
+        if (x & 1) minOdd  = Math.min(minOdd,  x);
+        else        minEven = Math.min(minEven, x);
+    }
 
-    const canBeAllOdd  = evens.length === 0
-        || (odds.length > 0 && Math.min(...odds) < Math.min(...evens));
-
-    return canBeAllEven || canBeAllOdd;
+    if (minOdd === Infinity || minEven === Infinity) return true;
+    return minOdd < minEven;
 };

@@ -1,42 +1,27 @@
 function totalNumbers(digits: number[]): number {
-    const m = new Map();
-    let r = 0;
-    let s = "";
+    const uniqueNumbers = new Set<number>();
+    const n = digits.length;
 
-    const isEven = new Map();
+    // Duyệt qua tất cả các bộ 3 vị trí (i, j, k) khác nhau trong mảng
+    for (let i = 0; i < n; i++) {
+        // Chữ số hàng trăm không được là 0
+        if (digits[i] === 0) continue;
 
-    for (let i = 0; i < 10; i++) {
-        if (i % 2 === 0) {
-            isEven.set(String(i), true);
-        }
-    }
+        for (let j = 0; j < n; j++) {
+            // Vị trí j phải khác vị trí i
+            if (j === i) continue;
 
-    for (const d of digits) {
-        s += String(d);
-    }
+            for (let k = 0; k < n; k++) {
+                // Vị trí k phải khác vị trí i và j
+                if (k === i || k === j) continue;
 
-    for (let i = 0; i < s.length; i++) {
-        const x = s[i];
-
-        if (x === "0") {
-            continue;
-        }
-
-        for (let j = 0; j < s.length; j++) {
-            if (j !== i) {
-                for (let k = 0; k < s.length; k++) {
-                    if (k !== j && k !== i && isEven.has(s[k])) {
-                        const n = Number(x + s[j] + s[k]);
-
-                        if (!m.has(n)) {
-                            m.set(n, true);
-                            r++;
-                        }
-                    }
+                // Chữ số hàng đơn vị phải là số chẵn
+                if (digits[k] % 2 === 0) {
+                    const num = digits[i] * 100 + digits[j] * 10 + digits[k];
+                    uniqueNumbers.add(num);
                 }
             }
         }
     }
-
-    return r;
+    return uniqueNumbers.size
 };

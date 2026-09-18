@@ -1,47 +1,33 @@
-function maxNumOfSubstrings(s: string): string[] {
-    const count: number[] = new Array(26).fill(0);
-    const first: number[] = new Array(26).fill(-1);
-    const last: number[] = new Array(26).fill(-1);
-
-    const order: number[] = [];
+const maxNumOfSubstrings = (s: string): string[] => {
+    const charFirst = new Array(26).fill(-1);
+    const charLast  = new Array(26).fill(-1);
+    const charCount = new Array(26).fill(0);
+    const firstSeen: number[] = []; // chars in order of first appearance
 
     for (let i = 0; i < s.length; i++) {
         const c = s.charCodeAt(i) - 97;
-
-        if (count[c] === 0) {
-            first[c] = i;
-            order.push(c);
-        }
-
-        count[c]++;
-        last[c] = i;
+        if (charCount[c] === 0) { charFirst[c] = i; firstSeen.push(c); }
+        charCount[c]++;
+        charLast[c] = i;
     }
 
-    const res: string[] = [];
-    let queue: number[][] = [];
+    const result: string[] = [];
+    let pending: number[][] = []; // [first, last, count] of unresolved chars
 
-    for (const c of order) {
-        queue.unshift([first[c], last[c], count[c]]);
+    for (const c of firstSeen) {
+        pending.unshift([charFirst[c], charLast[c], charCount[c]]);
 
-        let left = Infinity;
-        let right = -Infinity;
-        let total = 0;
-
-        for (const [x, y, z] of queue) {
-            total += z;
-            left = Math.min(left, x);
-            right = Math.max(right, y);
-
-            if (total === right - left + 1) {
-                break;
-            }
+        let lo = Infinity, hi = -Infinity, total = 0;
+        for (const [f, l, cnt] of pending) {
+            total += cnt; lo = Math.min(lo, f); hi = Math.max(hi, l);
+            if (total === hi - lo + 1) break; // all chars in [lo, hi] accounted for
         }
 
-        if (total === right - left + 1) {
-            res.push(s.substring(left, right + 1));
-            queue = [];
+        if (total === hi - lo + 1) {
+            result.push(s.slice(lo, hi + 1));
+            pending = [];
         }
     }
 
-    return res;
+    return result;
 };

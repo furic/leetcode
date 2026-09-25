@@ -1,34 +1,41 @@
-function braceExpansionII(expression: string): string[] {
-    let i = 0;
-    const parse = (): Set<string> => {
-        const res = new Set<string>();
-        let cur = new Set<string>([""]);
-        while (i < expression.length && expression[i] !== '}') {
-            if (expression[i] === '{') {
-                i++;
-                const next = parse();
-                i++;
-                cur = product(cur, next);
-            } else if (expression[i] === ',') {
-                for (const s of cur) res.add(s);
-                cur = new Set<string>([""]);
-                i++;
-            } else {
-                const next = new Set<string>([expression[i]]);
-                i++;
-                cur = product(cur, next);
-            }
+const braceExpansionII = (expression: string): string[] => {
+    const ops: string[] = [];   // operator stack: '*' (concat), '+' (union), '{'
+    const sets: Set<string>[] = []; // operand stack
+
+    const apply = (): void => {
+        const right = sets.pop()!;
+        const left  = sets[sets.length - 1];
+        if (ops.pop() === '+') {
+            for (const s of right) left.add(s);
+        } else {
+            const product = new Set<string>();
+            for (const l of left) for (const r of right) product.add(l + r);
+            sets[sets.length - 1] = product;
         }
-        for (const s of cur) res.add(s);
-        return res;
     };
-    const product = (a: Set<string>, b: Set<string>): Set<string> => {
-        const res = new Set<string>();
-        for (const x of a)
-            for (const y of b)
-                res.add(x + y);
-        return res;
-    };
-    const result = parse();
-    return Array.from(result).sort();
-}
+
+    const needsConcat = (i: number) =>
+        i > 0 && (expression[i - 1] === '}' || /[a-z]/.test(expression[i - 1]));
+
+    for (let i = 0; i < expression.length; i++) {
+        const ch = expression[i];
+
+        if (ch === ',') {
+            while (ops.at(-1) === '*') apply(); // flush pending concats before union
+            ops.push('+');
+        } else if (ch === '{') {
+            if (needsConcat(i)) ops.push('*');
+            ops.push('{');
+        } else if (ch === '}') {
+            while (ops.at(-1) !== '{') apply();
+            ops.pop(); // discard '{'
+        } else {
+            if (needsConcat(i)) ops.push('*');
+            sets.push(new Set([ch]));
+        }
+    }
+
+    while (ops.length) apply();
+
+    return [...sets[0]].sort();
+};

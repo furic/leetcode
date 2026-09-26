@@ -1,18 +1,19 @@
-function evaluate(s: string, knowledge: string[][]): string {
-    const mp = new Map<string, string>();
-    for (const [k, v] of knowledge) mp.set(k, v);
-    let res = "";
-    const n = s.length;
-    for (let i = 0; i < n; ) {
-        if (s[i] === '(') {
-            let j = i + 1;
-            while (s[j] !== ')') ++j;
-            const key = s.substring(i + 1, j);
-            res += mp.has(key) ? mp.get(key)! : "?";
-            i = j + 1;
+const evaluate = (s: string, knowledge: string[][]): string => {
+    const lookup = new Map<string, string>(knowledge as [string, string][]);
+    let result = '';
+    let i = 0;
+
+    while (i < s.length) {
+        if (s[i] !== '(') {
+            result += s[i++];
         } else {
-            res += s[i++];
+            i++; // skip '('
+            let key = '';
+            while (s[i] !== ')') key += s[i++];
+            i++; // skip ')'
+            result += lookup.get(key) ?? '?';
         }
     }
-    return res;
+
+    return result;
 };

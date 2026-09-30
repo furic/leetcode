@@ -1,14 +1,8 @@
-function maxDepthAfterSplit(seq: string): number[] {
-    const ans: number[] = new Array(seq.length);
+const maxDepthAfterSplit = (seq: string): number[] => {
+    // Alternate groups by nesting depth parity: even depth opens go to A, odd to B (and vice versa on close)
     let depth = 0;
-    for (let i = 0; i < seq.length; ++i) {
-        if (seq[i] === '(') {
-            ++depth;
-            ans[i] = depth % 2;
-        } else {
-            ans[i] = depth % 2;
-            --depth;
-        }
-    }
-    return ans;
+    return [...seq].map(ch => {
+        if (ch === '(') return depth++ & 1;
+        return --depth & 1;
+    });
 };

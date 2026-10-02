@@ -1,20 +1,16 @@
-function generateParenthesis(n: number): string[] {
-    const allCombos: string[] = []
+const generateParenthesis = (n: number): string[] => {
+    const results: string[] = [];
 
-    function dfs(open: number, close: number, str: string) {
-        if (str.length === n * 2) {
-            allCombos.push(str)
+    const dfs = (openCount: number, closeCount: number, current: string): void => {
+        if (current.length === n * 2) {
+            results.push(current);
+            return;
         }
 
-        if (open > close) {
-            dfs(open, close + 1, str + ')')
-        }
+        if (openCount < n)            dfs(openCount + 1, closeCount, current + '(');
+        if (openCount > closeCount)   dfs(openCount, closeCount + 1, current + ')');
+    };
 
-        if (open < n) {
-            dfs(open + 1, close, str + '(')
-        }
-    }
-    dfs(0, 0, '')
-
-    return allCombos
+    dfs(0, 0, '');
+    return results;
 };

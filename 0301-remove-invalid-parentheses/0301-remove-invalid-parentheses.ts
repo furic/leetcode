@@ -1,41 +1,36 @@
-/** How much does this character add to the balance? */
-const balanceOf = (ch: string): number =>
-    ch === '(' ? 1 : ch === ')' ? -1 : 0;
-
 const removeInvalidParentheses = (s: string): string[] => {
-    const n = s.length;
+    const results: string[] = [];
 
-    // remainingClose[i] = count of ')' in s[i..n-1]
-    const remainingClose = new Int8Array(n + 1);
-    for (let i = n - 1; i >= 0; i--)
-        remainingClose[i] = Number(s[i] === ')') + remainingClose[i + 1];
+    // Removes one excess 'open' char, scanning from index i, trying removals from index j onward.
+    // Handles one direction (left-to-right for '(', then reversed for ')').
+    const remove = (str: string, startScan: number, startRemove: number, open: string, close: string): void => {
+        let balance = 0;
 
-    const seen = new Set<string>();
-    let minRemovals = n;
-    let answers: string[] = [];
+        for (let k = startScan; k < str.length; k++) {
+            if (str[k] === open) balance++;
+            if (str[k] === close) balance--;
 
-    const backtrack = (i: number, balance: number, removals: number, prefix: string): void => {
-        // Prune: balance can never recover if it exceeds remaining ')' count, or too many removed already
-        if (balance < 0 || balance > remainingClose[i] || removals > minRemovals) return;
-
-        const key = `${i}-${balance}-${removals}-${prefix}`;
-        if (seen.has(key)) return;
-        seen.add(key);
-
-        if (i === n) {
-            if (balance !== 0) return;
-            if (removals === minRemovals) answers.push(prefix);
-            else if (removals < minRemovals) { minRemovals = removals; answers = [prefix]; }
-            return;
+            if (balance < 0) {
+                // Try removing each distinct run of `close` chars in [startRemove, k]
+                for (let x = startRemove; x <= k; x++) {
+                    if (str[x] === close && (x === startRemove || str[x - 1] !== close)) {
+                        remove(str.slice(0, x) + str.slice(x + 1), k, x, open, close);
+                    }
+                }
+                return;
+            }
         }
 
-        // Keep s[i]
-        backtrack(i + 1, balance + balanceOf(s[i]), removals, prefix + s[i]);
+        const reversed = [...str].reverse().join('');
 
-        // Remove s[i], only valid for parentheses
-        if (balanceOf(s[i]) !== 0) backtrack(i + 1, balance, removals + 1, prefix);
+        if (open === '(') {
+            // First pass done (removed excess ')'); now reverse and remove excess '(' (which look like ')' reversed)
+            remove(reversed, 0, 0, ')', '(');
+        } else {
+            results.push(reversed);
+        }
     };
 
-    backtrack(0, 0, 0, '');
-    return answers;
+    remove(s, 0, 0, '(', ')');
+    return results;
 };

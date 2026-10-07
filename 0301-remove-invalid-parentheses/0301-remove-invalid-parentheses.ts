@@ -1,46 +1,41 @@
-function removeInvalidParentheses(s: string): string[] {
-    const ans: string[] = [];
+/** How much does this character add to the balance? */
+const balanceOf = (ch: string): number =>
+    ch === '(' ? 1 : ch === ')' ? -1 : 0;
 
-    const remove = (s: string, i: number, j: number, p: string[]): void => {
-        let count = 0;
+const removeInvalidParentheses = (s: string): string[] => {
+    const n = s.length;
 
-        for (let k = i; k < s.length; k++) {
-            if (s[k] === p[0])
-                count++;
+    // remainingClose[i] = count of ')' in s[i..n-1]
+    const remainingClose = new Int8Array(n + 1);
+    for (let i = n - 1; i >= 0; i--)
+        remainingClose[i] = Number(s[i] === ')') + remainingClose[i + 1];
 
-            if (s[k] === p[1])
-                count--;
+    const seen = new Set<string>();
+    let minRemovals = n;
+    let answers: string[] = [];
 
-            if (count < 0) {
-                for (let x = j; x <= k; x++) {
-                    if (
-                        s[x] === p[1] &&
-                        (x === j || s[x - 1] !== p[1])
-                    ) {
-                        remove(
-                            s.slice(0, x) + s.slice(x + 1),
-                            k,
-                            x,
-                            p
-                        );
-                    }
-                }
+    const backtrack = (i: number, balance: number, removals: number, prefix: string): void => {
+        // Prune: balance can never recover if it exceeds remaining ')' count, or too many removed already
+        if (balance < 0 || balance > remainingClose[i] || removals > minRemovals) return;
 
-                return;
-            }
+        const key = `${i}-${balance}-${removals}-${prefix}`;
+        if (seen.has(key)) return;
+        seen.add(key);
+
+        if (i === n) {
+            if (balance !== 0) return;
+            if (removals === minRemovals) answers.push(prefix);
+            else if (removals < minRemovals) { minRemovals = removals; answers = [prefix]; }
+            return;
         }
 
-        const rev = s.split("").reverse().join("");
+        // Keep s[i]
+        backtrack(i + 1, balance + balanceOf(s[i]), removals, prefix + s[i]);
 
-        if (p[0] === "(") {
-            remove(rev, 0, 0, [")", "("]);
-        }
-        else {
-            ans.push(rev);
-        }
+        // Remove s[i], only valid for parentheses
+        if (balanceOf(s[i]) !== 0) backtrack(i + 1, balance, removals + 1, prefix);
     };
 
-    remove(s, 0, 0, ["(", ")"]);
-
-    return ans;
+    backtrack(0, 0, 0, '');
+    return answers;
 };

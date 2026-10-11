@@ -1,16 +1,14 @@
-function lengthOfLongestSubstring(s: string): number {
-  if(!s.length) return 0
+const lengthOfLongestSubstring = (s: string): number => {
+    const lastSeen = new Int32Array(128).fill(-1);
+    let windowStart = 0;
+    let maxLen = 0;
 
-    let arr: number[] = new Array(128).fill(0);
-    let maxCount = 0;
-    let pointer = 0;
-
-    for(let i = 0; i < s.length; i++){
-        let char = s.charCodeAt(i);
-        pointer = Math.max(pointer, arr[char]);
-        maxCount = Math.max(maxCount, i - pointer + 1);
-        arr[char] = i + 1;
+    for (let i = 0; i < s.length; i++) {
+        const code = s.charCodeAt(i);
+        windowStart = Math.max(windowStart, lastSeen[code] + 1);
+        maxLen = Math.max(maxLen, i - windowStart + 1);
+        lastSeen[code] = i;
     }
 
-    return maxCount;
+    return maxLen;
 };

@@ -1,13 +1,14 @@
-function sumCounts(nums: number[]): number {
+const sumCounts = (nums: number[]): number => {
     const n = nums.length;
-    let res = 0;
-    for (let i = 0; i < n; i++) {
-        const s = new Set<number>();
-        for (let j = i; j < n; j++) {
-            s.add(nums[j]);
-            const d = s.size;
-            res += d * d;
+    let total = 0;
+
+    for (let start = 0; start < n; start++) {
+        const seen = new Set<number>();
+        for (let end = start; end < n; end++) {
+            seen.add(nums[end]);
+            total += seen.size * seen.size;
         }
     }
-    return res;
+
+    return total;
 };

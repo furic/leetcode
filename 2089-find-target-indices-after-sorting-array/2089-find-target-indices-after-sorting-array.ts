@@ -1,12 +1,14 @@
-function targetIndices(nums: number[], target: number): number[] {
-    let less = 0, equal = 0;
-    for (const x of nums) {
-        if (x < target) less++;
-        else if (x === target) equal++;
+const targetIndices = (nums: number[], target: number): number[] => {
+    let lessCount = 0, equalCount = 0;
+
+    for (const num of nums) {
+        if (num < target) lessCount++;
+        else if (num === target) equalCount++;
     }
-    const ans: number[] = [];
-    for (let i = 0; i < equal; i++) {
-        ans.push(less + i);
-    }
-    return ans;
+
+    // After sorting, the target values occupy [lessCount, lessCount + equalCount)
+    const result: number[] = [];
+    for (let i = 0; i < equalCount; i++) result.push(lessCount + i);
+
+    return result;
 };

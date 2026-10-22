@@ -1,17 +1,30 @@
-function minOperations(A: number[]): number {
-    const n = A.length;
-    let asc = 1, dsc = 1;
+const minOperations = (nums: number[]): number => {
+    const n = nums.length;
+    if (n <= 1) return 0;
 
-    for (let i = 1; i < n; i++) {
-        asc += +(A[i] === (A[i - 1] + 1) % n);
-        dsc += +(A[i - 1] === (A[i] + 1) % n);
+    let minOps = Infinity;
+
+    // Case A: nums is sorted [0..n-1] rotated left by `shift`, where shift = nums[0].
+    // Undo it with (n - shift) left rotations, or reverse, rotate, reverse for (shift + 2).
+    let isRotatedSorted = true;
+    for (let i = 0; i < n; i++) {
+        if (nums[i] !== (nums[0] + i) % n) { isRotatedSorted = false; break; }
+    }
+    if (isRotatedSorted) {
+        const shift = nums[0];
+        minOps = shift === 0 ? 0 : Math.min(n - shift, shift + 2);
     }
 
-    if (asc === n)
-        return A[0] ? Math.min(n - A[0], A[0] + 2) : 0;
+    // Case B: nums is reversed-sorted [n-1..0] rotated left by `shift`, where nums[0] = n - 1 - shift.
+    // One reverse plus the cheaper rotation direction.
+    let isRotatedReversed = true;
+    for (let i = 0; i < n; i++) {
+        if (nums[i] !== ((nums[0] - i) % n + n) % n) { isRotatedReversed = false; break; }
+    }
+    if (isRotatedReversed) {
+        const shift = n - 1 - nums[0];
+        minOps = Math.min(minOps, Math.min(shift, n - shift) + 1);
+    }
 
-    if (dsc === n)
-        return Math.min(n - A.at(-1), A.at(-1)) + 1;
-
-    return -1;
-}
+    return minOps === Infinity ? -1 : minOps;
+};

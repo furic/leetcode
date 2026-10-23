@@ -1,10 +1,8 @@
-<h2><a href="https://leetcode.com/problems/maximum-k-to-sort-a-permutation">3644. Maximum K to Sort a Permutation</a></h2><h3>Medium</h3><hr><p>You are given an integer array <code>nums</code> of length <code>n</code>, where <code>nums</code> is a <strong>permutation</strong> of the numbers in the range <code>[0..n - 1]</code>.</p>
+<h2><a href="https://leetcode.com/problems/maximum-k-to-sort-a-permutation">3644. Maximum K to Sort a Permutation</a></h2><h3>Medium</h3><hr><p>You are given an integer array <code>nums</code> of length <code>n</code>, where <code>nums</code> is a <strong><span data-keyword="permutation-array">permutation</span></strong> of the numbers in the range <code>[0..n - 1]</code>.</p>
 
 <p>You may swap elements at indices <code>i</code> and <code>j</code> <strong>only if</strong> <code>nums[i] AND nums[j] == k</code>, where <code>AND</code> denotes the bitwise AND operation and <code>k</code> is a <strong>non-negative</strong> integer.</p>
 
 <p>Return the <strong>maximum</strong> value of <code>k</code> such that the array can be sorted in <strong>non-decreasing</strong> order using any number of such swaps. If <code>nums</code> is already sorted, return 0.</p>
-
-<p>A <strong>permutation</strong> is a rearrangement of all the elements of an array.</p>
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>

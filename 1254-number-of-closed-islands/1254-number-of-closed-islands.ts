@@ -1,14 +1,20 @@
-function closedIsland(grid: number[][]): number {
-    const m = grid.length, n = grid[0].length;
-    const closed = (i: number, j: number): number => {  // flood the island through (i, j); 1 if it never reaches the border
-        if (i < 0 || i >= m || j < 0 || j >= n) return 0;  // stepped off the grid: the island touches the border
-        if (grid[i][j]) return 1;  // water, or land we already flooded
-        grid[i][j] = 1;  // visited: turn it into water
-        return closed(i + 1, j) & closed(i - 1, j) & closed(i, j + 1) & closed(i, j - 1);  // & (not &&) floods all 4 sides
+const closedIsland = (grid: number[][]): number => {
+    const rows = grid.length, cols = grid[0].length;
+
+    // Floods the island through (r, c). Returns 1 if it never touches the border, else 0.
+    const isClosed = (r: number, c: number): number => {
+        if (r < 0 || r >= rows || c < 0 || c >= cols) return 0; // stepped off the grid: touches the border
+        if (grid[r][c]) return 1;                                // water, or land already flooded
+        grid[r][c] = 1;                                          // mark visited by turning it into water
+
+        // Bitwise & (not &&) so all four sides are always flooded, even after one returns 0
+        return isClosed(r + 1, c) & isClosed(r - 1, c) & isClosed(r, c + 1) & isClosed(r, c - 1);
     };
+
     let count = 0;
-    for (let i = 0; i < m; i++)
-        for (let j = 0; j < n; j++)
-            if (!grid[i][j]) count += closed(i, j);
+    for (let r = 0; r < rows; r++)
+        for (let c = 0; c < cols; c++)
+            if (!grid[r][c]) count += isClosed(r, c);
+
     return count;
-}
+};

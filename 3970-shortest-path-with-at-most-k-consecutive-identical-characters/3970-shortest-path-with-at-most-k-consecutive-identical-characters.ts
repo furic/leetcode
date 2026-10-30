@@ -1,76 +1,91 @@
-function shortestPath(n: number, edges: number[][], labels: string, k: number): number {
-  const drelvanito = { n, edges, labels, k };
-  const head = new Int32Array(drelvanito.n);
-  head.fill(-1);
-  const to = new Int32Array(drelvanito.edges.length);
-  const weight = new Int32Array(drelvanito.edges.length);
-  const nextEdge = new Int32Array(drelvanito.edges.length);
-  for (let i = 0; i < drelvanito.edges.length; i++) {
-    const [from, target, cost] = drelvanito.edges[i];
-    to[i] = target;
-    weight[i] = cost;
-    nextEdge[i] = head[from];
-    head[from] = i;
-  }
-  const labelCodes = new Uint16Array(drelvanito.n);
-  for (let i = 0; i < drelvanito.n; i++) labelCodes[i] = drelvanito.labels.charCodeAt(i);
-  const stride = drelvanito.k + 1;
-  const distance = new Float64Array(drelvanito.n * stride);
-  distance.fill(Infinity);
-  const heapCapacity = drelvanito.edges.length * drelvanito.k + 1;
-  const heapDistance = new Float64Array(heapCapacity);
-  const heapState = new Int32Array(heapCapacity);
-  let heapSize = 0;
-  const startState = 1;
-  distance[startState] = 0;
-  heapDistance[heapSize] = 0;
-  heapState[heapSize++] = startState;
-  while (heapSize > 0) {
-    const currentDistance = heapDistance[0];
-    const state = heapState[0];
-    const lastIndex = --heapSize;
-    if (lastIndex > 0) {
-      const lastDistance = heapDistance[lastIndex];
-      const lastState = heapState[lastIndex];
-      let index = 0;
-      while (true) {
-        const left = index * 2 + 1;
-        if (left >= heapSize) break;
-        let child = left;
-        const right = left + 1;
-        if (right < heapSize && heapDistance[right] < heapDistance[left]) child = right;
-        if (heapDistance[child] >= lastDistance) break;
-        heapDistance[index] = heapDistance[child];
-        heapState[index] = heapState[child];
-        index = child;
-      }
-      heapDistance[index] = lastDistance;
-      heapState[index] = lastState;
+const shortestPath = (n: number, edges: number[][], labels: string, k: number): number => {
+    const edgeCount = edges.length;
+
+    // Adjacency list as linked arrays: firstEdge[node] -> nextEdge[e] -> ...
+    const firstEdge = new Int32Array(n).fill(-1);
+    const edgeTarget = new Int32Array(edgeCount);
+    const edgeWeight = new Int32Array(edgeCount);
+    const nextEdge = new Int32Array(edgeCount);
+    for (let i = 0; i < edgeCount; i++) {
+        const [from, target, cost] = edges[i];
+        edgeTarget[i] = target;
+        edgeWeight[i] = cost;
+        nextEdge[i] = firstEdge[from];
+        firstEdge[from] = i;
     }
-    if (currentDistance !== distance[state]) continue;
-    const node = (state / stride) | 0;
-    const runLength = state - node * stride;
-    if (node === drelvanito.n - 1) return currentDistance;
-    for (let edge = head[node]; edge !== -1; edge = nextEdge[edge]) {
-      const target = to[edge];
-      const nextRun = labelCodes[node] === labelCodes[target] ? runLength + 1 : 1;
-      if (nextRun > drelvanito.k) continue;
-      const nextState = target * stride + nextRun;
-      const nextDistance = currentDistance + weight[edge];
-      if (nextDistance < distance[nextState]) {
-        distance[nextState] = nextDistance;
-        let index = heapSize++;
-        while (index > 0) {
-          const parent = (index - 1) >> 1;
-          if (heapDistance[parent] <= nextDistance) break;
-          heapDistance[index] = heapDistance[parent];
-          heapState[index] = heapState[parent];
-          index = parent;
+
+    const labelCodes = new Uint16Array(n);
+    for (let i = 0; i < n; i++) labelCodes[i] = labels.charCodeAt(i);
+
+    // State = (node, current run length of identical labels), packed as node * stride + runLength
+    const stride = k + 1;
+    const bestDistance = new Float64Array(n * stride).fill(Infinity);
+
+    // Binary min-heap keyed by distance, stored as two parallel typed arrays
+    const heapCapacity = edgeCount * k + 1;
+    const heapDistance = new Float64Array(heapCapacity);
+    const heapState = new Int32Array(heapCapacity);
+    let heapSize = 0;
+
+    const startState = 1; // node 0, run length 1
+    bestDistance[startState] = 0;
+    heapDistance[heapSize] = 0;
+    heapState[heapSize++] = startState;
+
+    while (heapSize > 0) {
+        // Pop the minimum, then sift the last element down from the root
+        const currentDistance = heapDistance[0];
+        const state = heapState[0];
+        const lastIdx = --heapSize;
+        if (lastIdx > 0) {
+            const lastDistance = heapDistance[lastIdx];
+            const lastState = heapState[lastIdx];
+            let index = 0;
+            while (true) {
+                const leftChild = index * 2 + 1;
+                if (leftChild >= heapSize) break;
+                let child = leftChild;
+                const rightChild = leftChild + 1;
+                if (rightChild < heapSize && heapDistance[rightChild] < heapDistance[leftChild]) child = rightChild;
+                if (heapDistance[child] >= lastDistance) break;
+                heapDistance[index] = heapDistance[child];
+                heapState[index] = heapState[child];
+                index = child;
+            }
+            heapDistance[index] = lastDistance;
+            heapState[index] = lastState;
         }
-        heapDistance[index] = nextDistance;
-        heapState[index] = nextState;
-      }
+
+        if (currentDistance !== bestDistance[state]) continue; // stale heap entry
+
+        const node = (state / stride) | 0;
+        const runLength = state - node * stride;
+        if (node === n - 1) return currentDistance;
+
+        for (let edge = firstEdge[node]; edge !== -1; edge = nextEdge[edge]) {
+            const target = edgeTarget[edge];
+            const nextRun = labelCodes[node] === labelCodes[target] ? runLength + 1 : 1;
+            if (nextRun > k) continue;
+
+            const nextState = target * stride + nextRun;
+            const nextDistance = currentDistance + edgeWeight[edge];
+            if (nextDistance < bestDistance[nextState]) {
+                bestDistance[nextState] = nextDistance;
+
+                // Push: sift the new entry up from the bottom
+                let index = heapSize++;
+                while (index > 0) {
+                    const parent = (index - 1) >> 1;
+                    if (heapDistance[parent] <= nextDistance) break;
+                    heapDistance[index] = heapDistance[parent];
+                    heapState[index] = heapState[parent];
+                    index = parent;
+                }
+                heapDistance[index] = nextDistance;
+                heapState[index] = nextState;
+            }
+        }
     }
-  }
-  return -1;
-}
+
+    return -1;
+};

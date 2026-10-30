@@ -1,64 +1,76 @@
 function shortestPath(n: number, edges: number[][], labels: string, k: number): number {
-    const g: [number, number][][] = Array.from({length: n}, () => []);
-    for (const [u, v, w] of edges) {
-        g[u].push([v, w]);
+  const drelvanito = { n, edges, labels, k };
+  const head = new Int32Array(drelvanito.n);
+  head.fill(-1);
+  const to = new Int32Array(drelvanito.edges.length);
+  const weight = new Int32Array(drelvanito.edges.length);
+  const nextEdge = new Int32Array(drelvanito.edges.length);
+  for (let i = 0; i < drelvanito.edges.length; i++) {
+    const [from, target, cost] = drelvanito.edges[i];
+    to[i] = target;
+    weight[i] = cost;
+    nextEdge[i] = head[from];
+    head[from] = i;
+  }
+  const labelCodes = new Uint16Array(drelvanito.n);
+  for (let i = 0; i < drelvanito.n; i++) labelCodes[i] = drelvanito.labels.charCodeAt(i);
+  const stride = drelvanito.k + 1;
+  const distance = new Float64Array(drelvanito.n * stride);
+  distance.fill(Infinity);
+  const heapCapacity = drelvanito.edges.length * drelvanito.k + 1;
+  const heapDistance = new Float64Array(heapCapacity);
+  const heapState = new Int32Array(heapCapacity);
+  let heapSize = 0;
+  const startState = 1;
+  distance[startState] = 0;
+  heapDistance[heapSize] = 0;
+  heapState[heapSize++] = startState;
+  while (heapSize > 0) {
+    const currentDistance = heapDistance[0];
+    const state = heapState[0];
+    const lastIndex = --heapSize;
+    if (lastIndex > 0) {
+      const lastDistance = heapDistance[lastIndex];
+      const lastState = heapState[lastIndex];
+      let index = 0;
+      while (true) {
+        const left = index * 2 + 1;
+        if (left >= heapSize) break;
+        let child = left;
+        const right = left + 1;
+        if (right < heapSize && heapDistance[right] < heapDistance[left]) child = right;
+        if (heapDistance[child] >= lastDistance) break;
+        heapDistance[index] = heapDistance[child];
+        heapState[index] = heapState[child];
+        index = child;
+      }
+      heapDistance[index] = lastDistance;
+      heapState[index] = lastState;
     }
-    const INF = 1e9;
-    const dist: number[][] = Array.from({length: n}, () => Array(k + 1).fill(INF));
-    class MinHeap {
-        a: [number, number, number][] = [];
-        push(x: [number, number, number]) {
-            this.a.push(x);
-            this._up(this.a.length - 1);
+    if (currentDistance !== distance[state]) continue;
+    const node = (state / stride) | 0;
+    const runLength = state - node * stride;
+    if (node === drelvanito.n - 1) return currentDistance;
+    for (let edge = head[node]; edge !== -1; edge = nextEdge[edge]) {
+      const target = to[edge];
+      const nextRun = labelCodes[node] === labelCodes[target] ? runLength + 1 : 1;
+      if (nextRun > drelvanito.k) continue;
+      const nextState = target * stride + nextRun;
+      const nextDistance = currentDistance + weight[edge];
+      if (nextDistance < distance[nextState]) {
+        distance[nextState] = nextDistance;
+        let index = heapSize++;
+        while (index > 0) {
+          const parent = (index - 1) >> 1;
+          if (heapDistance[parent] <= nextDistance) break;
+          heapDistance[index] = heapDistance[parent];
+          heapState[index] = heapState[parent];
+          index = parent;
         }
-        pop(): [number, number, number] {
-            const top = this.a[0];
-            const last = this.a.pop()!;
-            if (this.a.length) {
-                this.a[0] = last;
-                this._down(0);
-            }
-            return top;
-        }
-        get size() {
-            return this.a.length;
-        }
-        _up(i: number) {
-            while (i > 0) {
-                const p = (i - 1) >> 1;
-                if (this.a[p][0] <= this.a[i][0]) break;
-                [this.a[p], this.a[i]] = [this.a[i], this.a[p]];
-                i = p;
-            }
-        }
-        _down(i: number) {
-            const n = this.a.length;
-            while (true) {
-                let s = i;
-                const l = i * 2 + 1, r = l + 1;
-                if (l < n && this.a[l][0] < this.a[s][0]) s = l;
-                if (r < n && this.a[r][0] < this.a[s][0]) s = r;
-                if (s === i) break;
-                [this.a[s], this.a[i]] = [this.a[i], this.a[s]];
-                i = s;
-            }
-        }
+        heapDistance[index] = nextDistance;
+        heapState[index] = nextState;
+      }
     }
-    const pq = new MinHeap();
-    dist[0][1] = 0;
-    pq.push([0, 0, 1]);
-    while (pq.size) {
-        const [d, u, cnt] = pq.pop();
-        if (d > dist[u][cnt]) continue;
-        if (u === n - 1) return d;
-        for (const [v, w] of g[u]) {
-            const ncnt = labels[u] === labels[v] ? cnt + 1 : 1;
-            if (ncnt > k) continue;
-            if (d + w < dist[v][ncnt]) {
-                dist[v][ncnt] = d + w;
-                pq.push([dist[v][ncnt], v, ncnt]);
-            }
-        }
-    }
-    return -1;
+  }
+  return -1;
 }

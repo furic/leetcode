@@ -1,4 +1,4 @@
-# Rolling Arrival-Direction Count DP | 21 Lines | O(m×n) | 72ms
+# Rolling Arrival-Direction Count DP | 21 Lines | O(m×n) | 69ms
 
 # Intuition
 A mirror only changes a robot's direction, so what matters at each cell is how the robot arrived: moving down or moving right. A robot that enters a mirror moving right continues down, and one that enters moving down continues right. Counting arrivals per direction lets the mirror rule become a simple transition, with no need to simulate the chain of reflections.

@@ -1,6 +1,10 @@
-function minMoves(nums: number[]): number {
-    const lo = Math.min(...nums);
+const minMoves = (nums: number[]): number => {
+    // Incrementing n-1 elements is the same as decrementing one element,
+    // so every element has to come down to the minimum
+    const minVal = Math.min(...nums);
+
     let moves = 0;
-    for (let i = 0; i < nums.length; i++) moves += nums[i] - lo;
+    for (const num of nums) moves += num - minVal;
+
     return moves;
-}
+};

@@ -1,23 +1,16 @@
-function findTheDistanceValue(
-  arr1: number[],
-  arr2: number[],
-  d: number,
-): number {
-  let count = 0;
-  for (let i = 0; i < arr1.length; i++) {
-    const ele1 = arr1[i];
-    let isValid = true;
-    for (let j = 0; j < arr2.length; j++) {
-      const ele2 = arr2[j];
-      if (Math.abs(ele1 - ele2) <= d) {
-        isValid = false;
-        break;
-      }
-    }
-    if (isValid) {
-      count++;
-    }
-  }
+const findTheDistanceValue = (arr1: number[], arr2: number[], d: number): number => {
+    let count = 0;
 
-  return count;
-}
+    for (const a of arr1) {
+        let isFarFromAll = true;
+        for (const b of arr2) {
+            if (Math.abs(a - b) <= d) {
+                isFarFromAll = false;
+                break;
+            }
+        }
+        if (isFarFromAll) count++;
+    }
+
+    return count;
+};

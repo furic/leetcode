@@ -1,19 +1,38 @@
-type Server = [at: number, weight: number, index: number];  // at: the second it frees up; 0 while free
+type Server = { weight: number; index: number; endTime: number };
 
-function assignTasks(servers: number[], tasks: number[]): number[] {
-    const order = (a: Server, b: Server) => a[0] - b[0] || a[1] - b[1] || a[2] - b[2];
-    const free = new PriorityQueue<Server>(order, servers.map((w, i): Server => [0, w, i]));  // 0 while free: by weight, then index
+const assignTasks = (servers: number[], tasks: number[]): number[] => {
+    // Free servers: smallest weight first, then smallest index
+    const freeServers = new Heap<Server>((a, b) =>
+        a.weight !== b.weight ? a.weight - b.weight : a.index - b.index
+    );
+    // Busy servers: earliest finish time first
+    const busyServers = new Heap<Server>((a, b) => a.endTime - b.endTime);
 
-    const ans: number[] = [], busy = new PriorityQueue<Server>(order);
-    for (const [s, t] of tasks.entries()) {
-        while (!busy.isEmpty() && busy.front()![0] <= s) {  // done by second s
-            const [, w, i] = busy.dequeue()!;
-            free.enqueue([0, w, i]);
-        }
-        const [at, w, i] = (free.isEmpty() ? busy : free).dequeue()!;  // none free: the first to finish takes it
-        busy.enqueue([Math.max(at, s) + t, w, i]);
-        ans.push(i);
+    for (let i = 0; i < servers.length; i++)
+        freeServers.push({ weight: servers[i], index: i, endTime: 0 });
+
+    const result: number[] = new Array(tasks.length).fill(0);
+    let time = 0;
+
+    for (let task = 0; task < tasks.length; task++) {
+        // Task `task` can't start before second `task`, but time may already be later
+        // if we had to wait for a server earlier
+        time = Math.max(time, task);
+
+        // No server is free and none finishes by `time`: jump to the earliest finish
+        if (freeServers.isEmpty() && busyServers.top()!.endTime > time)
+            time = busyServers.top()!.endTime;
+
+        // Release every server that has finished by `time`
+        while (!busyServers.isEmpty() && busyServers.top()!.endTime <= time)
+            freeServers.push(busyServers.pop()!);
+
+        // At least one server is free now, so assign the task
+        const server = freeServers.pop()!;
+        result[task] = server.index;
+        server.endTime = time + tasks[task];
+        busyServers.push(server);
     }
 
-    return ans;
-}
+    return result;
+};

@@ -1,9 +1,11 @@
-function longestMonotonicSubarray(nums: number[]): number {
-    let best = 1, up = 1, down = 1;
+const longestMonotonicSubarray = (nums: number[]): number => {
+    let maxLen = 1, increasing = 1, decreasing = 1;
+
     for (let i = 1; i < nums.length; i++) {
-        up = nums[i - 1] < nums[i] ? up + 1 : 1;  // increasing streak ending at nums[i]
-        down = nums[i - 1] > nums[i] ? down + 1 : 1;  // decreasing streak ending at nums[i]
-        best = Math.max(best, up, down);
+        increasing = nums[i - 1] < nums[i] ? increasing + 1 : 1; // strictly increasing run ending at i
+        decreasing = nums[i - 1] > nums[i] ? decreasing + 1 : 1; // strictly decreasing run ending at i
+        maxLen = Math.max(maxLen, increasing, decreasing);
     }
-    return best;
-}
+
+    return maxLen;
+};

@@ -1,15 +1,24 @@
-function minimizeSum(nums: number[]): number {
-    const small = [Infinity, Infinity, Infinity], neg = [Infinity, Infinity, Infinity];  // the 3 smallest values, and the 3 smallest negated ones: minus the 3 largest
-    for (const x of nums) {
-        keep(small, x);
-        keep(neg, -x);
-    }
-    return Math.min(-neg[0] - small[2], -neg[1] - small[1], -neg[2] - small[0]);
-}
+const keepSmallest3 = (smallest3: number[], value: number): void => {  // smallest3: the 3 smallest values so far, ascending
+    if (value >= smallest3[2]) return;
 
-function keep(three: number[], x: number): void {  // three: the 3 smallest values so far, ascending
-    if (x >= three[2]) return;
-    let i = 2;
-    for (; i > 0 && three[i - 1] > x; i--) three[i] = three[i - 1];
-    three[i] = x;
-}
+    let pos = 2;
+    for (; pos > 0 && smallest3[pos - 1] > value; pos--) smallest3[pos] = smallest3[pos - 1];
+    smallest3[pos] = value;
+};
+
+const minimizeSum = (nums: number[]): number => {
+    const lowest = [Infinity, Infinity, Infinity];          // the 3 smallest values
+    const negatedHighest = [Infinity, Infinity, Infinity];  // the 3 smallest of -x, i.e. the 3 largest values negated
+
+    for (const num of nums) {
+        keepSmallest3(lowest, num);
+        keepSmallest3(negatedHighest, -num);
+    }
+
+    const min1 = lowest[0], min2 = lowest[1], min3 = lowest[2];
+    const max1 = -negatedHighest[0], max2 = -negatedHighest[1], max3 = -negatedHighest[2];
+
+    // The low score can always become 0 (copy one value onto another), so only the max - min spread matters.
+    // Changing two elements removes two extremes: two largest, one of each, or two smallest.
+    return Math.min(max3 - min1, max2 - min2, max1 - min3);
+};
